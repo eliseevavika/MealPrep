@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,7 +16,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
+import com.example.mealprep.fill.out.recipe.card.RecipeCreationMain
 import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.ui.theme.MealPrepTheme
 import com.example.meaprep.R
 
 @Composable
@@ -40,12 +44,8 @@ fun BottomSheetContent() {
         BottomSheetListItem(
             icon = R.drawable.ic_add_new,
             title = "Create new recipe",
-            onItemClick = { title ->
-                Toast.makeText(
-                    context,
-                    title,
-                    Toast.LENGTH_SHORT
-                ).show()
+            onItemClick = {
+                context.startActivity(Intent(context, RecipeCreationMain::class.java))
             })
         BottomSheetListItem(
             icon = R.drawable.ic_attach_file,
