@@ -64,7 +64,8 @@ fun BottomNavigationBar(navController: NavController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
+                interactionSource = NoRippleInteractionSource()
             )
 
 

@@ -30,25 +30,10 @@ class RecipeCreationMain : ComponentActivity() {
 
             Scaffold(
                 topBar = { TopAppBar() },
-                content = { padding -> //
-                    Card(modifier = Modifier.fillMaxWidth(),  elevation = 0.dp ) {
-                        NavigationBarCreation(navController = navController)
-                    }
+                content = { padding ->
+
                     Box(modifier = Modifier.padding(padding)) {
-                        NavHost(
-                            navController = navController,
-                            startDestination = NavigationItemCreation.Intro.route
-                        ) {
-                            composable(NavigationItemCreation.Intro.route) {
-                               IntroCreationScreen(navController)
-                            }
-                            composable(NavigationItemCreation.Ingredients.route) {
-//                                HomeScreen(navController)
-                            }
-                            composable(NavigationItemCreation.Steps.route) {
-//                                HomeScreen(navController)
-                            }
-                        }
+                        TabScreen(navController = navController)
                     }
                 },
 
