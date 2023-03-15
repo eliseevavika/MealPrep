@@ -1,6 +1,9 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -9,7 +12,9 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -25,10 +30,14 @@ import com.example.mealprep.RecipesFeed
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import kotlinx.coroutines.launch
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroCreationScreen() {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp)) {
         Column() {
@@ -107,7 +116,41 @@ fun IntroCreationScreen() {
                     )
                 }
             }
-            RequestContentPermission()
+            Box(modifier = Modifier.size(360.dp, 220.dp)){
+                RequestContentPermission()
+            }
+            val descriptionState = remember { mutableStateOf(TextFieldValue()) }
+
+            Text(
+                text = "Description", fontFamily = fontFamilyForBodyB1,
+                fontSize = 20.sp,
+            )
+            TextField(
+                modifier  = Modifier.bringIntoViewRequester(bringIntoViewRequester).onFocusEvent { focusState ->
+                    if (focusState.isFocused) {
+                        coroutineScope.launch {
+                            bringIntoViewRequester.bringIntoView()
+                        }
+                    }
+                },
+                value = descriptionState.value,
+                textStyle = TextStyle(color = MealPrepColor.black),
+                onValueChange = { descriptionState.value = it },
+                maxLines = 4,
+
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = MealPrepColor.white,
+                    cursorColor = MealPrepColor.black,
+                    focusedIndicatorColor = MealPrepColor.black,
+                    unfocusedIndicatorColor = MealPrepColor.black,
+                    focusedLabelColor = MealPrepColor.grey_800,
+                    unfocusedLabelColor = MealPrepColor.grey_800
+                ),
+                placeholder = { Text(text = "Give your recipe a name") })
+
+
+
+
         }
 
 
