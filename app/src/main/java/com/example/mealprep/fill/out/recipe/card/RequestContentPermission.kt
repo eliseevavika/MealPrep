@@ -57,8 +57,8 @@ fun RequestContentPermission() {
                         bitmap = btm.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
-                            .size(350.dp, 200.dp)
-                            .padding(top = 16.dp, end = 16.dp, bottom = 16.dp)
+                            .fillMaxWidth().height(220.dp)
+                            .padding(top = 16.dp,  bottom = 16.dp)
                             .clip(
                                 RoundedCornerShape(16.dp)
                             )
@@ -92,7 +92,7 @@ fun RequestContentPermission() {
                     }
                     IconButton(modifier = Modifier
                         .constrainAs(edit) {
-                            end.linkTo(photo.end, margin = 16.dp)
+                            end.linkTo(photo.end)
                             bottom.linkTo(photo.bottom, margin = 16.dp)
                         }
                         .padding(16.dp)
@@ -133,8 +133,8 @@ fun RequestContentPermission() {
 private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
     Button(modifier = Modifier
         .fillMaxWidth()
-        .padding(top = 16.dp, end = 16.dp, bottom = 16.dp)
-        .height(100.dp),
+        .padding(top = 16.dp, bottom = 16.dp)
+        .height(220.dp),
         colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.grey_100),
         onClick = {
             launcher.launch("image/*")

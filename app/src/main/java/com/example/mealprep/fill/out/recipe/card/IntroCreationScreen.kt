@@ -1,18 +1,18 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
@@ -22,6 +22,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -39,8 +40,8 @@ fun IntroCreationScreen() {
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp)) {
-        Column() {
+    Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
+        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             val titleState = remember { mutableStateOf(TextFieldValue()) }
 
             Text(
@@ -50,7 +51,7 @@ fun IntroCreationScreen() {
             TextField(
                 value = titleState.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange = { titleState.value = it },
+                onValueChange = { if (it.text.length <= 100) titleState.value = it },
 
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
@@ -60,12 +61,17 @@ fun IntroCreationScreen() {
                     focusedLabelColor = MealPrepColor.grey_800,
                     unfocusedLabelColor = MealPrepColor.grey_800
                 ),
-                placeholder = { Text(text = "Give your recipe a name") })
+                placeholder = {
+                    Text(
+                        text = "Give your recipe a name",
+                        fontFamily = fontFamilyForBodyB2
+                    )
+                })
 
 
 
             Text(
-                modifier = Modifier.padding(top = 10.dp),
+                modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
                 text = "Cook time",
                 fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
@@ -77,14 +83,14 @@ fun IntroCreationScreen() {
             val hoursState = remember { mutableStateOf(TextFieldValue()) }
             val minutesState = remember { mutableStateOf(TextFieldValue()) }
             Row() {
-                Box(modifier = Modifier.width(120.dp)) {
+                Box(modifier = Modifier.width(120.dp).padding(end = 10.dp)) {
                     OutlinedTextField(
                         value = hoursState.value,
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
                             if (it.text.length <= maxCharHours) hoursState.value = it
                         },
-                        label = { Text("hours") },
+                        label = { Text("hours", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.textFieldColors(
                             backgroundColor = MealPrepColor.white,
@@ -103,7 +109,7 @@ fun IntroCreationScreen() {
                         onValueChange = {
                             if (it.text.length <= maxCharMinutes) minutesState.value = it
                         },
-                        label = { Text("minutes") },
+                        label = { Text("minutes", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.textFieldColors(
                             backgroundColor = MealPrepColor.white,
@@ -116,7 +122,7 @@ fun IntroCreationScreen() {
                     )
                 }
             }
-            Box(modifier = Modifier.size(360.dp, 220.dp)){
+            Box(modifier = Modifier.fillMaxWidth().height(240.dp)) {
                 RequestContentPermission()
             }
             val descriptionState = remember { mutableStateOf(TextFieldValue()) }
@@ -126,18 +132,18 @@ fun IntroCreationScreen() {
                 fontSize = 20.sp,
             )
             TextField(
-                modifier  = Modifier.bringIntoViewRequester(bringIntoViewRequester).onFocusEvent { focusState ->
-                    if (focusState.isFocused) {
-                        coroutineScope.launch {
-                            bringIntoViewRequester.bringIntoView()
+                modifier = Modifier
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .onFocusEvent { focusState ->
+                        if (focusState.isFocused) {
+                            coroutineScope.launch {
+                                bringIntoViewRequester.bringIntoView()
+                            }
                         }
-                    }
-                },
+                    },
                 value = descriptionState.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange = { descriptionState.value = it },
-                maxLines = 4,
-
+                onValueChange = { if (it.text.length <= 300) descriptionState.value = it },
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
                     cursorColor = MealPrepColor.black,
@@ -146,16 +152,50 @@ fun IntroCreationScreen() {
                     focusedLabelColor = MealPrepColor.grey_800,
                     unfocusedLabelColor = MealPrepColor.grey_800
                 ),
-                placeholder = { Text(text = "Give your recipe a name") })
+                placeholder = {
+                    Text(
+                        text = "Give your recipe a name",
+                        fontFamily = fontFamilyForBodyB2
+                    )
+                })
 
 
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 16.dp),
+                text = "Category", fontFamily = fontFamilyForBodyB1,
+                fontSize = 20.sp,
+            )
+
+            var selectedCategoryIndex by remember { mutableStateOf(-1) }
+            CategoryDropdownMenu(
+                placeholder = "Select a category",
+                items = listOf("Main dishes", "Pastry", "Others"),
+                selectedIndex = selectedCategoryIndex,
+                onItemSelected = { index, _ -> selectedCategoryIndex = index },
+            )
+
+            Text(
+                modifier = Modifier
+                    .padding(top = 16.dp, bottom = 16.dp),
+                text = "Serve",
+                fontFamily = fontFamilyForBodyB1,
+                fontSize = 20.sp,
+            )
+
+            var selectedServesIndex by remember { mutableStateOf(-1) }
+            CategoryDropdownMenu(
+                placeholder = "Select number of servings",
+                items = listOf("1", "2", "4", "6", "8"),
+                selectedIndex = selectedServesIndex,
+                onItemSelected = { index, _ -> selectedServesIndex = index },
+            )
+
+            Spacer(modifier = Modifier.padding(vertical = 50.dp))
 
 
         }
-
-
     }
-
 }
 
 
