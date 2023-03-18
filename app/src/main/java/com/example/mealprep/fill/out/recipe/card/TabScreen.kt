@@ -80,8 +80,8 @@ fun TabScreen(navController: NavController) {
         }
         when (tabIndex) {
             0 -> IntroCreationScreen()
-            1 -> IntroCreationScreen()
-            2 -> IntroCreationScreen()
+            1 -> IngredientsCreationScreen()
+            2 -> StepsCreationScreen()
         }
     }
 }

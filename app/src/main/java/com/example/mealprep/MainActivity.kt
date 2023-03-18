@@ -70,13 +70,13 @@ class MainActivity : ComponentActivity() {
                                         HomeScreen(navController)
                                     }
                                     composable(MealPrep.route) {
-                                        HomeScreen(navController)
+//                                        HomeScreen(navController)
                                     }
                                     composable(Groceries.route) {
-                                        HomeScreen(navController)
+//                                        HomeScreen(navController)
                                     }
                                     composable(Settings.route) {
-                                        HomeScreen(navController)
+//                                        HomeScreen(navController)
                                     }
                                     composable(
                                         DishDetails.route + "/{${DishDetails.argDishId}}",
