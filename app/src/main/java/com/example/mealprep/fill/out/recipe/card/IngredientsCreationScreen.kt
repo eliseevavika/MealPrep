@@ -5,5 +5,5 @@ import androidx.compose.runtime.Composable
 @Composable
 fun IngredientsCreationScreen() {
     ListIngredientsUpperPart()
-    SearchScreen(viewModel = SearchViewModel())
+    ListIngredientsScreen(viewModel = ListIngredientsViewModel())
 }
