@@ -1,13 +1,10 @@
 package com.example.mealprep.fill.out.recipe.card
 
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,25 +13,21 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.ExperimentalUnitApi
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import java.util.*
@@ -51,7 +44,7 @@ fun ListIngredientsScreen(
         Scaffold(
             topBar = { KeyboardHandlingDemo3(viewModel) },
             content = { padding ->
-                Box(modifier = Modifier.padding(padding)) {
+                Box(modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 30.dp, end = 10.dp )) {
                     IngredientsList(viewModel)
                 }
             }
@@ -65,115 +58,20 @@ private fun IngredientsList(
     viewModel: ListIngredientsViewModel
 ) {
     val ingredientsList = viewModel.list.observeAsState().value
+    val context = LocalContext.current
+//    val swipeAbleState = rememberSwipeableState(initialValue = 0)
 
-    LazyColumn{
 
+    LazyColumn {
         if (!ingredientsList.isNullOrEmpty()) {
             items(ingredientsList) { item ->
-                val dismissState = rememberDismissState(initialValue = DismissValue.Default)
-                if (dismissState.isDismissed(DismissDirection.EndToStart)) {
-                    viewModel.removeElement(item)
-                }
-
-                SwipeToDismiss(
-                    state = dismissState,
-                    directions = setOf(
-                        DismissDirection.EndToStart
-                    ),
-                    dismissThresholds = { direction ->
-                        FractionalThreshold(if (direction == DismissDirection.EndToStart) 0.1f else 0.05f)
-                    },
-                    background = {
-                        val color by animateColorAsState(
-                            when (dismissState.targetValue) {
-                                DismissValue.Default -> Color.White
-                                else -> Color.Red
-                            }
-                        )
-                        val alignment = Alignment.CenterEnd
-                        val icon = Icons.Default.Delete
-
-                        val scale by animateFloatAsState(
-                            if (dismissState.targetValue == DismissValue.Default) 0.75f else 1f
-                        )
-
-                        Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color)
-                                .padding(horizontal = Dp(20f)),
-                            contentAlignment = alignment
-                        ) {
-                            Icon(
-                                icon,
-                                contentDescription = "Delete Icon",
-                                modifier = Modifier.scale(scale)
-                            )
-                        }
-                    },
-                    dismissContent = {
-
-                        Card(
-                            elevation = animateDpAsState(
-                                if (dismissState.dismissDirection != null) 4.dp else 0.dp
-                            ).value,
-                        ) {
-                            setUpRow(viewModel, item)
-                        }
-                    }
-                )
-
-
+                SwipeAbleItemCell(viewModel, item)
             }
         }
+
     }
 }
 
-@ExperimentalUnitApi
-@Composable
-fun setUpRow(
-    viewModel: ListIngredientsViewModel,
-    item: Groceries
-
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-//            .fillMaxHeight()
-            .padding(20.dp),
-        horizontalArrangement = Arrangement.Start
-    ) {
-        IconButton(onClick = {
-            viewModel.removeElement(item)
-        }) {
-            Icon(
-
-                imageVector = Icons.Filled.Check,
-                contentDescription = "Select Item"
-            )
-        }
-
-//        Spacer(modifier = Modifier.width(width = 8.dp))
-//                    Text(
-//                        text = item.name,
-//                        style = MaterialTheme.typography.h6,
-//                        color = MaterialTheme.colors.onBackground,
-//                    )
-
-        Text(
-            text = item.amount,
-            fontFamily = fontFamilyForBodyB2,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.width(width = 8.dp))
-        Text(
-            text = item.name,
-            fontFamily = fontFamilyForBodyB2,
-            fontSize = 16.sp
-        )
-    }
-}
 
 @ExperimentalComposeUiApi
 @Composable
@@ -193,6 +91,7 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
     val setAmounts: Set<String> = setOf("lb", "kg", "g", "c", "count", "ml", "l", "oz")
 
     val kc = LocalSoftwareKeyboardController.current
+
     var input by remember { mutableStateOf("") }
     var resultNumber by remember { mutableStateOf("") }
     var resultAmount by remember { mutableStateOf("") }
@@ -285,6 +184,119 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
 
     }
 }
+
+@OptIn(ExperimentalUnitApi::class)
+@ExperimentalMaterialApi
+@Composable
+fun SwipeAbleItemCell(
+    viewModel: ListIngredientsViewModel,
+    item: Groceries
+) {
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+                .padding(end = 10.dp, top = 10.dp, start = 10.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .background(MaterialTheme.colors.background)
+                        .border(1.dp, MealPrepColor.grey_400)
+
+                ) {
+
+                    setUpRow(viewModel, item)
+                }
+
+            }
+        }
+
+
+@ExperimentalUnitApi
+@Composable
+fun setUpRow(
+    viewModel: ListIngredientsViewModel,
+    item: Groceries
+) {
+    Row(
+//        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .padding(start = 16.dp, end = 16.dp),
+
+        ) {
+        IngredientView(item)
+
+        EditDelete(viewModel, item)
+    }
+}
+@Composable
+fun IngredientView(item: Groceries) {
+    Row(modifier = Modifier.fillMaxHeight(),verticalAlignment = Alignment.CenterVertically,) {
+        Icon(
+            imageVector = Icons.Filled.Check,
+            contentDescription = "Select Item",
+            Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(width = 8.dp))
+
+        Text(
+            text = item.amount,
+            fontFamily = fontFamilyForBodyB2,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.width(width = 8.dp))
+        Text(
+            text = item.name,
+            fontFamily = fontFamilyForBodyB2,
+            fontSize = 16.sp
+        )
+    }
+}
+
+@Composable
+fun EditDelete(viewModel: ListIngredientsViewModel, item: Groceries) {
+    Row() {
+        IconButton(
+            onClick = {
+
+            },
+            modifier = Modifier
+                .size(25.dp)
+        ) {
+            Icon(
+                Icons.Filled.Edit,
+                contentDescription = "Edit",
+                tint = Color.Black
+            )
+        }
+
+        Spacer(modifier = Modifier.width(width = 16.dp))
+
+        IconButton(
+            onClick = {
+                viewModel.removeElement(item)
+            },
+            modifier = Modifier
+                .size(25.dp)
+        ) {
+            Icon(
+                Icons.Filled.Delete,
+                contentDescription = "Delete",
+                tint = Color.Black
+            )
+        }
+    }
+
+}
+
 
 
 
