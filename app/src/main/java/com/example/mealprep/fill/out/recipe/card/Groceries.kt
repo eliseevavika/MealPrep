@@ -4,8 +4,7 @@ import java.util.*
 
 data class Groceries(
     val id : Int,
-    val amount: String,
-    val name: String
+    var name: String
  )
 
 
