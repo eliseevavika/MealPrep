@@ -1,4 +1,8 @@
 package com.example.mealprep.fill.out.recipe.card
 
-class StepsCreationScreen {
+import androidx.compose.runtime.Composable
+
+@Composable
+fun StepsCreationScreen() {
+    ListStepsScreen(viewModel = StepsCreationViewModel())
 }
