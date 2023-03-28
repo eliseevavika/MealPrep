@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+
 interface Destinations {
     val route: String
 }
@@ -24,3 +25,4 @@ object DishDetails : Destinations {
     override val route = "menu"
     const val argDishId = "dishId"
 }
+

@@ -1,6 +1,5 @@
 package com.example.mealprep.fill.out.recipe.card
 
-
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -12,7 +11,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -27,15 +25,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mealprep.fill.out.recipe.card.creation.StepsCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 
-
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
-fun ListIngredientsScreen(
-    viewModel: ListIngredientsViewModel
+fun ListStepsScreen(
+    viewModel: StepsCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -74,7 +72,7 @@ fun ListIngredientsScreen(
 
                                     ) {
 
-                                        setUpRow(viewModel, item)
+                                        setUpInstructions(viewModel, item)
                                     }
 
                                 }
@@ -91,7 +89,7 @@ fun ListIngredientsScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
+fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
@@ -111,7 +109,6 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
         ) {
             Box(modifier = Modifier.width(280.dp)) {
                 TextField(
-
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
@@ -137,12 +134,14 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
                     ),
                     placeholder = {
                         Text(
-                            text = "Add one item or paste multiple",
+                            text = "Add cooking instruction",
                             fontFamily = fontFamilyForBodyB2,
                             fontSize = 16.sp
                         )
                     })
             }
+
+
             OutlinedButton(modifier = Modifier
                 .background(MealPrepColor.white)
                 .padding(start = 8.dp, top = 8.dp),
@@ -159,6 +158,7 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
                     fontSize = 16.sp,
                     color = MealPrepColor.black
                 )
+
             }
         }
     }
@@ -166,13 +166,12 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsViewModel) {
 
 @ExperimentalUnitApi
 @Composable
-fun setUpRow(
-    viewModel: ListIngredientsViewModel,
-    item: Groceries
+fun setUpInstructions(
+    viewModel: StepsCreationViewModel,
+    item: Steps
 ) {
     var input by remember { mutableStateOf(" ") }
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    Row(verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -193,24 +192,23 @@ fun setUpRow(
                 .weight(7f), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(id =  R.drawable.baseline_brightness_1_24),
+                painter = painterResource(id = R.drawable.baseline_brightness_1_24),
                 tint = MealPrepColor.orange,
-                contentDescription = "Icon Check",
+                contentDescription = "Icon",
                 modifier = Modifier.size(16.dp)
             )
-//            Spacer(modifier = Modifier.width(width = 8.dp))
 
-
-            TextField(keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done
-            ),
+            TextField(
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         callback()
                         input = " "
                     }
                 ),
-                value = if (input == " ") item.name else input,
+                value = if (input == " ") item.description else input,
 
                 onValueChange = {
                     input = it
@@ -245,8 +243,4 @@ fun setUpRow(
         }
     }
 }
-
-
-
-
 

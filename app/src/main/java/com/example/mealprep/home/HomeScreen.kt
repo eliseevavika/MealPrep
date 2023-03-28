@@ -1,33 +1,29 @@
 package com.example.littlelemon
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.mealprep.RecipesFeed
-import com.example.mealprep.TopAppBar
+import com.example.mealprep.TopAppBarHome
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val contextForToast = LocalContext.current.applicationContext
-
-
-    Column {
+    Scaffold(
+        topBar = {
+            TopAppBarHome()
+        },
+        content = { padding ->
+            Box(modifier = Modifier.padding(padding)) {
+                Column {
 
 //        UpperPanel()
-        RecipesFeed(navController, DishRepository.dishes)
-    }
+                    RecipesFeed(navController, DishRepository.dishes)
+                }
+
+            }
+        }
+    )
 }
-//@Composable
-//fun TopAppBar(scaffoldState: ScaffoldState? = null, scope: CoroutineScope? = null) {
-//    Row(horizontalArrangement = Arrangement.Center,
-//
-//        verticalAlignment = Alignment.CenterVertically) {
-//        Column() {
-//            IconButton(onClick = { /* doSomething() */ }) {
-//                Icon(Icons.Filled.ArrowBack, contentDescription = "Go back", Modifier.size(24.dp))
-//            }
-//        }
-//
-//    }
-//}

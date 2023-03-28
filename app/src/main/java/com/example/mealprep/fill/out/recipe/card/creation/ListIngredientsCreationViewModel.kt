@@ -1,12 +1,16 @@
-package com.example.mealprep.fill.out.recipe.card
+package com.example.mealprep.fill.out.recipe.card.creation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.example.mealprep.fill.out.recipe.card.Groceries
 
-class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>()
+
+class ListIngredientsCreationViewModel : ViewModel() {
+    private var _list = MutableLiveData<List<Groceries>>()
     private var _last_id: Int = -1
 
-    val list: LiveData<List<Steps>>
+    val list: LiveData<List<Groceries>>
         get() = _list
 
     fun performQuery(
@@ -14,9 +18,9 @@ class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>(
     ) {
         val id = _last_id + 1
         _last_id = id
-        val number = 1
+
         if (ingredientName.isNotEmpty()) {
-            val item = Steps(id, number, ingredientName)
+            val item = Groceries(id, ingredientName)
 
             _list.value = _list.value?.plus(item) ?: listOf(item)
         }
@@ -24,23 +28,24 @@ class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>(
 
 
     fun removeElement(
-        item: Steps
+        item: Groceries
     ) {
         _list.value = _list.value?.filter { it != item }
     }
 
 
     fun setName(
-        item: Steps,
+        item: Groceries,
         input: String
     ) {
-        val undatedItem = Steps(item.id, 1, input)
+        val undatedItem = Groceries(item.id, input)
 
         _list.value?.forEach { grocery ->
             if (grocery.id == item.id) {
-                grocery.description = undatedItem.description
+                grocery.name = undatedItem.name
             }
         }
 
     }
 }
+

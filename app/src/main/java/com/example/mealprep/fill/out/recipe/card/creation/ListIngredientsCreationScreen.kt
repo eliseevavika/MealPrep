@@ -1,5 +1,6 @@
 package com.example.mealprep.fill.out.recipe.card
 
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,9 +12,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.List
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -27,14 +26,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mealprep.fill.out.recipe.card.creation.ListIngredientsCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 
+
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
-fun ListStepsScreen(
-    viewModel: StepsCreationViewModel
+fun ListIngredientsCreationScreen(
+    viewModel: ListIngredientsCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -73,7 +74,7 @@ fun ListStepsScreen(
 
                                     ) {
 
-                                        setUpInstructions(viewModel, item)
+                                        setUpRow(viewModel, item)
                                     }
 
                                 }
@@ -90,7 +91,7 @@ fun ListStepsScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
+fun KeyboardHandlingDemo3(viewModel: ListIngredientsCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
@@ -110,6 +111,7 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
         ) {
             Box(modifier = Modifier.width(280.dp)) {
                 TextField(
+
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
@@ -141,8 +143,6 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
                         )
                     })
             }
-
-
             OutlinedButton(modifier = Modifier
                 .background(MealPrepColor.white)
                 .padding(start = 8.dp, top = 8.dp),
@@ -166,12 +166,13 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
 
 @ExperimentalUnitApi
 @Composable
-fun setUpInstructions(
-    viewModel: StepsCreationViewModel,
-    item: Steps
+fun setUpRow(
+    viewModel: ListIngredientsCreationViewModel,
+    item: Groceries
 ) {
     var input by remember { mutableStateOf(" ") }
-    Row(verticalAlignment = Alignment.CenterVertically,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -192,23 +193,24 @@ fun setUpInstructions(
                 .weight(7f), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.baseline_brightness_1_24),
+                painter = painterResource(id =  R.drawable.baseline_brightness_1_24),
                 tint = MealPrepColor.orange,
-                contentDescription = "Icon",
+                contentDescription = "Icon Check",
                 modifier = Modifier.size(16.dp)
             )
+//            Spacer(modifier = Modifier.width(width = 8.dp))
 
-            TextField(
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done
-                ),
+
+            TextField(keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done
+            ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         callback()
                         input = " "
                     }
                 ),
-                value = if (input == " ") item.description else input,
+                value = if (input == " ") item.name else input,
 
                 onValueChange = {
                     input = it
@@ -243,4 +245,8 @@ fun setUpInstructions(
         }
     }
 }
+
+
+
+
 
