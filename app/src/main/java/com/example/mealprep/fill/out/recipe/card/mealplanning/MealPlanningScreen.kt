@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.mealprep.MealPrepForSpecificDay
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -42,7 +43,7 @@ fun MealPlanningScreen(navController: NavHostController) {
     )
 
     var chosenDay by remember {
-        mutableStateOf("")
+        mutableStateOf(days[0])
     }
 
 
@@ -78,7 +79,7 @@ fun MealPlanningScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                BottomSheetContent(chosenDay)
+                BottomSheetContent(navController, chosenDay)
             }
         }
     ) {
@@ -105,19 +106,24 @@ fun MealPlanningScreen(navController: NavHostController) {
                                         modifier = Modifier
                                             .fillMaxWidth()
                                             .fillMaxHeight()
-                                            .padding(start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp)
+                                            .padding(
+                                                start = 16.dp,
+                                                top = 30.dp,
+                                                end = 16.dp,
+                                                bottom = 30.dp
+                                            )
                                             .clickable(onClick = {
                                                 coroutineScope.launch {
                                                     if (modalSheetState.isVisible)
                                                         modalSheetState.hide()
                                                     else
-                                                        modalSheetState.animateTo(ModalBottomSheetValue.Expanded)
-                                                    chosenDay = day.name.toString()
-
-
+                                                        modalSheetState.animateTo(
+                                                            ModalBottomSheetValue.Expanded
+                                                        )
+                                                    chosenDay = day
                                                 }
                                             })
-                                            .background( if (chosenDay.equals("")) MealPrepColor.white else MealPrepColor.grey_600)
+//                                            .background( if (chosenDay.equals("")) MealPrepColor.white else MealPrepColor.grey_600)
                                     ) {
 
                                         Row(
@@ -145,8 +151,6 @@ fun MealPlanningScreen(navController: NavHostController) {
                             }
                         }
                     }
-
-
                 }
             }
         )
@@ -157,15 +161,17 @@ fun MealPlanningScreen(navController: NavHostController) {
 
 
 @Composable
-fun BottomSheetContent(chosenDay: String) {
+fun BottomSheetContent(navController: NavHostController, chosenDay: Day) {
     val context = LocalContext.current
 
     Column() {
         BottomSheetListItem(
             icon = R.drawable.ic_add_new,
-            title = "Add saved recipes for ${chosenDay}",
+            title = "Add saved recipes for ${chosenDay.name}",
             onItemClick = {
 //                context.startActivity(Intent(context, RecipeCreationMain::class.java))
+              item ->  navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
+
 
 
 

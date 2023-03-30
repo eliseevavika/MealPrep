@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
+import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,7 @@ class MainActivity : ComponentActivity() {
                                     startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
-                                        HomeScreen(navController,scope, modalBottomSheetState )
+                                        HomeScreen(navController, scope, modalBottomSheetState)
                                     }
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(navController)
@@ -88,16 +89,38 @@ class MainActivity : ComponentActivity() {
                                         arguments = listOf(navArgument(DishDetails.argDishId) {
                                             type = NavType.IntType
                                         })
-                                    ) {backStackEntry ->
+                                    ) { backStackEntry ->
                                         val id =
-                                            requireNotNull(backStackEntry.arguments?.getInt(DishDetails.argDishId)) { "Dish id is null" }
+                                            requireNotNull(
+                                                backStackEntry.arguments?.getInt(
+                                                    DishDetails.argDishId
+                                                )
+                                            ) { "Dish id is null" }
                                         DishDetails(id, navController)
-                                        }
-
                                     }
 
+                                    composable(
+                                        MealPrepForSpecificDay.route + "/{${MealPrepForSpecificDay.argDayId}}",
+                                        arguments = listOf(navArgument(MealPrepForSpecificDay.argDayId) {
+                                            type = NavType.IntType
+//
+                                        })
+                                    ){backStackEntry ->
+                                        val id =
+                                            requireNotNull(
+                                                backStackEntry.arguments?.getInt(
+                                                    MealPrepForSpecificDay.argDayId
+                                                )
+                                            ) { "Dish id is null" }
+
+                                        MealPrepForSpecificDay(id, navController)
+                                    }
+
+
                                 }
-                            },
+
+                            }
+                        },
 
                         backgroundColor = Color.White,
 

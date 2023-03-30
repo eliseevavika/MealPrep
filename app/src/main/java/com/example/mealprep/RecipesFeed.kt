@@ -70,7 +70,6 @@ fun MenuDish(navController: NavHostController? = null, dish: Dish) {
             .padding(8.dp)
             .wrapContentSize(),
         onClick = {
-            Log.d("AAA", "Click ${dish.id}")
             navController?.navigate(DishDetails.route + "/${dish.id}")
         }) {
 
