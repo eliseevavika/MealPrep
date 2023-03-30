@@ -1,8 +1,11 @@
 package com.example.mealprep
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,10 +21,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
-import com.example.mealprep.fill.out.recipe.card.creation.BlankFragment
+import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.ui.theme.MealPrepTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +37,11 @@ class MainActivity : ComponentActivity() {
                 val modalBottomSheetState =
                     rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
                 val scope = rememberCoroutineScope()
+
+                BackHandler(modalBottomSheetState.isVisible) {
+                    scope.launch { modalBottomSheetState.hide() }
+                }
+
 
 
                 ModalBottomSheetLayout(
@@ -46,12 +56,12 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
 //                        topBar = { TopAppBar(navController) },
                         bottomBar = { BottomNavigationBar(navController = navController) },
-                        floatingActionButton = {
-                            MyFloatingActionButton(
-                                scope,
-                                modalBottomSheetState
-                            )
-                        },
+//                        floatingActionButton = {
+//                            MyFloatingActionButton(
+//                                scope,
+//                                modalBottomSheetState
+//                            )
+//                        },
                         content = { padding -> // We have to pass the scaffold inner padding to our content. That's why we use Box.
                             Box(modifier = Modifier.padding(padding)) {
 
@@ -61,10 +71,10 @@ class MainActivity : ComponentActivity() {
                                     startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
-                                        HomeScreen(navController)
+                                        HomeScreen(navController,scope, modalBottomSheetState )
                                     }
                                     composable(MealPrep.route) {
-//                                        HomeScreen(navController)
+                                        MealPlanningScreen(navController)
                                     }
                                     composable(Groceries.route) {
 //                                        HomeScreen(navController)
@@ -72,7 +82,7 @@ class MainActivity : ComponentActivity() {
                                     composable(Settings.route) {
 //                                        HomeScreen(navController)
                                     }
-                                   
+
                                     composable(
                                         DishDetails.route + "/{${DishDetails.argDishId}}",
                                         arguments = listOf(navArgument(DishDetails.argDishId) {
