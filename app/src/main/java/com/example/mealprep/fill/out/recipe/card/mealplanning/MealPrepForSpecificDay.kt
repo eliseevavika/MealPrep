@@ -8,21 +8,20 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.littlelemon.Dish
 import com.example.littlelemon.DishRepository
-import com.example.littlelemon.HomeScreen
-import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
-import com.example.mealprep.TopAppBarHome
+import com.example.mealprep.ui.theme.MealPrepColor
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MealPrepForSpecificDay(dayId: Int, navController: NavHostController) {
+fun MealPrepForSpecificDay(
+    dayId: Int,
+    navController: NavHostController,
+    viewModel: MealPlanningViewModel
+){
     val dishes = remember { mutableStateOf(DishRepository.dishes) }
 
     var filteredDishes = remember { mutableStateOf(DishRepository.dishes) }
@@ -52,16 +51,7 @@ fun MealPrepForSpecificDay(dayId: Int, navController: NavHostController) {
                             }
                         })
 
-//                            Spacer(modifier = Modifier.height(10.dp))
-
-                        if (filteredDishes.value.size == 0) {
-                            RecipesFeed(navController, DishRepository.dishes)
-                        }
-
-//                        filteredDishes.value.map {
-//                            RecipesFeed(navController, DishRepository.dishes)
-                        RecipesFeed(navController, filteredDishes.value)
-//                        }
+                        RecipesFeed(navController, filteredDishes.value, true, viewModel)
                     }
                 }
 
@@ -89,7 +79,8 @@ fun SearchBar(
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = MealPrepColor.orange
                 ),
                 maxLines = 1,
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "") }

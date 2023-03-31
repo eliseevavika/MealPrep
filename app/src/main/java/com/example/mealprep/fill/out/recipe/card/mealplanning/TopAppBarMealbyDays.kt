@@ -26,6 +26,6 @@ fun TopAppBarMealbyDays() { Row(horizontalArrangement = Arrangement.Center,
     verticalAlignment = Alignment.CenterVertically) {
 
 
-    Text(text = "Recipes", style = MaterialTheme.typography.body1, fontSize = 20.sp)
+    Text(text = "Select recipes", style = MaterialTheme.typography.body1, fontSize = 20.sp)
 }
 }

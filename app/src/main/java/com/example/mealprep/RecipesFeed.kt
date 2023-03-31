@@ -1,21 +1,17 @@
 package com.example.mealprep
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
-import androidx.compose.ui.Alignment.Companion.Start
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -25,12 +21,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.littlelemon.Dish
-import com.example.littlelemon.DishDetails
+import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.meaprep.R
 
 @Composable
-fun RecipesFeed(navController: NavHostController, dishes: List<Dish> = listOf()) {
+fun RecipesFeed(
+    navController: NavHostController,
+    dishes: List<Dish> = listOf(),
+    isMealPlanningOn: Boolean,
+    viewModel: MealPlanningViewModel
+) {
     Column {
 //        WeeklySpecialCard()
         LazyVerticalGrid(
@@ -40,7 +41,7 @@ fun RecipesFeed(navController: NavHostController, dishes: List<Dish> = listOf())
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             itemsIndexed(dishes) { _, dish ->
-                MenuDish(navController, dish)
+                MenuDish(navController, dish, isMealPlanningOn, viewModel)
             }
         }
     }
@@ -63,45 +64,47 @@ fun RecipesFeed(navController: NavHostController, dishes: List<Dish> = listOf())
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MenuDish(navController: NavHostController? = null, dish: Dish) {
+fun MenuDish(
+    navController: NavHostController? = null,
+    dish: Dish,
+    isMealPlanningOn: Boolean,
+    viewModel: MealPlanningViewModel
+) {
+    val chosenDishesForMealPrep = viewModel.list.observeAsState().value
+
     Card(
         modifier = Modifier
-//            .background(Color.Red)
             .padding(8.dp)
             .wrapContentSize(),
         onClick = {
-            navController?.navigate(DishDetails.route + "/${dish.id}")
+            if (!isMealPlanningOn) {
+                navController?.navigate(DishDetails.route + "/${dish.id}")
+            } else {
+                viewModel.performQuery(dish)
+            }
         }) {
 
-        Row(
-            Modifier
-
-//                .background(Color.Blue)
-//            modifier = Modifier
-//                .width(144.dp)
-//                .fillMaxWidth()
-//                .padding(8.dp)
-        ) {
+        Row {
 
             Column(
                 modifier = Modifier
-//                    .background(Color.Green)
-                    .fillMaxSize(),
+                    .fillMaxSize().background(color = if(isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true) Color.Black else MealPrepColor.transparent),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
 
-            ) {
+                ) {
                 Image(
                     painter = painterResource(id = dish.imageResource),
                     contentDescription = "Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-//                        .background(Color.Yellow)
                         .size(144.dp, 171.dp)
                         .clip(
                             RoundedCornerShape(16.dp)
                         )
                 )
+
+
 
                 Text(
                     text = dish.name.addEmptyLines(2),
@@ -112,7 +115,9 @@ fun MenuDish(navController: NavHostController? = null, dish: Dish) {
                 )
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Icon(
@@ -139,11 +144,7 @@ fun MenuDish(navController: NavHostController? = null, dish: Dish) {
                         )
                     }
                 }
-
-
             }
-
-
         }
     }
 

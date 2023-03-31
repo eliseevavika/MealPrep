@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.TopAppBarHome
+import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -34,7 +35,12 @@ fun HomeScreen(
                 Column {
 
 //        UpperPanel()
-                    RecipesFeed(navController, DishRepository.dishes)
+                    RecipesFeed(
+                        navController,
+                        DishRepository.dishes,
+                        false,
+                        MealPlanningViewModel()
+                    )
                 }
 
             }

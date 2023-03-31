@@ -22,6 +22,7 @@ import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
+import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
@@ -113,7 +114,7 @@ class MainActivity : ComponentActivity() {
                                                 )
                                             ) { "Dish id is null" }
 
-                                        MealPrepForSpecificDay(id, navController)
+                                        MealPrepForSpecificDay(id, navController, MealPlanningViewModel())
                                     }
 
 
