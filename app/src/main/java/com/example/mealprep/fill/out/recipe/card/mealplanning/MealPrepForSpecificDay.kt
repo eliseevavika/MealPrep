@@ -1,19 +1,28 @@
 package com.example.mealprep.fill.out.recipe.card.mealplanning
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.littlelemon.Dish
 import com.example.littlelemon.DishRepository
+import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -21,7 +30,7 @@ fun MealPrepForSpecificDay(
     dayId: Int,
     navController: NavHostController,
     viewModel: MealPlanningViewModel
-){
+) {
     val dishes = remember { mutableStateOf(DishRepository.dishes) }
 
     var filteredDishes = remember { mutableStateOf(DishRepository.dishes) }
@@ -30,34 +39,60 @@ fun MealPrepForSpecificDay(
         topBar = {
             TopAppBarMealbyDays()
         },
+        floatingActionButton = {
+            Column(modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+                verticalArrangement = Arrangement.Bottom,
+                horizontalAlignment = CenterHorizontally
+            ) {
+                ExtendedFloatingActionButton(
+                    text = { Text(text = "Add", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp) },
+                    onClick = {
+                        viewModel.addSelectedDishes()
+                    },
+                    modifier = Modifier.fillMaxWidth(0.80F).padding(start = 30.dp),
+                    backgroundColor = MealPrepColor.orange,
+                    contentColor = Color.White,
+                    icon = {  }
+                )
+            }
+        },
 
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
+
                 Column {
+                    Spacer(modifier = Modifier.height(20.dp))
 
+                    SearchBar(onSearch = {
+                        val result = dishes.value.filter { dish ->
+                            dish.name.lowercase().contains(it.lowercase())
+                        }
 
-                    Column {
-                        Spacer(modifier = Modifier.height(20.dp))
+                        if (result.isNotEmpty()) {
+                            filteredDishes.value = result.toMutableStateList()
+                        } else {
+                            filteredDishes.value = mutableListOf<Dish>()
+                        }
+                    })
 
-                        SearchBar(onSearch = {
-                            val result = dishes.value.filter { dish ->
-                                dish.name.lowercase().contains(it.lowercase())
-                            }
-
-                            if (result.isNotEmpty()) {
-                                filteredDishes.value = result.toMutableStateList()
-                            } else {
-                                filteredDishes.value = mutableListOf<Dish>()
-                            }
-                        })
-
-                        RecipesFeed(navController, filteredDishes.value, true, viewModel)
-                    }
+                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
                 }
-
             }
         }
     )
+}
+
+
+@Composable
+fun addText() {
+    Text(text = "Add")
+}
+
+@Composable
+fun addIcon() {
+
 }
 
 
@@ -74,7 +109,7 @@ fun SearchBar(
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text(text = "Recipe title, Ingredient... ") },
+                placeholder = { Text(text = "Recipe title, Ingredient... ", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp) },
                 modifier = Modifier.focusable(true),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,

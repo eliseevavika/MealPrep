@@ -7,6 +7,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.mealprep.BottomNavigationBar
 import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.TopAppBarHome
@@ -30,6 +31,7 @@ fun HomeScreen(
                 modalBottomSheetState
             )
         },
+        bottomBar = { BottomNavigationBar(navController = navController) },
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
                 Column {

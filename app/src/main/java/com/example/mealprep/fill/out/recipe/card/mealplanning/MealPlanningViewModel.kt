@@ -19,6 +19,9 @@ class MealPlanningViewModel : ViewModel() {
         _list.value = _list.value?.plus(dish) ?: listOf(dish)
     }
 
+    fun addSelectedDishes(){
+
+    }
 
 //    fun removeElement(
 //        item: Groceries

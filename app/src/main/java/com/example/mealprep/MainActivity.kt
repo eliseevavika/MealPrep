@@ -57,7 +57,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
 //                        topBar = { TopAppBar(navController) },
-                        bottomBar = { BottomNavigationBar(navController = navController) },
+//                        bottomBar = { BottomNavigationBar(navController = navController) },
 //                        floatingActionButton = {
 //                            MyFloatingActionButton(
 //                                scope,
@@ -79,10 +79,11 @@ class MainActivity : ComponentActivity() {
                                         MealPlanningScreen(navController)
                                     }
                                     composable(Groceries.route) {
-//                                        HomeScreen(navController)
+//                                      ToDo: Don't forget  bottomBar = { BottomNavigationBar(navController = navController) },
+
                                     }
                                     composable(Settings.route) {
-//                                        HomeScreen(navController)
+//                                        ToDo: Don't forget  bottomBar = { BottomNavigationBar(navController = navController) },
                                     }
 
                                     composable(

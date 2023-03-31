@@ -13,6 +13,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -47,21 +48,6 @@ fun RecipesFeed(
     }
 }
 
-//@Composable
-//fun WeeklySpecialCard() {
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//    ) {
-//        Text(
-//            text = "Weekly Special",
-//            style = MaterialTheme.typography.h1,
-//            modifier = Modifier
-//                .padding(8.dp)
-//        )
-//    }
-//}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MenuDish(
@@ -88,7 +74,7 @@ fun MenuDish(
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize().background(color = if(isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true) Color.Black else MealPrepColor.transparent),
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
 
@@ -101,11 +87,9 @@ fun MenuDish(
                         .size(144.dp, 171.dp)
                         .clip(
                             RoundedCornerShape(16.dp)
-                        )
+                        ).alpha( if(isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true)0.2F else 1F)
                 )
-
-
-
+                
                 Text(
                     text = dish.name.addEmptyLines(2),
                     maxLines = 2,

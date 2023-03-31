@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.mealprep.BottomNavigationBar
 import com.example.mealprep.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.creation.ListIngredientsCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
@@ -46,7 +47,6 @@ fun MealPlanningScreen(navController: NavHostController) {
     var chosenDay by remember {
         mutableStateOf(days[0])
     }
-
 
 
     val coroutineScope = rememberCoroutineScope()
@@ -89,6 +89,7 @@ fun MealPlanningScreen(navController: NavHostController) {
             topBar = {
                 TopAppBarMealPlanning()
             },
+            bottomBar = { BottomNavigationBar(navController = navController) },
             content = { padding ->
                 Box(modifier = Modifier.padding(16.dp)) {
                     LazyColumn {
@@ -124,13 +125,13 @@ fun MealPlanningScreen(navController: NavHostController) {
                                                     chosenDay = day
                                                 }
                                             })
-//                                            .background( if (chosenDay.equals("")) MealPrepColor.white else MealPrepColor.grey_600)
                                     ) {
 
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxHeight()
-                                                .weight(7f), verticalAlignment = Alignment.CenterVertically
+                                                .weight(7f),
+                                            verticalAlignment = Alignment.CenterVertically
                                         ) {
                                             Icon(
                                                 painter = painterResource(id = R.drawable.outline_density_medium_24),
@@ -140,7 +141,8 @@ fun MealPlanningScreen(navController: NavHostController) {
                                             )
                                             Spacer(modifier = Modifier.width(width = 8.dp))
                                             Text(
-                                                text = day.name.toString(), fontFamily = fontFamilyForBodyB2,
+                                                text = day.name.toString(),
+                                                fontFamily = fontFamilyForBodyB2,
                                                 fontSize = 16.sp
                                             )
                                         }
@@ -159,8 +161,6 @@ fun MealPlanningScreen(navController: NavHostController) {
 }
 
 
-
-
 @Composable
 fun BottomSheetContent(navController: NavHostController, chosenDay: Day) {
     val context = LocalContext.current
@@ -171,9 +171,8 @@ fun BottomSheetContent(navController: NavHostController, chosenDay: Day) {
             title = "Add saved recipes for ${chosenDay.name}",
             onItemClick = {
 //                context.startActivity(Intent(context, RecipeCreationMain::class.java))
-              item ->  navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
-
-
+                    item ->
+                navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
 
 
             },

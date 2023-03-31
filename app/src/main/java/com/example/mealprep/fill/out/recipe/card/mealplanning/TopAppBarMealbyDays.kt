@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.littlelemon.Dish
+import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 
 @Composable
 fun TopAppBarMealbyDays() { Row(horizontalArrangement = Arrangement.Center,
@@ -26,6 +27,6 @@ fun TopAppBarMealbyDays() { Row(horizontalArrangement = Arrangement.Center,
     verticalAlignment = Alignment.CenterVertically) {
 
 
-    Text(text = "Select recipes", style = MaterialTheme.typography.body1, fontSize = 20.sp)
+    Text(text = "Select recipes",   fontFamily = fontFamilyForBodyB1, fontSize = 20.sp,)
 }
 }
