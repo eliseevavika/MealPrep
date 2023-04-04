@@ -89,7 +89,7 @@ fun MenuDish(
                             RoundedCornerShape(16.dp)
                         ).alpha( if(isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true)0.2F else 1F)
                 )
-                
+
                 Text(
                     text = dish.name.addEmptyLines(2),
                     maxLines = 2,

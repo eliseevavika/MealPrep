@@ -44,8 +44,6 @@ class MainActivity : ComponentActivity() {
                     scope.launch { modalBottomSheetState.hide() }
                 }
 
-
-
                 ModalBottomSheetLayout(
                     sheetContent = {
                         BottomSheetContent(navController)
@@ -66,17 +64,23 @@ class MainActivity : ComponentActivity() {
 //                        },
                         content = { padding -> // We have to pass the scaffold inner padding to our content. That's why we use Box.
                             Box(modifier = Modifier.padding(padding)) {
-
+                                val viewModel = MealPlanningViewModel()
+                                var chosenDay: Int? = null
 
                                 NavHost(
                                     navController = navController,
                                     startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
-                                        HomeScreen(navController, scope, modalBottomSheetState)
+                                        HomeScreen(
+                                            navController,
+                                            scope,
+                                            modalBottomSheetState,
+                                            viewModel
+                                        )
                                     }
                                     composable(MealPrep.route) {
-                                        MealPlanningScreen(navController)
+                                        MealPlanningScreen(navController, viewModel, chosenDay)
                                     }
                                     composable(Groceries.route) {
 //                                      ToDo: Don't forget  bottomBar = { BottomNavigationBar(navController = navController) },
@@ -107,15 +111,16 @@ class MainActivity : ComponentActivity() {
                                             type = NavType.IntType
 //
                                         })
-                                    ){backStackEntry ->
-                                        val id =
+                                    ) { backStackEntry ->
+                                        val dayId =
                                             requireNotNull(
                                                 backStackEntry.arguments?.getInt(
                                                     MealPrepForSpecificDay.argDayId
                                                 )
                                             ) { "Dish id is null" }
+                                        chosenDay = dayId
 
-                                        MealPrepForSpecificDay(id, navController, MealPlanningViewModel())
+                                        MealPrepForSpecificDay(dayId, navController, viewModel)
                                     }
 
 

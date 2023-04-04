@@ -19,7 +19,8 @@ import kotlinx.coroutines.CoroutineScope
 fun HomeScreen(
     navController: NavHostController,
     scope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState
+    modalBottomSheetState: ModalBottomSheetState,
+    viewModel: MealPlanningViewModel
 ) {
     Scaffold(
         topBar = {
@@ -41,7 +42,7 @@ fun HomeScreen(
                         navController,
                         DishRepository.dishes,
                         false,
-                        MealPlanningViewModel()
+                        viewModel
                     )
                 }
 

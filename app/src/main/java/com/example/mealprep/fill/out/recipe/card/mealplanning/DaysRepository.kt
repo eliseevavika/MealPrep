@@ -12,7 +12,7 @@ object DaysRepository {
         Day(5, DayOfWeek.Friday)
         Day(6, DayOfWeek.Saturday)
 
-        fun getDay(id: Int) = DishRepository.dishes.firstOrNull { it.id == id }
+//        fun getDay(id: Int) = DaysRepository.days {day -> day.id == id }
     }
 }
 

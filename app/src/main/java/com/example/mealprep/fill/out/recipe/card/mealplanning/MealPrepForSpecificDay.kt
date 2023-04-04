@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.littlelemon.Dish
 import com.example.littlelemon.DishRepository
+import com.example.mealprep.MealPrep
 import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.ui.theme.MealPrepColor
@@ -40,22 +41,31 @@ fun MealPrepForSpecificDay(
             TopAppBarMealbyDays()
         },
         floatingActionButton = {
-            Column(modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(),
+            Column(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
                 verticalArrangement = Arrangement.Bottom,
                 horizontalAlignment = CenterHorizontally
             ) {
                 ExtendedFloatingActionButton(
-                    text = { Text(text = "Add", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp) },
-                    onClick = {
-                        viewModel.addSelectedDishes()
+                    text = {
+                        Text(
+                            text = "Add",
+                            fontFamily = fontFamilyForBodyB2,
+                            fontSize = 16.sp
+                        )
                     },
+                    onClick = {
+                        navController.navigate(MealPrep.route)
+                    },
+
                     modifier = Modifier.fillMaxWidth(0.80F).padding(start = 30.dp),
                     backgroundColor = MealPrepColor.orange,
                     contentColor = Color.White,
-                    icon = {  }
+                    icon = { }
                 )
+
             }
         },
 
@@ -73,7 +83,7 @@ fun MealPrepForSpecificDay(
                         if (result.isNotEmpty()) {
                             filteredDishes.value = result.toMutableStateList()
                         } else {
-                            filteredDishes.value = mutableListOf<Dish>()
+                            filteredDishes.value = mutableListOf()
                         }
                     })
 
@@ -85,15 +95,6 @@ fun MealPrepForSpecificDay(
 }
 
 
-@Composable
-fun addText() {
-    Text(text = "Add")
-}
-
-@Composable
-fun addIcon() {
-
-}
 
 
 @Composable
