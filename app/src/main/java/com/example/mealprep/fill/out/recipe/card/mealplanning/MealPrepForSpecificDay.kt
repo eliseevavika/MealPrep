@@ -1,29 +1,22 @@
 package com.example.mealprep.fill.out.recipe.card.mealplanning
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.littlelemon.Dish
 import com.example.littlelemon.DishRepository
 import com.example.mealprep.MealPrep
-import com.example.mealprep.MyFloatingActionButton
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -51,7 +44,7 @@ fun MealPrepForSpecificDay(
                 ExtendedFloatingActionButton(
                     text = {
                         Text(
-                            text = "Add",
+                            text = "Edit",
                             fontFamily = fontFamilyForBodyB2,
                             fontSize = 16.sp
                         )
@@ -60,12 +53,13 @@ fun MealPrepForSpecificDay(
                         navController.navigate(MealPrep.route)
                     },
 
-                    modifier = Modifier.fillMaxWidth(0.80F).padding(start = 30.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.80F)
+                        .padding(start = 30.dp),
                     backgroundColor = MealPrepColor.orange,
                     contentColor = Color.White,
                     icon = { }
                 )
-
             }
         },
 
@@ -95,8 +89,6 @@ fun MealPrepForSpecificDay(
 }
 
 
-
-
 @Composable
 fun SearchBar(
     onSearch: (String) -> Unit
@@ -110,7 +102,13 @@ fun SearchBar(
             TextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text(text = "Recipe title, Ingredient... ", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp) },
+                placeholder = {
+                    Text(
+                        text = "Recipe title, Ingredient... ",
+                        fontFamily = fontFamilyForBodyB2,
+                        fontSize = 16.sp
+                    )
+                },
                 modifier = Modifier.focusable(true),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = Color.Transparent,

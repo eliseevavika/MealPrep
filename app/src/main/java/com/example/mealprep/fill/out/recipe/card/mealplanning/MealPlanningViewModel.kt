@@ -15,7 +15,13 @@ class MealPlanningViewModel : ViewModel() {
     fun performQuery(
         dish: Dish
     ) {
-        _list.value = _list.value?.plus(dish) ?: listOf(dish)
+        if(_list.value?.contains(dish) == true){
+            _list.value = _list.value?.minus(dish) ?: listOf(dish)
+        }else{
+            _list.value = _list.value?.plus(dish) ?: listOf(dish)
+        }
     }
+
+
 }
 

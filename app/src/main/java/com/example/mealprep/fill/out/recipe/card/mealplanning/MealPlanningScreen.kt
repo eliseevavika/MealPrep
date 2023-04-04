@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.ExperimentalUnitApi
@@ -90,7 +89,7 @@ fun MealPlanningScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-             BottomSheetContent(navController, chosenDay)
+             BottomSheetContent(navController, viewModel, chosenDay)
             }
         }
     ) {
@@ -125,9 +124,9 @@ fun MealPlanningScreen(
                                             )
                                             .clickable(onClick = {
                                                 coroutineScope.launch {
-                                                    if (modalSheetState.isVisible){
+                                                    if (modalSheetState.isVisible) {
                                                         modalSheetState.hide()
-                                                    } else{
+                                                    } else {
                                                         chosenDay = day
                                                         modalSheetState.animateTo(
                                                             ModalBottomSheetValue.Expanded
@@ -155,6 +154,7 @@ fun MealPlanningScreen(
                                                 fontFamily = fontFamilyForBodyB2,
                                                 fontSize = 16.sp
                                             )
+
                                         }
                                     }
 
@@ -219,26 +219,25 @@ fun MealPlanningScreen(
 
 
 @Composable
-fun BottomSheetContent(navController: NavHostController, chosenDay: Day) {
-    val context = LocalContext.current
-
+fun BottomSheetContent(
+    navController: NavHostController,
+    viewModel: MealPlanningViewModel,
+    chosenDay: Day
+) {
     Column() {
         BottomSheetListItem(
-            icon = R.drawable.ic_add_new,
-            title = "Add saved recipes for ${chosenDay.name}",
-
+            icon = R.drawable.outline_edit_24,
+            title = "Add / Edit plan for ${chosenDay.name}",
             onItemClick = {
-//                context.startActivity(Intent(context, RecipeCreationMain::class.java))
-                    item ->
                 navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
-
-
-            },
+            }
         )
         BottomSheetListItem(
-            icon = R.drawable.ic_attach_file,
-            title = "Save recipe link",
-            onItemClick = {}
+            icon = R.drawable.outline_delete_24,
+            title = "Reset menu",
+            onItemClick = {
+                viewModel.list.value = null
+            }
         )
     }
 }
@@ -249,8 +248,6 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = { onItemClick(title) })
-
-//            .clickable(onClick = { if(title == "Create new recipe"){null} else null })
             .height(55.dp)
             .background(color = colorResource(id = R.color.white))
             .padding(start = 15.dp, top = 5.dp), verticalAlignment = Alignment.CenterVertically,

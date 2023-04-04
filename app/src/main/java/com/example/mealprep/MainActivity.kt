@@ -107,7 +107,8 @@ class MainActivity : ComponentActivity() {
 
                                     composable(
                                         MealPrepForSpecificDay.route + "/{${MealPrepForSpecificDay.argDayId}}",
-                                        arguments = listOf(navArgument(MealPrepForSpecificDay.argDayId) {
+                                        arguments = listOf(navArgument(
+                                            MealPrepForSpecificDay.argDayId) {
                                             type = NavType.IntType
 //
                                         })
