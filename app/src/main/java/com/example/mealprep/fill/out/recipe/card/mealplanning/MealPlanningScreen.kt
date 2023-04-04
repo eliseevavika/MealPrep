@@ -159,10 +159,7 @@ fun MealPlanningScreen(
                                     }
 
 
-                                    if (!chosenMealsForMealPrepByDay.isNullOrEmpty()) {
-//                                        viewModel.addSelectedDishes()
-
-                                        if (chosenDayId == day.id) {
+                                    if (!chosenMealsForMealPrepByDay.isNullOrEmpty() && chosenDayId == day.id) {
                                             LazyRow(modifier = Modifier.fillMaxHeight()) {
                                                 items(chosenMealsForMealPrepByDay) { dish ->
                                                     Card(
@@ -203,12 +200,10 @@ fun MealPlanningScreen(
                                                     }
 
                                                 }
-                                            }
+
                                         }
                                     }
                                 }
-
-
                             }
                         }
                     }

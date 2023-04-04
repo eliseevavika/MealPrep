@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
+import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
@@ -83,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                         MealPlanningScreen(navController, viewModel, chosenDay)
                                     }
                                     composable(Groceries.route) {
-//                                      ToDo: Don't forget  bottomBar = { BottomNavigationBar(navController = navController) },
+                                        GroceriesScreen(navController, viewModel)
 
                                     }
                                     composable(Settings.route) {
