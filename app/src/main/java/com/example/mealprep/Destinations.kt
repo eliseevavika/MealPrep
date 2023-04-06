@@ -30,3 +30,7 @@ object MealPrepForSpecificDay : Destinations {
     override val route = "mealPrepForSpecificDay"
     const val argDayId = "dayId"
 }
+
+object GroceriesAddition : Destinations {
+    override val route = "groceriesAddition"
+}

@@ -54,7 +54,7 @@ fun ListIngredientsCardScreen(
 @ExperimentalUnitApi
 @Composable
 fun setUpRow(
-    item: String
+    item: Groceries
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -78,7 +78,7 @@ fun setUpRow(
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
-                text = item, fontFamily = fontFamilyForBodyB2,
+                text = item.name, fontFamily = fontFamilyForBodyB2,
                 fontSize = 16.sp
             )
         }
