@@ -4,7 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.mealprep.fill.out.recipe.card.Steps
 
-class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>()
+class StepsCreationViewModel {
+    private var _list = MutableLiveData<List<Steps>>()
     private var _last_id: Int = -1
 
     val list: LiveData<List<Steps>>
@@ -23,13 +24,11 @@ class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>(
         }
     }
 
-
     fun removeElement(
         item: Steps
     ) {
         _list.value = _list.value?.filter { it != item }
     }
-
 
     fun setName(
         item: Steps,
@@ -42,6 +41,5 @@ class StepsCreationViewModel { private var _list = MutableLiveData<List<Steps>>(
                 grocery.description = undatedItem.description
             }
         }
-
     }
 }

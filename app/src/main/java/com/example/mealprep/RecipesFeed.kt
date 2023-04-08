@@ -1,7 +1,6 @@
 package com.example.mealprep
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,7 +14,6 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -34,7 +32,6 @@ fun RecipesFeed(
     viewModel: MealPlanningViewModel
 ) {
     Column {
-//        WeeklySpecialCard()
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             modifier = Modifier
@@ -71,13 +68,11 @@ fun MenuDish(
         }) {
 
         Row {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
-
                 ) {
                 Image(
                     painter = painterResource(id = dish.imageResource),
@@ -87,7 +82,8 @@ fun MenuDish(
                         .size(144.dp, 171.dp)
                         .clip(
                             RoundedCornerShape(16.dp)
-                        ).alpha( if(isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true)0.2F else 1F)
+                        )
+                        .alpha(if (isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true) 0.2F else 1F)
                 )
 
                 Text(
@@ -119,7 +115,6 @@ fun MenuDish(
                             color = MealPrepColor.grey_800,
                             fontSize = 14.sp
                         )
-
                         Text(
                             text = "Cook: ${dish.cookTimeTime}",
                             style = MaterialTheme.typography.body2,
@@ -131,13 +126,6 @@ fun MenuDish(
             }
         }
     }
-
-
-//    Divider(
-//        modifier = Modifier.padding(start = 8.dp, end = 8.dp),
-//        thickness = 1.dp,
-//        color = MealPrepColor.yellow
-//    )
 }
 
 fun String.addEmptyLines(lines: Int) = this + "\n".repeat(lines)

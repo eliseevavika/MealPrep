@@ -12,7 +12,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,6 +26,7 @@ import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
+import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
 import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
 
@@ -57,40 +57,31 @@ class MainActivity : ComponentActivity() {
                     sheetBackgroundColor = Color.Blue,
                 ) {
                     Scaffold(
-//                        topBar = { TopAppBar(navController) },
-//                        bottomBar = { BottomNavigationBar(navController = navController) },
-//                        floatingActionButton = {
-//                            MyFloatingActionButton(
-//                                scope,
-//                                modalBottomSheetState
-//                            )
-//                        },
-                        content = { padding -> // We have to pass the scaffold inner padding to our content. That's why we use Box.
+                        content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
                                 val viewModel = MealPlanningViewModel()
                                 var chosenDay: Int? = null
 
                                 NavHost(
-                                    navController = navController,
-                                    startDestination = Home.route
+                                    navController = navController, startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
                                         HomeScreen(
-                                            navController,
-                                            scope,
-                                            modalBottomSheetState,
-                                            viewModel
+                                            navController, scope, modalBottomSheetState, viewModel
                                         )
                                     }
+
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(navController, viewModel, chosenDay)
                                     }
+
                                     composable(Groceries.route) {
                                         GroceriesScreen(navController, GroceriesViewModel())
 
                                     }
+
                                     composable(Settings.route) {
-//                                        ToDo: Don't forget  bottomBar = { BottomNavigationBar(navController = navController) },
+                                        SettingsScreen(navController, GroceriesViewModel())
                                     }
 
                                     composable(
@@ -99,29 +90,27 @@ class MainActivity : ComponentActivity() {
                                             type = NavType.IntType
                                         })
                                     ) { backStackEntry ->
-                                        val id =
-                                            requireNotNull(
-                                                backStackEntry.arguments?.getInt(
-                                                    DishDetails.argDishId
-                                                )
-                                            ) { "Dish id is null" }
+                                        val id = requireNotNull(
+                                            backStackEntry.arguments?.getInt(
+                                                DishDetails.argDishId
+                                            )
+                                        ) { "Dish id is null" }
                                         DishDetails(id, navController)
                                     }
 
                                     composable(
                                         MealPrepForSpecificDay.route + "/{${MealPrepForSpecificDay.argDayId}}",
                                         arguments = listOf(navArgument(
-                                            MealPrepForSpecificDay.argDayId) {
+                                            MealPrepForSpecificDay.argDayId
+                                        ) {
                                             type = NavType.IntType
-//
                                         })
                                     ) { backStackEntry ->
-                                        val dayId =
-                                            requireNotNull(
-                                                backStackEntry.arguments?.getInt(
-                                                    MealPrepForSpecificDay.argDayId
-                                                )
-                                            ) { "Dish id is null" }
+                                        val dayId = requireNotNull(
+                                            backStackEntry.arguments?.getInt(
+                                                MealPrepForSpecificDay.argDayId
+                                            )
+                                        ) { "Dish id is null" }
                                         chosenDay = dayId
 
                                         MealPrepForSpecificDay(dayId, navController, viewModel)
@@ -134,20 +123,10 @@ class MainActivity : ComponentActivity() {
 
                             }
                         },
-
                         backgroundColor = Color.White,
-
-                        )
-
-
+                    )
                 }
             }
-
-
         }
     }
 }
-
-
-
-

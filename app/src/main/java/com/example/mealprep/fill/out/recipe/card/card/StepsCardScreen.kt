@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.littlelemon.DishRepository
@@ -20,7 +19,6 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 
 
-@OptIn(ExperimentalUnitApi::class)
 @Composable
 fun StepsCardScreen(
     id: Int
@@ -43,7 +41,6 @@ fun StepsCardScreen(
                     }
                 }
             }
-
         }
     }
 }
@@ -58,9 +55,7 @@ fun setUpRowForInstruction(
             .fillMaxWidth()
             .fillMaxHeight()
             .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 16.dp),
-
-        ) {
-
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxHeight()
@@ -80,4 +75,3 @@ fun setUpRowForInstruction(
         }
     }
 }
-

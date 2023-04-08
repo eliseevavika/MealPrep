@@ -1,6 +1,5 @@
 package com.example.mealprep.home
 
-import android.service.autofill.OnClickAction
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -15,22 +14,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @Composable
 fun ButtonAnimation(
     animationDuration: Int = 100,
     scaleDown: Float = 0.9f,
-    text : String
+    text: String
 ) {
-
     val interactionSource = MutableInteractionSource()
 
     val coroutineScope = rememberCoroutineScope()

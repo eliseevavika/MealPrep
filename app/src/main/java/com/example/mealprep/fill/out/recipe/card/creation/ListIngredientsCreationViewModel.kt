@@ -26,13 +26,11 @@ class ListIngredientsCreationViewModel : ViewModel() {
         }
     }
 
-
     fun removeElement(
         item: Groceries
     ) {
         _list.value = _list.value?.filter { it != item }
     }
-
 
     fun setName(
         item: Groceries,
@@ -45,7 +43,5 @@ class ListIngredientsCreationViewModel : ViewModel() {
                 grocery.name = undatedItem.name
             }
         }
-
     }
 }
-

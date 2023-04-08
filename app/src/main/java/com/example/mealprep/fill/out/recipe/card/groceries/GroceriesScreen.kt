@@ -29,7 +29,7 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 
-@OptIn(ExperimentalUnitApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalUnitApi::class)
 @Composable
 fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewModel) {
     Scaffold(topBar = {
@@ -43,7 +43,6 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                 .padding(all = 16.dp),
             backgroundColor = MealPrepColor.orange,
             contentColor = Color.White,
-
             ) {
             Icon(
                 imageVector = Icons.Filled.Add,
@@ -59,7 +58,6 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                 top = 30.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
             ), verticalArrangement = Arrangement.Top
         ) {
-
             val listGroceries = viewModel.listGroceries.observeAsState().value
 
             Column(
@@ -87,8 +85,7 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                                         .padding(
                                             top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
                                         ),
-                                    verticalAlignment = Alignment.CenterVertically,
-//                                    horizontalArrangement = Arrangement.SpaceBetween
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
                                         text = "Completed",
@@ -97,7 +94,6 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                                         textAlign = TextAlign.Start,
                                         fontWeight = FontWeight.Normal,
                                         modifier = Modifier
-//                                            .weight(.9f)
                                             .padding(start = 8.dp)
                                     )
                                     IconButton(
@@ -150,7 +146,6 @@ fun setUpLines(
             .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 30.dp),
 
         ) {
-
         Row(
             modifier = Modifier
                 .fillMaxHeight()

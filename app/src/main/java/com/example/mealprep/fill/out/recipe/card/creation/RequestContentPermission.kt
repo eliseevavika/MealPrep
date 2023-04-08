@@ -35,6 +35,7 @@ fun RequestContentPermission() {
     var imageUri by remember {
         mutableStateOf<Uri?>(null)
     }
+
     val context = LocalContext.current
     val bitmap = remember {
         mutableStateOf<Bitmap?>(null)
@@ -47,6 +48,7 @@ fun RequestContentPermission() {
         hasImage = uri != null
         imageUri = uri
     }
+
     Box {
         if (hasImage && imageUri != null) {
             ConstraintLayout {
@@ -57,8 +59,9 @@ fun RequestContentPermission() {
                         bitmap = btm.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
-                            .fillMaxWidth().height(220.dp)
-                            .padding(top = 16.dp,  bottom = 16.dp)
+                            .fillMaxWidth()
+                            .height(220.dp)
+                            .padding(top = 16.dp, bottom = 16.dp)
                             .clip(
                                 RoundedCornerShape(16.dp)
                             )
@@ -80,9 +83,6 @@ fun RequestContentPermission() {
                         }, onClick = {
                         hasImage = false
                         imageUri = null
-
-
-
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_delete_24),
@@ -112,7 +112,7 @@ fun RequestContentPermission() {
                     }
                 }
             }
-        }else{
+        } else {
             ShowNoImage(launcher)
         }
         imageUri?.let {
@@ -150,5 +150,3 @@ private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
         }
     }
 }
-
-

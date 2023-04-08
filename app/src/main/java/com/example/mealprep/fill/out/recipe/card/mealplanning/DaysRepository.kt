@@ -1,7 +1,5 @@
 package com.example.mealprep.fill.out.recipe.card.mealplanning
 
-import com.example.littlelemon.DishRepository
-
 object DaysRepository {
     val days = listOf {
         Day(0, DayOfWeek.Sunday)
@@ -11,8 +9,6 @@ object DaysRepository {
         Day(4, DayOfWeek.Thursday)
         Day(5, DayOfWeek.Friday)
         Day(6, DayOfWeek.Saturday)
-
-//        fun getDay(id: Int) = DaysRepository.days {day -> day.id == id }
     }
 }
 

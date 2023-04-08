@@ -34,16 +34,9 @@ object MealPrepRepository {
             ArrayList()
         ),
     )
-
-    fun getMealPrepByDay(id: Int) = mealPreps.firstOrNull { it.id == id }
-
-
-
 }
 
 data class MealPrepByDay(
     val id: Int,
     var dishesForMealPrep: List<Dish>
 )
-
-

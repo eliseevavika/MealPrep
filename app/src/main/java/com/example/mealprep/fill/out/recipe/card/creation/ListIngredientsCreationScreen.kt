@@ -53,7 +53,6 @@ fun ListIngredientsCreationScreen(
                 ) {
                     val ingredientsList = viewModel.list.observeAsState().value
 
-
                     LazyColumn {
                         if (!ingredientsList.isNullOrEmpty()) {
                             items(ingredientsList) { item ->
@@ -73,14 +72,11 @@ fun ListIngredientsCreationScreen(
                                             .border(1.dp, MealPrepColor.grey_400)
 
                                     ) {
-
                                         setUpRow(viewModel, item)
                                     }
-
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -171,6 +167,7 @@ fun setUpRow(
     item: Groceries
 ) {
     var input by remember { mutableStateOf(" ") }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -179,7 +176,6 @@ fun setUpRow(
             .padding(start = 16.dp, end = 16.dp),
 
         ) {
-
         val focusManager = LocalFocusManager.current
 
         val callback = {
@@ -193,14 +189,11 @@ fun setUpRow(
                 .weight(7f), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                painter = painterResource(id =  R.drawable.baseline_brightness_1_24),
+                painter = painterResource(id = R.drawable.baseline_brightness_1_24),
                 tint = MealPrepColor.orange,
                 contentDescription = "Icon Check",
                 modifier = Modifier.size(16.dp)
             )
-//            Spacer(modifier = Modifier.width(width = 8.dp))
-
-
             TextField(keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
             ),
@@ -245,8 +238,3 @@ fun setUpRow(
         }
     }
 }
-
-
-
-
-

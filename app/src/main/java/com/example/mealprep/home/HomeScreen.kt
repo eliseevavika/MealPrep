@@ -36,8 +36,6 @@ fun HomeScreen(
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
                 Column {
-
-//        UpperPanel()
                     RecipesFeed(
                         navController,
                         DishRepository.dishes,
@@ -45,7 +43,6 @@ fun HomeScreen(
                         viewModel
                     )
                 }
-
             }
         }
     )

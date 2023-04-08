@@ -1,12 +1,9 @@
 package com.example.mealprep.fill.out.recipe.card.groceries
 
-import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.*
-import com.example.littlelemon.Dish
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.example.littlelemon.DishRepository
 import com.example.mealprep.fill.out.recipe.card.Groceries
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 class GroceriesViewModel() : ViewModel() {
     private var _last_id: Int = -1
@@ -23,14 +20,10 @@ class GroceriesViewModel() : ViewModel() {
     val listExtras: MutableLiveData<List<Groceries>?>
         get() = _listExtras
 
-
     init {
-
         val dish = requireNotNull(DishRepository.getDish(1))
         val listIngredients = dish.ingredientsList
-
-
-            _listGroceries.value = listIngredients
+        _listGroceries.value = listIngredients
     }
 
     fun performQueryForGroceries(
@@ -53,18 +46,15 @@ class GroceriesViewModel() : ViewModel() {
 
         if (ingredientName.isNotEmpty()) {
             val item = Groceries(id, ingredientName)
-
             _listExtras.value = _listExtras.value?.plus(item) ?: listOf(item)
         }
     }
-
 
     fun removeElement(
         item: Groceries
     ) {
         _listExtras.value = _listExtras.value?.filter { it != item }
     }
-
 
     fun setName(
         item: Groceries,
@@ -77,7 +67,6 @@ class GroceriesViewModel() : ViewModel() {
                 grocery.name = undatedItem.name
             }
         }
-
     }
 
     fun addExtrasToTheList() {
@@ -85,10 +74,5 @@ class GroceriesViewModel() : ViewModel() {
             _listGroceries.value = _listGroceries.value?.plus(it) ?: listOf(it)
 
         }
-
-
     }
-
-
 }
-

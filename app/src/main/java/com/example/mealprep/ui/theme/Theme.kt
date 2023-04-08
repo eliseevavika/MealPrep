@@ -23,15 +23,6 @@ private val LightColorPalette = lightColors(
     onBackground = Color.White,
     onSurface = Color.White,
     surface = Color.White
-
-    /* Other default colors to override
-
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
 )
 
 @Composable
@@ -39,7 +30,7 @@ fun MealPrepTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
 //    val colors = if (darkTheme) {
 //        DarkColorPalette
 //    } else {
-        LightColorPalette
+    LightColorPalette
 //    }
 
     MaterialTheme(

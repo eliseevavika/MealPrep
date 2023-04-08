@@ -3,7 +3,6 @@ package com.example.mealprep.fill.out.recipe.card.mealplanning
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.littlelemon.Dish
-import com.example.littlelemon.DishRepository
 
 class MealPlanningViewModel : ViewModel() {
 
@@ -11,6 +10,7 @@ class MealPlanningViewModel : ViewModel() {
 
     val list: MutableLiveData<List<Dish>?>
         get() = _list
+
     fun performQuery(
         dish: Dish
     ) {
@@ -21,4 +21,3 @@ class MealPlanningViewModel : ViewModel() {
         }
     }
 }
-

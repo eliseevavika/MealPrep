@@ -21,6 +21,7 @@ val provider = GoogleFont.Provider(
 
 @OptIn(ExperimentalTextApi::class)
 val fontNameForBodyB1 = GoogleFont("Abhaya Libre")
+
 @OptIn(ExperimentalTextApi::class)
 val fontFamilyForBodyB1 = FontFamily(
     Font(
@@ -33,6 +34,7 @@ val fontFamilyForBodyB1 = FontFamily(
 
 @OptIn(ExperimentalTextApi::class)
 val fontNameForBodyB2 = GoogleFont("Abyssinica SIL")
+
 @OptIn(ExperimentalTextApi::class)
 val fontFamilyForBodyB2 = FontFamily(
     Font(
@@ -49,23 +51,10 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 20.sp,
 
-    ),
+        ),
     body2 = TextStyle(
         fontFamily = fontFamilyForBodyB2,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
-        )
-    /* Other default text styles to override
-    button = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.W500,
-        fontSize = 14.sp
-    ),
-    caption = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 12.sp
     )
-    */
-
 )

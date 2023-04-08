@@ -33,20 +33,15 @@ fun TopBarGroceriesAdditionForm(viewModel: GroceriesViewModel, navController: Na
 
         IconButton(onClick = {
             //TODO make back button handler
-
-//            navController.navigate("home") {
-//                popUpTo("home")
-////
-//            }
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
         }
-        Text(text = "Extra ingredients",fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
+        Text(text = "Extra ingredients", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
 
         Button(
             colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.transparent),
             interactionSource = NoRippleInteractionSource(),
-            elevation = ButtonDefaults.elevation(0.dp,0.dp),
+            elevation = ButtonDefaults.elevation(0.dp, 0.dp),
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
@@ -62,5 +57,3 @@ fun TopBarGroceriesAdditionForm(viewModel: GroceriesViewModel, navController: Na
         }
     }
 }
-
-

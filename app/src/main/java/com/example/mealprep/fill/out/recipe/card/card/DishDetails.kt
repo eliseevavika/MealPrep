@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -69,7 +68,6 @@ fun DishDetails(id: Int, navController: NavHostController) {
     )
 }
 
-
 @Composable
 fun UpperPart(id: Int) {
     val dish = requireNotNull(DishRepository.getDish(id))
@@ -77,7 +75,8 @@ fun UpperPart(id: Int) {
     Column(
         verticalArrangement = Arrangement.spacedBy((-150).dp),
         modifier = Modifier
-            .background(MealPrepColor.grey_100).height(300.dp)
+            .background(MealPrepColor.grey_100)
+            .height(300.dp)
     ) {
         Image(
             painter = painterResource(id = dish.imageResource),
@@ -90,10 +89,7 @@ fun UpperPart(id: Int) {
 
         Box(
             modifier = Modifier
-//                .wrapContentHeight()
                 .fillMaxWidth(0.9F)
-//                .fillMaxHeight(0.9F)
-//                .fillMaxWidth(0.9f)
                 .align(CenterHorizontally)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
@@ -111,7 +107,6 @@ fun UpperPart(id: Int) {
                         text = "${dish.name}", fontFamily = fontFamilyForBodyB1,
                         fontSize = 24.sp, fontWeight = FontWeight.Bold, maxLines = 2
                     )
-
                 }
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
                 Row(
@@ -187,12 +182,9 @@ fun UpperPart(id: Int) {
                             )
                         }
                     }
-
                 }
-
             }
         }
-
     }
 }
 

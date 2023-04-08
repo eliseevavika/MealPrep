@@ -35,7 +35,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
+@OptIn(ExperimentalUnitApi::class)
 @Composable
 fun GroceriesAdditionScreen(
     navController: NavHostController,
@@ -81,7 +81,6 @@ fun GroceriesAdditionScreen(
                                 }
                             }
                         }
-
                     }
                 }
             }
@@ -91,8 +90,8 @@ fun GroceriesAdditionScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TopBar(viewModel: GroceriesViewModel, navController: NavHostController){
-    Column() {
+fun TopBar(viewModel: GroceriesViewModel, navController: NavHostController) {
+    Column {
         TopBarGroceriesAdditionForm(viewModel, navController)
         KeyboardHandlingSearch(viewModel)
     }
@@ -153,7 +152,8 @@ fun KeyboardHandlingSearch(viewModel: GroceriesViewModel) {
                         )
                     })
             }
-            OutlinedButton(modifier = Modifier.bounceClick()
+            OutlinedButton(modifier = Modifier
+                .bounceClick()
                 .background(MealPrepColor.white)
                 .padding(start = 8.dp, top = 8.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MealPrepColor.black),
@@ -209,8 +209,6 @@ fun setUpGroceries(
                 contentDescription = "Icon Check",
                 modifier = Modifier.size(16.dp)
             )
-//            Spacer(modifier = Modifier.width(width = 8.dp))
-
 
             TextField(keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
@@ -256,8 +254,3 @@ fun setUpGroceries(
         }
     }
 }
-
-
-
-
-

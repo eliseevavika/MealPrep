@@ -51,7 +51,6 @@ fun ListStepsScreen(
                 ) {
                     val ingredientsList = viewModel.list.observeAsState().value
 
-
                     LazyColumn {
                         if (!ingredientsList.isNullOrEmpty()) {
                             items(ingredientsList) { item ->
@@ -71,21 +70,17 @@ fun ListStepsScreen(
                                             .border(1.dp, MealPrepColor.grey_400)
 
                                     ) {
-
                                         setUpInstructions(viewModel, item)
                                     }
-
                                 }
                             }
                         }
-
                     }
                 }
             }
         )
     }
 }
-
 
 @ExperimentalComposeUiApi
 @Composable
@@ -116,7 +111,6 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
                         onDone = {
                             callback()
                             input = ""
-
                         }
                     ),
                     value = input,
@@ -140,8 +134,6 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
                         )
                     })
             }
-
-
             OutlinedButton(modifier = Modifier
                 .background(MealPrepColor.white)
                 .padding(start = 8.dp, top = 8.dp),
@@ -158,7 +150,6 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
                     fontSize = 16.sp,
                     color = MealPrepColor.black
                 )
-
             }
         }
     }
@@ -171,7 +162,8 @@ fun setUpInstructions(
     item: Steps
 ) {
     var input by remember { mutableStateOf(" ") }
-    Row(verticalAlignment = Alignment.CenterVertically,
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
@@ -197,7 +189,6 @@ fun setUpInstructions(
                 contentDescription = "Icon",
                 modifier = Modifier.size(16.dp)
             )
-
             TextField(
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done
@@ -212,7 +203,6 @@ fun setUpInstructions(
 
                 onValueChange = {
                     input = it
-
                 },
                 textStyle = TextStyle(color = MealPrepColor.black),
                 colors = TextFieldDefaults.textFieldColors(
@@ -243,4 +233,3 @@ fun setUpInstructions(
         }
     }
 }
-

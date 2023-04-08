@@ -19,8 +19,6 @@ fun TopAppBarMealbyDays() {
             .fillMaxWidth(60f),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
-
         Text(text = "Edit plan", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
     }
 }

@@ -34,7 +34,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalUnitApi::class, ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
@@ -52,11 +52,10 @@ fun MealPlanningScreen(
         Day(6, DayOfWeek.Saturday)
     )
 
-   var chosenDay by remember { mutableStateOf(days[0]) }
+    var chosenDay by remember { mutableStateOf(days[0]) }
 
     val chosenMealsForMealPrepByDay =
         viewModel.list.observeAsState().value
-
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -89,11 +88,10 @@ fun MealPlanningScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-             BottomSheetContent(navController, viewModel, chosenDay)
+                BottomSheetContent(navController, viewModel, chosenDay)
             }
         }
     ) {
-
         Scaffold(
             topBar = {
                 TopAppBarMealPlanning()
@@ -135,7 +133,6 @@ fun MealPlanningScreen(
                                                 }
                                             })
                                     ) {
-
                                         Row(
                                             modifier = Modifier
                                                 .fillMaxHeight()
@@ -154,53 +151,46 @@ fun MealPlanningScreen(
                                                 fontFamily = fontFamilyForBodyB2,
                                                 fontSize = 16.sp
                                             )
-
                                         }
                                     }
 
-
                                     if (!chosenMealsForMealPrepByDay.isNullOrEmpty() && chosenDayId == day.id) {
-                                            LazyRow(modifier = Modifier.fillMaxHeight()) {
-                                                items(chosenMealsForMealPrepByDay) { dish ->
-                                                    Card(
-                                                        modifier = Modifier
-                                                            .padding(8.dp)
-                                                            .wrapContentSize(),
-                                                        onClick = {
-//
-                                                        }) {
-                                                        Row {
-                                                            Column(
+                                        LazyRow(modifier = Modifier.fillMaxHeight()) {
+                                            items(chosenMealsForMealPrepByDay) { dish ->
+                                                Card(
+                                                    modifier = Modifier
+                                                        .padding(8.dp)
+                                                        .wrapContentSize(),
+                                                    onClick = {
+                                                    }) {
+                                                    Row {
+                                                        Column(
+                                                            modifier = Modifier
+                                                                .size(74.dp, 108.dp),
+                                                            verticalArrangement = Arrangement.Center,
+                                                            horizontalAlignment = Alignment.Start,
+
+                                                            ) {
+                                                            Image(
+                                                                painter = painterResource(id = dish.imageResource),
+                                                                contentDescription = "Image",
+                                                                contentScale = ContentScale.Crop,
                                                                 modifier = Modifier
-                                                                    .size(74.dp, 108.dp),
-                                                                verticalArrangement = Arrangement.Center,
-                                                                horizontalAlignment = Alignment.Start,
-
-                                                                ) {
-                                                                Image(
-                                                                    painter = painterResource(id = dish.imageResource),
-                                                                    contentDescription = "Image",
-                                                                    contentScale = ContentScale.Crop,
-                                                                    modifier = Modifier
-                                                                        .size(74.dp, 74.dp)
-                                                                        .clip(
-                                                                            RoundedCornerShape(16.dp)
-                                                                        )
-                                                                )
-
-                                                                Text(
-                                                                    text = dish.name.addEmptyLines(2),
-                                                                    maxLines = 2,
-                                                                    style = MaterialTheme.typography.body1,
-                                                                    fontSize = 10.sp,
-//                                                                modifier = Modifier.padding(start = 16.dp)
-                                                                )
-                                                            }
+                                                                    .size(74.dp, 74.dp)
+                                                                    .clip(
+                                                                        RoundedCornerShape(16.dp)
+                                                                    )
+                                                            )
+                                                            Text(
+                                                                text = dish.name.addEmptyLines(2),
+                                                                maxLines = 2,
+                                                                style = MaterialTheme.typography.body1,
+                                                                fontSize = 10.sp,
+                                                            )
                                                         }
                                                     }
-
                                                 }
-
+                                            }
                                         }
                                     }
                                 }
@@ -212,14 +202,13 @@ fun MealPlanningScreen(
     }
 }
 
-
 @Composable
 fun BottomSheetContent(
     navController: NavHostController,
     viewModel: MealPlanningViewModel,
     chosenDay: Day
 ) {
-    Column() {
+    Column {
         BottomSheetListItem(
             icon = R.drawable.outline_edit_24,
             title = "Add / Edit plan for ${chosenDay.name}",
@@ -245,7 +234,8 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
             .clickable(onClick = { onItemClick(title) })
             .height(55.dp)
             .background(color = colorResource(id = R.color.white))
-            .padding(start = 15.dp, top = 5.dp), verticalAlignment = Alignment.CenterVertically,
+            .padding(start = 15.dp, top = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(id = icon),
@@ -256,6 +246,3 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
         Text(text = title, color = Color.Black, style = MaterialTheme.typography.body2)
     }
 }
-
-
-

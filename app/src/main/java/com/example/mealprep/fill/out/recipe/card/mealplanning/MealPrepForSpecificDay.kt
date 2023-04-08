@@ -18,7 +18,7 @@ import com.example.mealprep.RecipesFeed
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
 fun MealPrepForSpecificDay(
     dayId: Int,
@@ -52,7 +52,6 @@ fun MealPrepForSpecificDay(
                     onClick = {
                         navController.navigate(MealPrep.route)
                     },
-
                     modifier = Modifier
                         .fillMaxWidth(0.80F)
                         .padding(start = 30.dp),
@@ -73,21 +72,18 @@ fun MealPrepForSpecificDay(
                         val result = dishes.value.filter { dish ->
                             dish.name.lowercase().contains(it.lowercase())
                         }
-
                         if (result.isNotEmpty()) {
                             filteredDishes.value = result.toMutableStateList()
                         } else {
                             filteredDishes.value = mutableListOf()
                         }
                     })
-
                     RecipesFeed(navController, filteredDishes.value, true, viewModel)
                 }
             }
         }
     )
 }
-
 
 @Composable
 fun SearchBar(
@@ -97,7 +93,7 @@ fun SearchBar(
         mutableStateOf("")
     }
 
-    Column() {
+    Column {
         Row(modifier = Modifier.fillMaxWidth()) {
             TextField(
                 value = searchQuery,
@@ -126,5 +122,3 @@ fun SearchBar(
         }
     }
 }
-
-

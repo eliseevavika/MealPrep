@@ -9,8 +9,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.*
@@ -20,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import androidx.constraintlayout.widget.Placeholder
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.MealPrepTheme
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
@@ -32,7 +29,6 @@ import com.google.android.material.color.MaterialColors.ALPHA_FULL
 fun <T> CategoryDropdownMenu(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-//    label: String,
     placeholder: String,
     notSetLabel: String? = null,
     items: List<T>,
@@ -51,24 +47,29 @@ fun <T> CategoryDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
 
-    Box(modifier = modifier.height(IntrinsicSize.Min).width(200.dp)) {
+    Box(modifier = modifier
+        .height(IntrinsicSize.Min)
+        .width(200.dp)) {
         TextField(
-//            label = { Text(label) },
             placeholder = { Text(placeholder, fontFamily = fontFamilyForBodyB2) },
             value = items.getOrNull(selectedIndex)?.let { selectedItemToString(it) } ?: "",
             enabled = enabled,
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
-
-                    IconButton(
-                        onClick = {  Toast.makeText(mContext, "This is a Sample Toast", Toast.LENGTH_LONG).show()}
-                    ) {
-                        Icon(
-                            imageVector = if(expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "Arrow Drop Down"
-                        )
+                IconButton(
+                    onClick = {
+                        Toast.makeText(
+                            mContext,
+                            "This is a Sample Toast",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
-
+                ) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = "Arrow Drop Down"
+                    )
+                }
             },
             onValueChange = { },
             readOnly = true,
@@ -106,7 +107,6 @@ fun <T> CategoryDropdownMenu(
                             listState.scrollToItem(index = selectedIndex)
                         }
                     }
-
                     LazyColumn(modifier = Modifier.fillMaxWidth(), state = listState) {
                         if (notSetLabel != null) {
                             item {
@@ -152,7 +152,6 @@ fun CategoryDropdownMenuItem(
         selected -> MealPrepColor.orange.copy(alpha = ALPHA_FULL)
         else -> MaterialTheme.colors.onSurface.copy(alpha = ALPHA_FULL)
     }
-
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(modifier = Modifier
             .clickable(enabled) { onClick() }

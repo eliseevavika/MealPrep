@@ -1,7 +1,6 @@
 package com.example.mealprep.fill.out.recipe.card
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,9 +17,6 @@ import com.example.littlelemon.DishRepository
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
-
-
-//    val dish = requireNotNull(DishRepository.getDish(id))
 
 
 @OptIn(ExperimentalUnitApi::class)
@@ -46,7 +42,6 @@ fun ListIngredientsCardScreen(
                     }
                 }
             }
-
         }
     }
 }
@@ -84,5 +79,3 @@ fun setUpRow(
         }
     }
 }
-
-
