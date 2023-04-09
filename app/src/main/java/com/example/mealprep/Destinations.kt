@@ -34,3 +34,7 @@ object MealPrepForSpecificDay : Destinations {
 object GroceriesAddition : Destinations {
     override val route = "groceriesAddition"
 }
+
+object RecipeCreation : Destinations {
+    override val route = "recipeCreation"
+}

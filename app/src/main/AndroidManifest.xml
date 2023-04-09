@@ -12,7 +12,7 @@
         android:theme="@style/Theme.MealPrep"
         tools:targetApi="31">
         <activity
-            android:name="com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationMain"
+            android:name="com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen"
             android:exported="false" />
         <activity
             android:name="com.example.mealprep.MainActivity"

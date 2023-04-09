@@ -22,6 +22,7 @@ import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
@@ -49,7 +50,7 @@ class MainActivity : ComponentActivity() {
 
                 ModalBottomSheetLayout(
                     sheetContent = {
-                        BottomSheetContent(navController)
+                        BottomSheetContent(navController, scope, modalBottomSheetState)
                     },
                     Modifier.fillMaxWidth(),
                     sheetState = modalBottomSheetState,
@@ -118,6 +119,10 @@ class MainActivity : ComponentActivity() {
 
                                     composable(GroceriesAddition.route) {
                                         GroceriesAdditionScreen(navController, GroceriesViewModel())
+                                    }
+
+                                    composable(RecipeCreation.route) {
+                                        RecipeCreationScreen(navController, scope, modalBottomSheetState)
                                     }
                                 }
 

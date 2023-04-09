@@ -22,6 +22,8 @@ import androidx.navigation.NavHostController
 import com.example.littlelemon.Dish
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.ui.theme.fontFamilyForBodyB1
+import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 
 @Composable
@@ -73,7 +75,7 @@ fun MenuDish(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
-                ) {
+            ) {
                 Image(
                     painter = painterResource(id = dish.imageResource),
                     contentDescription = "Image",
@@ -89,8 +91,8 @@ fun MenuDish(
                 Text(
                     text = dish.name.addEmptyLines(2),
                     maxLines = 2,
-                    style = MaterialTheme.typography.body1,
                     fontSize = 20.sp,
+                    fontFamily = fontFamilyForBodyB1,
                     modifier = Modifier.padding(start = 16.dp)
                 )
 
@@ -111,13 +113,13 @@ fun MenuDish(
                     Column() {
                         Text(
                             text = "Prep: ${dish.prepTime}",
-                            style = MaterialTheme.typography.body2,
+                            fontFamily = fontFamilyForBodyB2,
                             color = MealPrepColor.grey_800,
                             fontSize = 14.sp
                         )
                         Text(
                             text = "Cook: ${dish.cookTimeTime}",
-                            style = MaterialTheme.typography.body2,
+                            fontFamily = fontFamilyForBodyB2,
                             color = MealPrepColor.grey_800,
                             fontSize = 14.sp
                         )

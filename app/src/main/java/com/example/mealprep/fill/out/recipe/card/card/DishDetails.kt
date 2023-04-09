@@ -40,9 +40,7 @@ fun TopAppBarDishDetail(
             .background(MealPrepColor.transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         IconButton(onClick = {
-//            navController.navigate("home")
             navController.popBackStack("home", inclusive = false)
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")

@@ -3,7 +3,6 @@ package com.example.mealprep.fill.out.recipe.card.mealplanning
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -30,6 +28,7 @@ import com.example.mealprep.BottomNavigationBar
 import com.example.mealprep.MealPrepForSpecificDay
 import com.example.mealprep.addEmptyLines
 import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 import kotlinx.coroutines.launch
@@ -107,7 +106,7 @@ fun MealPlanningScreen(
                                         .background(Color.White)
                                         .fillParentMaxWidth(),
                                     verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
+                                    horizontalAlignment = Alignment.Start
                                 ) {
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
@@ -155,7 +154,11 @@ fun MealPlanningScreen(
                                     }
 
                                     if (!chosenMealsForMealPrepByDay.isNullOrEmpty() && chosenDayId == day.id) {
-                                        LazyRow(modifier = Modifier.fillMaxHeight()) {
+                                        LazyRow(
+                                            modifier = Modifier
+                                                .fillMaxHeight().padding(start = 8.dp, bottom = 16.dp),
+                                            horizontalArrangement = Arrangement.Start
+                                        ) {
                                             items(chosenMealsForMealPrepByDay) { dish ->
                                                 Card(
                                                     modifier = Modifier
@@ -184,7 +187,7 @@ fun MealPlanningScreen(
                                                             Text(
                                                                 text = dish.name.addEmptyLines(2),
                                                                 maxLines = 2,
-                                                                style = MaterialTheme.typography.body1,
+                                                                fontFamily = fontFamilyForBodyB1,
                                                                 fontSize = 10.sp,
                                                             )
                                                         }
@@ -234,15 +237,25 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
             .clickable(onClick = { onItemClick(title) })
             .height(55.dp)
             .background(color = colorResource(id = R.color.white))
-            .padding(start = 15.dp, top = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .padding(start = 15.dp, top = 15.dp, bottom = 5.dp),
     ) {
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = title,
-            tint = MealPrepColor.grey_600
-        )
-        Spacer(modifier = Modifier.width(20.dp))
-        Text(text = title, color = Color.Black, style = MaterialTheme.typography.body2)
+        Row(verticalAlignment = Alignment.Bottom) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = title,
+                tint = MealPrepColor.grey_600
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        Row(verticalAlignment = Alignment.Top) {
+            Text(
+                text = title,
+                color = Color.Black,
+                fontFamily = fontFamilyForBodyB2,
+                fontSize = 16.sp
+            )
+        }
     }
 }
