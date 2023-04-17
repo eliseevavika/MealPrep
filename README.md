@@ -5,17 +5,15 @@ app/src/main/res/mipmap-xxxhdpi/ic_logo_slice_up_gradient_new_round.png
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
     <img src="app/src/main/res/mipmap-xxxhdpi/ic_logo_slice_up_gradient_new_round.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">SliceUp - meal planning app</h3>
 
   <p align="center">
-   Plan your meal for the whole week, save time, money and energy
+  Plan meals for the whole week. Save time, money and energy for someone or something you love.
 
 </div>
-
 
 
 <!-- TABLE OF CONTENTS -->
@@ -25,59 +23,32 @@ app/src/main/res/mipmap-xxxhdpi/ic_logo_slice_up_gradient_new_round.png
     <li>
       <a href="#about-the-project">About The Project</a>
     </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-    </li>
     <li><a href="#roadmap">Roadmap</a></li>
   </ol>
 </details>
 
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+SliceUp is my new Android app for planning meals for the whole week.
+The main idea is to simplify the whole process of planning your meals - from creating a base with your favorite recipes, planning what you are going to cook for the whole week of just weekends, and finally, building an entire list of groceries to save time for shopping. 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 ### Built With
 
-This section should list any major frameworks/libraries used to bootstrap your project. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
-
+* Kotlin
+* Jetpack compose
 
 
 <!-- ROADMAP -->
 ## Roadmap
+- [x] Created personas, a customer journey map  <a href="https://drive.google.com/file/d/1vrpAytPPcbJLOrA0djycPZ3BcT5bxnfE/view?usp=sharing">Link</a>
+- [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
+- [x] Created UI on Jetpack compose
+- [ ] I am learning about working with Data in Android
+- [ ] MVVM, Repository, Clean Architecture patterns
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
