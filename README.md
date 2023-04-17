@@ -18,6 +18,7 @@
       <a href="#about-the-project">About The Project</a>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#roadmap">Screenshots</a></li>
   </ol>
 </details>
 
@@ -37,4 +38,10 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created UI on Jetpack compose
 - [ ] I am learning about working with Data in Android
 - [ ] MVVM, Repository, Clean Architecture patterns
+
+## Screenshots
+
+<img src="app/screenshots/1.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/2.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/3.png" alt= “” width="300" height="600">
+
+<img src="app/screenshots/4.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/5.png" alt= “” width="300" height="600">  
 
