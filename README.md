@@ -1,7 +1,7 @@
 
 <br />
 <div align="center">
-    <img src="app/src/main/res/mipmap-xxxhdpi/ic_logo_slice_up_gradient_new_round.png" alt="Logo" width="80" height="80">
+    <img src="app/src/main/res/mipmap-xxxhdpi/ic_slice_up_logo_parts_round.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">SliceUp - meal planning app</h3>
