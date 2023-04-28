@@ -1,9 +1,9 @@
 package com.example.mealprep.fill.out.recipe.card
 
 import androidx.compose.runtime.Composable
-import com.example.mealprep.fill.out.recipe.card.creation.ListIngredientsCreationViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 
 @Composable
-fun IngredientsCreationScreen() {
-    ListIngredientsCreationScreen(viewModel = ListIngredientsCreationViewModel())
+fun IngredientsCreationScreen(viewModel: RecipeCreationViewModel) {
+    ListIngredientsCreationScreen(viewModel)
 }

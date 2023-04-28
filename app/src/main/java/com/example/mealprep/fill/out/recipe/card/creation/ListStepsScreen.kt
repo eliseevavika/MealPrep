@@ -25,7 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mealprep.fill.out.recipe.card.creation.StepsCreationViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -33,13 +33,13 @@ import com.example.meaprep.R
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
 fun ListStepsScreen(
-    viewModel: StepsCreationViewModel
+    viewModel: RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
     ) {
         Scaffold(
-            topBar = { KeyboardHandlingDemo3(viewModel) },
+            topBar = { KeyboardHandlingDemo(viewModel) },
             content = { padding ->
                 Box(
                     modifier = Modifier.padding(
@@ -49,7 +49,7 @@ fun ListStepsScreen(
                         end = 10.dp
                     )
                 ) {
-                    val ingredientsList = viewModel.list.observeAsState().value
+                    val ingredientsList = viewModel.listSteps.observeAsState().value
 
                     LazyColumn {
                         if (!ingredientsList.isNullOrEmpty()) {
@@ -84,11 +84,11 @@ fun ListStepsScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
+fun KeyboardHandlingDemo(viewModel: RecipeCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQuery(input)
+        viewModel.performQuerySteps(input)
     }
 
     Column(
@@ -158,7 +158,7 @@ fun KeyboardHandlingDemo3(viewModel: StepsCreationViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpInstructions(
-    viewModel: StepsCreationViewModel,
+    viewModel: RecipeCreationViewModel,
     item: Steps
 ) {
     var input by remember { mutableStateOf(" ") }
@@ -174,7 +174,7 @@ fun setUpInstructions(
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setName(item, input)
+            viewModel.setNameSteps(item, input)
             focusManager.clearFocus()
         }
 
@@ -219,7 +219,7 @@ fun setUpInstructions(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElement(item)
+                    viewModel.removeElementSteps(item)
                 },
                 modifier = Modifier
                     .size(25.dp)

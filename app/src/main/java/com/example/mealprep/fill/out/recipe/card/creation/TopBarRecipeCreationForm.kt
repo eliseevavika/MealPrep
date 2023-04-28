@@ -1,5 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,17 +16,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.mealprep.Groceries
-import com.example.mealprep.Home
-import com.example.mealprep.NoRippleInteractionSource
-import com.example.mealprep.bounceClick
-import com.example.mealprep.home.ButtonAnimation
+import com.example.mealprep.*
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TopBarRecipeCreationForm(navController: NavHostController) {
+fun TopBarRecipeCreationForm(
+    navController: NavHostController,
+    viewModel: RecipeCreationViewModel
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -50,7 +53,27 @@ fun TopBarRecipeCreationForm(navController: NavHostController) {
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
-                navController.navigate(Home.route)
+                if (viewModel.isRquiredDataEntered()) {
+                    viewModel.addNewRecipe()
+                }else{
+
+                }
+//                val databaseMenuItems by database.recipeDao().addRecipe()
+//                navController.navigate(Home.route)
+
+//                data class RecipeRoom(
+//                    @PrimaryKey(autoGenerate = true) val id: Int,
+//                    val name: String,
+//                    val description: String?,
+//                    val complexity: String?,
+//                    val photo: Bitmap?,
+//                    val cook_time: Float?,
+//                    val serves: Int?,
+//                    val source: String?,
+//                    val user_id: Int,
+//                    val category_id: Int?,
+//                    val creation_date: Date,
+//                )
             }) {
             Text(
                 text = "Save",

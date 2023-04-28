@@ -26,7 +26,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mealprep.fill.out.recipe.card.creation.ListIngredientsCreationViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -35,7 +35,7 @@ import com.example.meaprep.R
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
 fun ListIngredientsCreationScreen(
-    viewModel: ListIngredientsCreationViewModel
+    viewModel: RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -51,7 +51,7 @@ fun ListIngredientsCreationScreen(
                         end = 10.dp
                     )
                 ) {
-                    val ingredientsList = viewModel.list.observeAsState().value
+                    val ingredientsList = viewModel.listIngredients.observeAsState().value
 
                     LazyColumn {
                         if (!ingredientsList.isNullOrEmpty()) {
@@ -87,11 +87,11 @@ fun ListIngredientsCreationScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo3(viewModel: ListIngredientsCreationViewModel) {
+fun KeyboardHandlingDemo3(viewModel: RecipeCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQuery(input)
+        viewModel.performQueryIngredients(input)
     }
 
     Column(
@@ -163,7 +163,7 @@ fun KeyboardHandlingDemo3(viewModel: ListIngredientsCreationViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpRow(
-    viewModel: ListIngredientsCreationViewModel,
+    viewModel: RecipeCreationViewModel,
     item: Groceries
 ) {
     var input by remember { mutableStateOf(" ") }
@@ -179,7 +179,7 @@ fun setUpRow(
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setName(item, input)
+            viewModel.setNameIngredients(item, input)
             focusManager.clearFocus()
         }
 
@@ -224,7 +224,7 @@ fun setUpRow(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElement(item)
+                    viewModel.removeElementIngredients(item)
                 },
                 modifier = Modifier
                     .size(25.dp)

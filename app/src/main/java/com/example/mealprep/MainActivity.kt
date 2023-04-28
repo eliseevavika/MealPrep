@@ -13,6 +13,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,6 +24,7 @@ import com.example.littlelemon.HomeScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
@@ -32,12 +34,23 @@ import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+//    private val database by lazy {
+//        Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
+//    }
+
+    lateinit var viewModal: RecipeCreationViewModel
+
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MealPrepTheme {
+                viewModal = ViewModelProvider(
+                    this,
+                    ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                ).get(RecipeCreationViewModel::class.java)
+
                 val navController = rememberNavController()
 
                 val modalBottomSheetState =
@@ -122,7 +135,8 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(RecipeCreation.route) {
-                                        RecipeCreationScreen(navController, scope, modalBottomSheetState)
+                                        RecipeCreationScreen(
+                                            navController, scope, modalBottomSheetState,viewModal)
                                     }
                                 }
 

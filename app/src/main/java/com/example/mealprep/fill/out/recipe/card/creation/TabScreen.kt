@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
@@ -15,12 +14,12 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mealprep.NoRippleInteractionSource
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
-import kotlinx.coroutines.CoroutineScope
 
 @Composable
-fun TabScreen() {
+fun TabScreen(viewModal: RecipeCreationViewModel) {
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
@@ -63,9 +62,9 @@ fun TabScreen() {
             }
         }
         when (tabIndex) {
-            0 -> IntroCreationScreen()
-            1 -> IngredientsCreationScreen()
-            2 -> StepsCreationScreen()
+            0 -> IntroCreationScreen(viewModal)
+            1 -> IngredientsCreationScreen(viewModal)
+            2 -> StepsCreationScreen(viewModal)
         }
     }
 }

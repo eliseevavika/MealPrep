@@ -16,16 +16,17 @@ import kotlinx.coroutines.CoroutineScope
 fun RecipeCreationScreen(
     navController: NavHostController,
     scope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState
+    modalBottomSheetState: ModalBottomSheetState,
+    viewModal: RecipeCreationViewModel,
 ) {
     Surface(
         color = MaterialTheme.colors.background
     ) {
         Scaffold(
-            topBar = { TopBarRecipeCreationForm(navController) },
+            topBar = { TopBarRecipeCreationForm(navController, viewModal) },
             content = { padding ->
                 Box(modifier = Modifier.padding(padding)) {
-                    TabScreen()
+                    TabScreen(viewModal)
                 }
             },
             backgroundColor = Color.White,
