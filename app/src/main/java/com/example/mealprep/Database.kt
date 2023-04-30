@@ -1,5 +1,4 @@
 package com.example.mealprep
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -28,11 +27,11 @@ data class Recipe(
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "complexity") val complexity: String?,
-    @ColumnInfo(name = "photo") val photo: Bitmap?,
+    var photo: Bitmap? = null,
     @ColumnInfo(name = "cook_time") val cook_time: Float?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
-    @ColumnInfo(name = "user_id") val user_id: Int,
+    @ColumnInfo(name = "user_id") val user_id: Int = 1,
     @ColumnInfo(name = "category_id") val category_id: Int?,
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
@@ -124,7 +123,7 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "note_database"
+                    "app_database"
                 ).build()
                 INSTANCE = instance
                 // return instance
@@ -147,14 +146,21 @@ class Converters {
     }
 
     @TypeConverter
-    fun getStringFromBitmap(bitmap: Bitmap): ByteArray {
+    fun getStringFromBitmap(bitmap: Bitmap?): ByteArray? {
+        if(bitmap == null){
+            return null
+        }
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
         return outputStream.toByteArray()
+
     }
 
     @TypeConverter
-    fun getBitmapFromString(byteArray: ByteArray): Bitmap {
+    fun getBitmapFromString(byteArray: ByteArray?): Bitmap? {
+        if(byteArray == null){
+            return null
+        }
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
     //    val recipes: List<Int>? for mealprep

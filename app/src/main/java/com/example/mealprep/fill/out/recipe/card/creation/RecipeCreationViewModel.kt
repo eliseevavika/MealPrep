@@ -16,6 +16,9 @@ import java.util.*
 class RecipeCreationViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
     private var allRecipes: LiveData<List<Recipe>>
+//    private var _user_id = MutableLiveData<Int>()
+//    val user_id: LiveData<Int>
+//        get() = _user_id
 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
@@ -43,8 +46,8 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val complexity: LiveData<String>
         get() = _complexity
 
-    private var _photo = MutableLiveData<Bitmap>()
-    val photo: LiveData<Bitmap>
+    private var _photo = MutableLiveData<Bitmap?>()
+    val photo: LiveData<Bitmap?>
         get() = _photo
 
     private var _cook_time = MutableLiveData<Float>()
@@ -59,9 +62,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val source: LiveData<String>
         get() = _source
 
-    private var _user_id = MutableLiveData<Int>()
-    val user_id: LiveData<Int>
-        get() = _user_id
 
 
 
@@ -177,10 +177,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             description = _description.value,
             complexity = _complexity.value,
             photo = photo.value,
-            cook_time = (_hours.value.toString() +"."+ _minutes.value.toString()).toFloat(),
+            cook_time = _hours.value?.toFloat(),
             serves = _serves.value,
             source = _source.value,
-            user_id = _user_id.value!!.toInt(),
+            user_id = 1,
             category_id = _categoryIndex.value,
             creation_date = Calendar.getInstance().time
         )
