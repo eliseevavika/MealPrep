@@ -58,22 +58,6 @@ fun TopBarRecipeCreationForm(
                 }else{
 
                 }
-//                val databaseMenuItems by database.recipeDao().addRecipe()
-//                navController.navigate(Home.route)
-
-//                data class RecipeRoom(
-//                    @PrimaryKey(autoGenerate = true) val id: Int,
-//                    val name: String,
-//                    val description: String?,
-//                    val complexity: String?,
-//                    val photo: Bitmap?,
-//                    val cook_time: Float?,
-//                    val serves: Int?,
-//                    val source: String?,
-//                    val user_id: Int,
-//                    val category_id: Int?,
-//                    val creation_date: Date,
-//                )
             }) {
             Text(
                 text = "Save",

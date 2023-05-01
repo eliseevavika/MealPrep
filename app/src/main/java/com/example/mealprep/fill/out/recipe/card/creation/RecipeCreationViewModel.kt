@@ -10,6 +10,8 @@ import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -26,9 +28,8 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         allRecipes = repository.allRecipes
     }
 
-    private var _title = MutableLiveData<String>()
-    val title: LiveData<String>
-        get() = _title
+    private val _title = MutableStateFlow("")
+    val title = _title.asStateFlow()
 
     private var _hours = MutableLiveData<Int>()
     val hours: LiveData<Int>
@@ -100,9 +101,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun setRecipeName(title: String?) {
-        _title.value = title
-    }
+
 
     fun removeElementIngredients(
         item: Groceries
@@ -162,10 +161,14 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
+    fun setRecipeName(title: String?) {
+        _title.value = title.toString()
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered() : Boolean {
         if (_title != null && !_listIngredients.value?.isEmpty()!! && !_listSteps.value?.isEmpty()!!) {
+
             return true
         }
         return false

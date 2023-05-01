@@ -1,6 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -11,8 +12,13 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,47 +36,28 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val bringIntoViewRequesterDescription = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
-
-    val title = viewModel.title.observeAsState().value
+    val title = viewModel.title.collectAsState()
     val hours = viewModel.hours.observeAsState().value
     val minutes = viewModel.minutes.observeAsState().value
     val description = viewModel.description.observeAsState().value
     val categoryIndex = viewModel.categoryIndex.observeAsState().value
     val servesIndex = viewModel.servesIndex.observeAsState().value
 
-    val callback = {
-//        viewModel.setRecipeName(title)
-//        titleState
-//        hoursState
-//        minutesState
-//        descriptionState
-//        selectedCategoryIndex
-//        selectedServesIndex
-    }
-
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            val titleState = remember { mutableStateOf(TextFieldValue()) }
-
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+        ) {
             Text(
                 text = "Title", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
-            TextField(keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Default
-            ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        viewModel.setRecipeName(title)
-
-                    }
-                ),
-                value = titleState.value,
+            TextField(
+                value = title.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange = { if (it.text.length <= 100) titleState.value = it },
-
+                onValueChange = viewModel::setRecipeName,
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
                     cursorColor = MealPrepColor.black,
@@ -85,6 +72,11 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                     )
                 })
 
+            Text(
+                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                text = "Category", fontFamily = fontFamilyForBodyB1,
+                fontSize = 20.sp,
+            )
             Text(
                 modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
                 text = "Cook time",
@@ -156,11 +148,11 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 fontSize = 20.sp,
             )
             TextField(modifier = Modifier
-                .bringIntoViewRequester(bringIntoViewRequester)
+                .bringIntoViewRequester(bringIntoViewRequesterDescription)
                 .onFocusEvent { focusState ->
                     if (focusState.isFocused) {
                         coroutineScope.launch {
-                            bringIntoViewRequester.bringIntoView()
+                            bringIntoViewRequesterDescription.bringIntoView()
                         }
                     }
                 },
