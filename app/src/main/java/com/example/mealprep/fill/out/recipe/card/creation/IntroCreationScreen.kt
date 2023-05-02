@@ -36,12 +36,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
-    val bringIntoViewRequesterDescription = remember { BringIntoViewRequester() }
-    val coroutineScope = rememberCoroutineScope()
     val title = viewModel.title.collectAsState()
-    val hours = viewModel.hours.observeAsState().value
-    val minutes = viewModel.minutes.observeAsState().value
-    val description = viewModel.description.observeAsState().value
+    val hours = viewModel.hours.collectAsState()
+    val minutes = viewModel.minutes.collectAsState()
+    val description = viewModel.description.collectAsState()
     val categoryIndex = viewModel.categoryIndex.observeAsState().value
     val servesIndex = viewModel.servesIndex.observeAsState().value
 
@@ -73,11 +71,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 })
 
             Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-                text = "Category", fontFamily = fontFamilyForBodyB1,
-                fontSize = 20.sp,
-            )
-            Text(
                 modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),
                 text = "Cook time",
                 fontFamily = fontFamilyForBodyB1,
@@ -86,8 +79,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
 
             val maxCharHours = 2
             val maxCharMinutes = 3
-            val hoursState = remember { mutableStateOf(TextFieldValue()) }
-            val minutesState = remember { mutableStateOf(TextFieldValue()) }
 
             Row {
                 Box(
@@ -96,11 +87,14 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                         .padding(end = 10.dp)
                 ) {
                     OutlinedTextField(
-                        value = hoursState.value,
+                        value = hours.value.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
-                            if (it.text.length <= maxCharHours) hoursState.value = it
+                            viewModel.setHours(it.toInt())
+                            viewModel.setCookTime()
                         },
+//                        onValueChange = {
+//                            if (it.length <= maxCharHours)
                         label = { Text("hours", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.textFieldColors(
@@ -115,10 +109,11 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 }
                 Box(modifier = Modifier.width(120.dp)) {
                     OutlinedTextField(
-                        value = minutesState.value,
+                        value = minutes.value.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
-                            if (it.text.length <= maxCharMinutes) minutesState.value = it
+                            viewModel.setMinutes(it.toInt())
+                            viewModel.setCookTime()
                         },
                         label = { Text("minutes", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -141,24 +136,17 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 RequestContentPermission()
             }
 
-            val descriptionState = remember { mutableStateOf(TextFieldValue()) }
 
             Text(
                 text = "Description", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
-            TextField(modifier = Modifier
-                .bringIntoViewRequester(bringIntoViewRequesterDescription)
-                .onFocusEvent { focusState ->
-                    if (focusState.isFocused) {
-                        coroutineScope.launch {
-                            bringIntoViewRequesterDescription.bringIntoView()
-                        }
-                    }
-                },
-                value = descriptionState.value,
+            TextField(
+                value = description.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange = { if (it.text.length <= 300) descriptionState.value = it },
+                onValueChange =
+                viewModel::setDescription,
+
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
                     cursorColor = MealPrepColor.black,
@@ -169,7 +157,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 ),
                 placeholder = {
                     Text(
-                        text = "Give your recipe a name", fontFamily = fontFamilyForBodyB2
+                        text = "Give your recipe a description", fontFamily = fontFamilyForBodyB2
                     )
                 })
 
@@ -207,6 +195,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
         }
     }
 }
+
 
 @Preview
 @Composable

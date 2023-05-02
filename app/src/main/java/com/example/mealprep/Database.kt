@@ -1,4 +1,5 @@
 package com.example.mealprep
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -26,9 +27,8 @@ data class Recipe(
     val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
-    @ColumnInfo(name = "complexity") val complexity: String?,
     var photo: Bitmap? = null,
-    @ColumnInfo(name = "cook_time") val cook_time: Float?,
+    @ColumnInfo(name = "cook_time") val cook_time: Int?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
     @ColumnInfo(name = "user_id") val user_id: Int = 1,
@@ -101,7 +101,7 @@ interface MealPlanDao {
 
 @Database(
     entities = [UserRoom::class, Recipe::class, MealplanRoom::class, IngredientRoom::class, InstructionRoom::class, CategoryRoom::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -124,7 +124,10 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                        //TODO (fallbackToDestructiveMigration)
+               // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
+                .build()
                 INSTANCE = instance
                 // return instance
                 instance
@@ -147,7 +150,7 @@ class Converters {
 
     @TypeConverter
     fun getStringFromBitmap(bitmap: Bitmap?): ByteArray? {
-        if(bitmap == null){
+        if (bitmap == null) {
             return null
         }
         val outputStream = ByteArrayOutputStream()
@@ -158,11 +161,12 @@ class Converters {
 
     @TypeConverter
     fun getBitmapFromString(byteArray: ByteArray?): Bitmap? {
-        if(byteArray == null){
+        if (byteArray == null) {
             return null
         }
         return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
+
     //    val recipes: List<Int>? for mealprep
     @TypeConverter
     fun fromListIntToString(intList: List<Int>): String = intList.toString()

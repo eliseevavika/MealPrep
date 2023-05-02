@@ -4,6 +4,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.*
 import com.example.mealprep.AppDatabase
 import com.example.mealprep.Recipe
@@ -18,9 +19,6 @@ import java.util.*
 class RecipeCreationViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
     private var allRecipes: LiveData<List<Recipe>>
-//    private var _user_id = MutableLiveData<Int>()
-//    val user_id: LiveData<Int>
-//        get() = _user_id
 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
@@ -31,28 +29,22 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()
 
-    private var _hours = MutableLiveData<Int>()
-    val hours: LiveData<Int>
-        get() = _hours
+    private val _hours = MutableStateFlow(0)
+    val hours = _hours.asStateFlow()
 
-    private var _minutes = MutableLiveData<Int>()
-    val minutes: LiveData<Int>
-        get() = _minutes
+    private val _minutes = MutableStateFlow(0)
+    val minutes = _minutes.asStateFlow()
 
-    private var _description = MutableLiveData<String>()
-    val description: LiveData<String>
-        get() = _description
+    private val _description = MutableStateFlow("")
+    val description = _description.asStateFlow()
 
-    private var _complexity = MutableLiveData<String>()
-    val complexity: LiveData<String>
-        get() = _complexity
 
     private var _photo = MutableLiveData<Bitmap?>()
     val photo: LiveData<Bitmap?>
         get() = _photo
 
-    private var _cook_time = MutableLiveData<Float>()
-    val cook_time: LiveData<Float>
+    private var _cook_time = MutableLiveData<Int>()
+    val cook_time: LiveData<Int>
         get() = _cook_time
 
     private var _serves = MutableLiveData<Int>()
@@ -64,12 +56,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         get() = _source
 
 
-
-
-
-
-
-
     private var _categoryIndex = MutableLiveData<Int>()
     val categoryIndex: LiveData<Int>
         get() = _categoryIndex
@@ -77,8 +63,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private var _servesIndex = MutableLiveData<Int>()
     val servesIndex: LiveData<Int>
         get() = _servesIndex
-
-
 
 
     // List Ingredients
@@ -101,8 +85,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-
-
     fun removeElementIngredients(
         item: Groceries
     ) {
@@ -121,7 +103,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
-
 
     // List steps
     private var _listSteps = MutableLiveData<List<Steps>>()
@@ -161,26 +142,46 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
+
     fun setRecipeName(title: String?) {
         _title.value = title.toString()
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun isRquiredDataEntered() : Boolean {
-        if (_title != null && !_listIngredients.value?.isEmpty()!! && !_listSteps.value?.isEmpty()!!) {
+    fun setHours(hours: Int?) {
+        if (hours != null) {
+            _hours.value = hours
+        }
+    }
 
+    fun setMinutes(minutes: Int?) {
+        if (minutes != null) {
+            _minutes.value = minutes
+        }
+    }
+
+    fun setCookTime() {
+        val time = _minutes.value?.let { _hours?.value?.times(60)?.plus(it) }
+        _cook_time.value = time
+    }
+
+    fun setDescription(description: String?) {
+        _description.value = description.toString()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun isRquiredDataEntered(): Boolean {
+        if (_title != null && !_listIngredients.value?.isEmpty()!! && !_listSteps.value?.isEmpty()!!) {
             return true
         }
         return false
     }
 
-    fun addNewRecipe(){
+    fun addNewRecipe() {
         val recipe = Recipe(
-            name = _title.value.toString(),
+            name = _title.value,
             description = _description.value,
-            complexity = _complexity.value,
             photo = photo.value,
-            cook_time = _hours.value?.toFloat(),
+            cook_time = _cook_time.value,
             serves = _serves.value,
             source = _source.value,
             user_id = 1,
