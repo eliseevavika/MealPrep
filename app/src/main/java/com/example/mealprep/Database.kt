@@ -32,7 +32,7 @@ data class Recipe(
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
     @ColumnInfo(name = "user_id") val user_id: Int = 1,
-    @ColumnInfo(name = "category_id") val category_id: Int?,
+    @ColumnInfo(name = "category") val category: String?,
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
 
@@ -56,12 +56,6 @@ data class InstructionRoom(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val description: String,
     val recipe_id: Int
-)
-
-@Entity(tableName = "category")
-data class CategoryRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val name: String,
 )
 
 @Dao
@@ -100,8 +94,8 @@ interface MealPlanDao {
 }
 
 @Database(
-    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, IngredientRoom::class, InstructionRoom::class, CategoryRoom::class],
-    version = 2,
+    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, IngredientRoom::class, InstructionRoom::class],
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

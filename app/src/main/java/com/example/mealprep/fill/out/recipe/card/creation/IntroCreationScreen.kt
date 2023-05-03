@@ -40,8 +40,9 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
     val hours = viewModel.hours.collectAsState()
     val minutes = viewModel.minutes.collectAsState()
     val description = viewModel.description.collectAsState()
-    val categoryIndex = viewModel.categoryIndex.observeAsState().value
-    val servesIndex = viewModel.servesIndex.observeAsState().value
+    val category= viewModel.category.collectAsState()
+    val serves = viewModel.serves.collectAsState()
+    val source = viewModel.source.collectAsState()
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
         Column(
@@ -136,7 +137,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 RequestContentPermission()
             }
 
-
             Text(
                 text = "Description", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
@@ -162,36 +162,66 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 })
 
             Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                modifier = Modifier.padding(top = 16.dp),
+                text = "Source", fontFamily = fontFamilyForBodyB1,
+                fontSize = 20.sp,
+            )
+            TextField(
+                value = source.value,
+                textStyle = TextStyle(color = MealPrepColor.black),
+                onValueChange =
+                viewModel::setSource,
+
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = MealPrepColor.white,
+                    cursorColor = MealPrepColor.black,
+                    focusedIndicatorColor = MealPrepColor.black,
+                    unfocusedIndicatorColor = MealPrepColor.black,
+                    focusedLabelColor = MealPrepColor.grey_800,
+                    unfocusedLabelColor = MealPrepColor.grey_800
+                ),
+                placeholder = {
+                    Text(
+                        text = "Your recipe link", fontFamily = fontFamilyForBodyB2
+                    )
+                })
+
+            Text(
+                modifier = Modifier.padding(top = 16.dp),
                 text = "Category", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
 
-            var selectedCategoryIndex by remember { mutableStateOf(-1) }
+            val listCategory = listOf("Main dishes", "Pastry", "Others")
 
             CategoryDropdownMenu(
                 placeholder = "Select a category",
-                items = listOf("Main dishes", "Pastry", "Others"),
-                selectedIndex = selectedCategoryIndex,
-                onItemSelected = { index, _ -> selectedCategoryIndex = index },
+                items = listCategory,
+                selectedIndex = listCategory.indexOf(category.value),
+                onItemSelected = { index, _ -> viewModel.setCategory(listCategory[index])},
             )
 
             Text(
-                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
-                text = "Serve",
+                modifier = Modifier.padding(top = 16.dp),
+                text = "Serves",
                 fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
 
-            var selectedServesIndex by remember { mutableStateOf(-1) }
+            val listServes = listOf("1", "2", "4", "6", "8")
+
             CategoryDropdownMenu(
                 placeholder = "Select number of servings",
-                items = listOf("1", "2", "4", "6", "8"),
-                selectedIndex = selectedServesIndex,
-                onItemSelected = { index, _ -> selectedServesIndex = index },
+                items = listServes,
+                selectedIndex = listServes.indexOf(serves.value),
+                onItemSelected = { index, _ ->
+                    viewModel.setServesCount(listServes[index])
+                },
             )
 
             Spacer(modifier = Modifier.padding(vertical = 50.dp))
+
+
         }
     }
 }

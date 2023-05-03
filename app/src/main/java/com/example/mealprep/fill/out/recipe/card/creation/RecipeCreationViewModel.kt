@@ -47,22 +47,19 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val cook_time: LiveData<Int>
         get() = _cook_time
 
-    private var _serves = MutableLiveData<Int>()
-    val serves: LiveData<Int>
-        get() = _serves
+    private val _serves = MutableStateFlow("")
+    val serves = _serves.asStateFlow()
 
-    private var _source = MutableLiveData<String>()
-    val source: LiveData<String>
-        get() = _source
+    private val _source = MutableStateFlow("")
+    val source = _source.asStateFlow()
 
 
-    private var _categoryIndex = MutableLiveData<Int>()
-    val categoryIndex: LiveData<Int>
-        get() = _categoryIndex
+    private val _category = MutableStateFlow("")
+    val category = _category.asStateFlow()
 
-    private var _servesIndex = MutableLiveData<Int>()
-    val servesIndex: LiveData<Int>
-        get() = _servesIndex
+//    private var _servesIndex = MutableLiveData<Int>()
+//    val servesIndex: LiveData<Int>
+//        get() = _servesIndex
 
 
     // List Ingredients
@@ -168,6 +165,24 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         _description.value = description.toString()
     }
 
+    fun setServesCount(count: String?) {
+        if (count != null) {
+            _serves.value = count
+        }
+    }
+
+    fun setSource(link: String?){
+        if (link != null) {
+            _source.value = link
+        }
+    }
+
+    fun setCategory(category: String?){
+        if(category != null){
+            _category.value = category
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered(): Boolean {
         if (_title != null && !_listIngredients.value?.isEmpty()!! && !_listSteps.value?.isEmpty()!!) {
@@ -182,10 +197,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             description = _description.value,
             photo = photo.value,
             cook_time = _cook_time.value,
-            serves = _serves.value,
+            serves = _serves.value.toInt(),
             source = _source.value,
             user_id = 1,
-            category_id = _categoryIndex.value,
+            category = _category.value,
             creation_date = Calendar.getInstance().time
         )
         addRecipe(recipe)
