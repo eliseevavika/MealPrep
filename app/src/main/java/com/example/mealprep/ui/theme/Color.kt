@@ -16,4 +16,5 @@ object MealPrepColor {
     val sky_blue = Color(0xFF85CAE4)
     val delete_remove_color = Color(0xFFDF6101)
     val transparent = white.copy(alpha = 1f)
+    val error = Color(0xFFff3333)
 }

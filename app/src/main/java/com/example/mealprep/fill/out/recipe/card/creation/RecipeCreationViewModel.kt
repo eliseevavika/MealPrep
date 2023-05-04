@@ -143,7 +143,9 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setRecipeName(title: String?) {
-        _title.value = title.toString()
+        if (title != null) {
+            _title.value = title
+        }
     }
 
     fun setHours(hours: Int?) {
@@ -192,7 +194,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered(): Boolean {
-        if (_title != null && !_listIngredients.value?.isEmpty()!! && !_listSteps.value?.isEmpty()!!) {
+        if (_title.value != "") {
             return true
         }
         return false

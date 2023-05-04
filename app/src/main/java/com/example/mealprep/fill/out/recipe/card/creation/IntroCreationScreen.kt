@@ -1,5 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,6 +12,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,9 +34,11 @@ import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewMode
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import com.example.mealprep.ui.theme.fontFamilyForError
 import kotlinx.coroutines.launch
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
@@ -44,6 +50,14 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
     val serves = viewModel.serves.collectAsState()
     val source = viewModel.source.collectAsState()
 
+    val pattern = remember { Regex("^\\s*$") }
+
+    var isError by rememberSaveable { mutableStateOf(true) }
+
+    fun validate(text: String) {
+        isError = text.isEmpty() || text.matches(pattern)
+    }
+
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
         Column(
             modifier = Modifier
@@ -53,23 +67,47 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 text = "Title", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
+
             TextField(
                 value = title.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange = viewModel::setRecipeName,
+                onValueChange = {
+                    viewModel.setRecipeName(it)
+                    validate(it)
+                },
+                isError = isError,
+                keyboardActions = KeyboardActions(onAny = { validate(title.value) }),
+                singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
-                    cursorColor = MealPrepColor.black,
-                    focusedIndicatorColor = MealPrepColor.black,
-                    unfocusedIndicatorColor = MealPrepColor.black,
+                    cursorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
+                    focusedIndicatorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
+                    unfocusedIndicatorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
                     focusedLabelColor = MealPrepColor.grey_800,
-                    unfocusedLabelColor = MealPrepColor.grey_800
+                    unfocusedLabelColor = MealPrepColor.grey_800,
                 ),
                 placeholder = {
                     Text(
                         text = "Give your recipe a name", fontFamily = fontFamilyForBodyB2
                     )
                 })
+            if (isError) {
+                Text(
+                    text = "* This field is required",
+                    color = MealPrepColor.error,
+                    fontFamily = fontFamilyForError,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }else{
+                Text(
+                    text = "",
+                    color = MealPrepColor.error,
+                    fontFamily = fontFamilyForError,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
 
             Text(
                 modifier = Modifier.padding(top = 10.dp, bottom = 10.dp),

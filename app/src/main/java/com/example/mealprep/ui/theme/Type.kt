@@ -44,6 +44,18 @@ val fontFamilyForBodyB2 = FontFamily(
         style = FontStyle.Normal
     )
 )
+@OptIn(ExperimentalTextApi::class)
+val fontNameForError = GoogleFont("Roboto")
+
+@OptIn(ExperimentalTextApi::class)
+val fontFamilyForError = FontFamily(
+    Font(
+        googleFont = fontNameForError,
+        fontProvider = provider,
+        weight = FontWeight.Light,
+        style = FontStyle.Italic
+    )
+)
 
 val Typography = Typography(
     body1 = TextStyle(
