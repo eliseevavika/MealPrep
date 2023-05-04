@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,40 +24,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.net.toUri
+import com.example.mealprep.Converters
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.meaprep.R
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RequestContentPermission() {
-    var hasImage by remember {
-        mutableStateOf(false)
-    }
+fun RequestContentPermission(viewModel: RecipeCreationViewModel) {
+    val photoStrState = viewModel.photo.collectAsState()
 
-    var imageUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
+    val imageUri = viewModel.uri.collectAsState()
 
     val context = LocalContext.current
-    val bitmap = remember {
-        mutableStateOf<Bitmap?>(null)
-    }
 
     val launcher = rememberLauncherForActivityResult(
         contract =
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        hasImage = uri != null
-        imageUri = uri
+        viewModel.setImageUri(uri)
     }
 
     Box {
-        if (hasImage && imageUri != null) {
+        if (imageUri.value != null) {
             ConstraintLayout {
                 val (photo, remove, edit) = createRefs()
+                var bitmap = Converters().converterStringToBitmap(photoStrState.value)
 
-                bitmap.value?.let { btm ->
+                bitmap?.let { btm ->
                     Image(
-                        bitmap = btm.asImageBitmap(),
+                        bitmap = bitmap.asImageBitmap(),
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -81,8 +79,7 @@ fun RequestContentPermission() {
                                 radius = this.size.maxDimension / 2.0f
                             )
                         }, onClick = {
-                        hasImage = false
-                        imageUri = null
+                        viewModel.setImageUri(null)
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_delete_24),
@@ -115,15 +112,18 @@ fun RequestContentPermission() {
         } else {
             ShowNoImage(launcher)
         }
-        imageUri?.let {
+
+        imageUri.value?.let {
             if (Build.VERSION.SDK_INT < 28) {
-                bitmap.value = MediaStore.Images
+                val bitmapValue = MediaStore.Images
                     .Media.getBitmap(context.contentResolver, it)
+                viewModel.setPhoto(Converters().convertBitmapToString(bitmapValue!!))
 
             } else {
                 val source = ImageDecoder
                     .createSource(context.contentResolver, it)
-                bitmap.value = ImageDecoder.decodeBitmap(source)
+                val bitmapValue = ImageDecoder.decodeBitmap(source)
+                viewModel.setPhoto(Converters().convertBitmapToString(bitmapValue!!))
             }
         }
     }

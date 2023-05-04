@@ -1,10 +1,9 @@
 package com.example.mealprep.fill.out.recipe.card.creation
 
 import android.app.Application
-import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.*
 import com.example.mealprep.AppDatabase
 import com.example.mealprep.Recipe
@@ -39,9 +38,12 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val description = _description.asStateFlow()
 
 
-    private var _photo = MutableLiveData<Bitmap?>()
-    val photo: LiveData<Bitmap?>
-        get() = _photo
+    private val _photo = MutableStateFlow("")
+    val photo = _photo.asStateFlow()
+
+    private val _uri = MutableStateFlow<Uri?>(null)
+    val uri = _uri.asStateFlow()
+
 
     private var _cook_time = MutableLiveData<Int>()
     val cook_time: LiveData<Int>
@@ -171,16 +173,21 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    fun setSource(link: String?){
+    fun setSource(link: String?) {
         if (link != null) {
             _source.value = link
         }
     }
 
-    fun setCategory(category: String?){
-        if(category != null){
+    fun setCategory(category: String?) {
+        if (category != null) {
             _category.value = category
         }
+    }
+
+    fun setPhoto(str: String) {
+        _photo.value = str
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -195,7 +202,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         val recipe = Recipe(
             name = _title.value,
             description = _description.value,
-            photo = photo.value,
+            photo = _photo.value,
             cook_time = _cook_time.value,
             serves = _serves.value.toInt(),
             source = _source.value,
@@ -222,5 +229,9 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(recipe)
 
+    }
+
+    fun setImageUri(uri: Uri?) {
+        _uri.value = uri
     }
 }

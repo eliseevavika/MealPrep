@@ -40,7 +40,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
     val hours = viewModel.hours.collectAsState()
     val minutes = viewModel.minutes.collectAsState()
     val description = viewModel.description.collectAsState()
-    val category= viewModel.category.collectAsState()
+    val category = viewModel.category.collectAsState()
     val serves = viewModel.serves.collectAsState()
     val source = viewModel.source.collectAsState()
 
@@ -134,7 +134,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                     .fillMaxWidth()
                     .height(240.dp)
             ) {
-                RequestContentPermission()
+                RequestContentPermission(viewModel)
             }
 
             Text(
@@ -198,7 +198,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
                 placeholder = "Select a category",
                 items = listCategory,
                 selectedIndex = listCategory.indexOf(category.value),
-                onItemSelected = { index, _ -> viewModel.setCategory(listCategory[index])},
+                onItemSelected = { index, _ -> viewModel.setCategory(listCategory[index]) },
             )
 
             Text(
@@ -220,8 +220,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel) {
             )
 
             Spacer(modifier = Modifier.padding(vertical = 50.dp))
-
-
         }
     }
 }

@@ -3,12 +3,13 @@ package com.example.mealprep
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import java.io.ByteArrayOutputStream
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @Entity(tableName = "user")
@@ -27,7 +28,7 @@ data class Recipe(
     val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
-    var photo: Bitmap? = null,
+    var photo: String?,
     @ColumnInfo(name = "cook_time") val cook_time: Int?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
@@ -119,9 +120,9 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "app_database"
                 ).fallbackToDestructiveMigration()
-                        //TODO (fallbackToDestructiveMigration)
-               // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
-                .build()
+                    //TODO (fallbackToDestructiveMigration)
+                    // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
+                    .build()
                 INSTANCE = instance
                 // return instance
                 instance
@@ -142,26 +143,27 @@ class Converters {
         return date?.time
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
-    fun getStringFromBitmap(bitmap: Bitmap?): ByteArray? {
-        if (bitmap == null) {
-            return null
-        }
+    fun convertBitmapToString(bitmap: Bitmap): String {
         val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        return outputStream.toByteArray()
-
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+        val byteArray = outputStream.toByteArray()
+        return Base64.getEncoder().encodeToString(byteArray)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
-    fun getBitmapFromString(byteArray: ByteArray?): Bitmap? {
-        if (byteArray == null) {
-            return null
+    fun converterStringToBitmap(str: String): Bitmap? {
+        return try {
+            val encodeByte = Base64.getDecoder().decode(str)
+            BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
-        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
     }
 
-    //    val recipes: List<Int>? for mealprep
     @TypeConverter
     fun fromListIntToString(intList: List<Int>): String = intList.toString()
 
@@ -178,4 +180,7 @@ class Converters {
         }
         return result
     }
+
+
 }
+
