@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,10 +20,14 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun TabScreen(viewModal: RecipeCreationViewModel) {
+fun TabScreen(
+    viewModal: RecipeCreationViewModel,
+    focusRequester: FocusRequester
+) {
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(
@@ -56,13 +61,16 @@ fun TabScreen(viewModal: RecipeCreationViewModel) {
                     },
 
                     selected = tabIndex == index,
-                    onClick = { tabIndex = index },
+                    onClick = {
+                        tabIndex = index
+                        viewModal.setTabIndex(index)
+                    },
                     interactionSource = NoRippleInteractionSource()
                 )
             }
         }
         when (tabIndex) {
-            0 -> IntroCreationScreen(viewModal)
+            0 -> IntroCreationScreen(viewModal, focusRequester)
             1 -> IngredientsCreationScreen(viewModal)
             2 -> StepsCreationScreen(viewModal)
         }

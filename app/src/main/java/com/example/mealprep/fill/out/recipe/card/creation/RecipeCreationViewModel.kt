@@ -59,6 +59,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val _category = MutableStateFlow("")
     val category = _category.asStateFlow()
 
+    private val _chosenTabIndex = MutableStateFlow(0)
+    val chosenTabIndex = _chosenTabIndex.asStateFlow()
+
+
 //    private var _servesIndex = MutableLiveData<Int>()
 //    val servesIndex: LiveData<Int>
 //        get() = _servesIndex
@@ -235,5 +239,9 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     fun setImageUri(uri: Uri?) {
         _uri.value = uri
+    }
+
+    fun setTabIndex(index: Int) {
+       _chosenTabIndex.value = index
     }
 }
