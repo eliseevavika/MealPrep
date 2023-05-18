@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import com.example.mealprep.AppDatabase
+import com.example.mealprep.Ingredient
 import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
@@ -17,6 +18,7 @@ import java.util.*
 
 class RecipeCreationViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
+
     private var allRecipes: LiveData<List<Recipe>>
 
     init {
@@ -37,13 +39,11 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val _description = MutableStateFlow("")
     val description = _description.asStateFlow()
 
-
     private val _photo = MutableStateFlow("")
     val photo = _photo.asStateFlow()
 
     private val _uri = MutableStateFlow<Uri?>(null)
     val uri = _uri.asStateFlow()
-
 
     private var _cook_time = MutableLiveData<Int>()
     val cook_time: LiveData<Int>
@@ -61,12 +61,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     private val _chosenTabIndex = MutableStateFlow(0)
     val chosenTabIndex = _chosenTabIndex.asStateFlow()
-
-
-//    private var _servesIndex = MutableLiveData<Int>()
-//    val servesIndex: LiveData<Int>
-//        get() = _servesIndex
-
 
     // List Ingredients
     private var _listIngredients = MutableLiveData<List<Groceries>>()
@@ -210,13 +204,14 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             description = _description.value,
             photo = _photo.value,
             cook_time = _cook_time.value,
-            serves = _serves.value.toInt(),
+            serves = if (_serves.value == "") 0 else _serves.value.toInt(),
             source = _source.value,
             user_id = 1,
             category = _category.value,
             creation_date = Calendar.getInstance().time
         )
         addRecipe(recipe)
+
     }
 
     fun deleteRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
@@ -232,16 +227,16 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     // on below line we are creating a new method for adding a new note to our database
     // we are calling a method from our repository to add a new note.
-    fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(recipe)
-
-    }
+    fun addRecipe(recipe: Recipe) =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insertRecipeAndIngredientTransaction(recipe, _listIngredients.value)
+        }
 
     fun setImageUri(uri: Uri?) {
         _uri.value = uri
     }
 
     fun setTabIndex(index: Int) {
-       _chosenTabIndex.value = index
+        _chosenTabIndex.value = index
     }
 }

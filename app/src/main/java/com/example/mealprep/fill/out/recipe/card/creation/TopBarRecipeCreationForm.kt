@@ -38,7 +38,6 @@ fun TopBarRecipeCreationForm(
     val chosenTabIndex = viewModel.chosenTabIndex.collectAsState()
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
-
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -64,6 +63,7 @@ fun TopBarRecipeCreationForm(
             onClick = {
                 if (viewModel.isRquiredDataEntered()) {
                     viewModel.addNewRecipe()
+                    navController?.navigate(Home.route)
                 } else {
                     if (chosenTabIndex.value == 1 || chosenTabIndex.value == 2) {
                         showDialog = true
@@ -80,7 +80,6 @@ fun TopBarRecipeCreationForm(
         }
         if (showDialog) {
             AlertDialog(
-
                 onDismissRequest = {
                     showDialog = false
                 },
@@ -129,13 +128,3 @@ fun TopBarRecipeCreationForm(
         }
     }
 }
-
-@Composable
-fun AlertDialogComponent() {
-    val openDialog = remember { mutableStateOf(true) }
-
-    if (openDialog.value) {
-
-    }
-}
-

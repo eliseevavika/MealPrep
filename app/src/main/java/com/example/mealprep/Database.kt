@@ -8,6 +8,8 @@ import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import androidx.room.ForeignKey.Companion.CASCADE
+import com.example.mealprep.fill.out.recipe.card.Groceries
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -37,20 +39,39 @@ data class Recipe(
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
 
+@Entity(
+    tableName = "ingredient",
+    foreignKeys = [ForeignKey(
+        entity = Recipe::class,
+        parentColumns = ["id"],
+        childColumns = ["recipe_id"],
+        onDelete = CASCADE,
+        onUpdate = CASCADE
+    )]
+)
+data class Ingredient(
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
+    var name: String,
+    val completed: Boolean = false,
+    val recipe_id: Long?
+)
+
+data class RecipeWithIngredients(
+    @Embedded val recipe: Recipe,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "recipe_id"
+    )
+    val ingredientsList: List<Ingredient>
+)
+
 @Entity(tableName = "mealplan")
 data class MealplanRoom(
     @PrimaryKey(autoGenerate = true) val id: Int,
     val user_id: Int,
-    val recipes: List<Int>?
+//    val recipes: List<Int>?
 )
 
-@Entity(tableName = "ingredient")
-data class IngredientRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val name: String,
-    val completed: Boolean,
-    val recipe_id: Int?
-)
 
 @Entity(tableName = "instruction")
 data class InstructionRoom(
@@ -73,19 +94,56 @@ interface UserDao {
 
 @Dao
 interface RecipeDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(recipe: Recipe)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insert(recipe: Recipe): Long
+
+    @Insert
+    suspend fun insertIngredients(ingredients: List<Ingredient>)
+
+    @Transaction
+    suspend fun insertRecipeAndIngredientTransaction(
+        recipe: Recipe,
+        ingredients: List<Groceries>?
+    ) {
+        // Anything inside this method runs in a single transaction.
+        val list = mutableListOf<Ingredient>()
+
+        val recipeId = insert(recipe)
+
+        ingredients?.forEach { ingredient ->
+            val item = Ingredient(
+                name = ingredient.name,
+                completed = false,
+                recipe_id = recipeId
+            )
+            list.add(item)
+        }
+        insertIngredients(list)
+    }
+
+    @Transaction
+    @Query("SELECT * FROM Recipe WHERE id = :recipeId")
+    suspend fun getRecipeWithIngredients(recipeId: Int): List<RecipeWithIngredients>
 
     @Delete
     suspend fun delete(recipe: Recipe)
 
-
     @Query("SELECT * FROM Recipe")
     fun getAllRecipes(): LiveData<List<Recipe>>
 
-
     @Update
     suspend fun update(recipe: Recipe)
+}
+
+@Dao
+interface IngredientDao {
+    @Insert
+    suspend fun insertIngredient(ingredient: Ingredient)
+
+//    @Insert
+//    suspend fun insertIngredientsForRecipe(ingredients: List<Ingredient>)
+//    @Query("SELECT * FROM Recipe")
+//    fun getRecipeWithIngredients(): List<RecipeWithIngredientslist>
 }
 
 @Dao
@@ -95,7 +153,7 @@ interface MealPlanDao {
 }
 
 @Database(
-    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, IngredientRoom::class, InstructionRoom::class],
+    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, Ingredient::class, InstructionRoom::class],
     version = 3,
     exportSchema = false
 )
@@ -103,17 +161,13 @@ interface MealPlanDao {
 abstract class AppDatabase : RoomDatabase() {
     abstract fun getRecipeDao(): RecipeDao
 
-//    abstract fun getUserDao(): UserDao
-
-//    abstract fun getMealPlanDao(): MealPlanDao
+    abstract fun getIngredientDao(): IngredientDao
 
     companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            // if the INSTANCE is not null, then return it,
-            // if it is, then create the database
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -124,13 +178,11 @@ abstract class AppDatabase : RoomDatabase() {
                     // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
                     .build()
                 INSTANCE = instance
-                // return instance
                 instance
             }
         }
     }
 }
-
 
 class Converters {
     @TypeConverter
@@ -163,24 +215,5 @@ class Converters {
             null
         }
     }
-
-    @TypeConverter
-    fun fromListIntToString(intList: List<Int>): String = intList.toString()
-
-    @TypeConverter
-    fun toListIntFromString(stringList: String): List<Int> {
-        val result = ArrayList<Int>()
-        val split = stringList.replace("[", "").replace("]", "").replace(" ", "").split(",")
-        for (n in split) {
-            try {
-                result.add(n.toInt())
-            } catch (e: Exception) {
-
-            }
-        }
-        return result
-    }
-
-
 }
 
