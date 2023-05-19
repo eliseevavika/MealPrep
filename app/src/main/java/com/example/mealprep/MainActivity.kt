@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+import android.database.CursorWindow
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -32,11 +33,10 @@ import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecifi
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
 import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
+import java.lang.reflect.Field
+
 
 class MainActivity : ComponentActivity() {
-//    private val database by lazy {
-//        Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database").build()
-//    }
 
     lateinit var viewModal: RecipeCreationViewModel
 
@@ -46,6 +46,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MealPrepTheme {
+                try {
+                    val field: Field =
+                        CursorWindow::class.java.getDeclaredField("sCursorWindowSize")
+                    field.setAccessible(true)
+                    field.set(null, 100 * 1024 * 1024) //the 100MB is the new size
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
                 viewModal = ViewModelProvider(
                     this,
                     ViewModelProvider.AndroidViewModelFactory.getInstance(application)
@@ -73,7 +82,6 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
-                                val viewModel = MealPlanningViewModel()
                                 var chosenDay: Int? = null
 
                                 NavHost(
@@ -81,12 +89,16 @@ class MainActivity : ComponentActivity() {
                                 ) {
                                     composable(Home.route) {
                                         HomeScreen(
-                                            navController, scope, modalBottomSheetState, viewModel
+                                            navController, scope, modalBottomSheetState, viewModal
                                         )
                                     }
 
                                     composable(MealPrep.route) {
-                                        MealPlanningScreen(navController, viewModel, chosenDay)
+                                        MealPlanningScreen(
+                                            navController,
+                                            MealPlanningViewModel(),
+                                            chosenDay
+                                        )
                                     }
 
                                     composable(Groceries.route) {
@@ -127,7 +139,11 @@ class MainActivity : ComponentActivity() {
                                         ) { "Dish id is null" }
                                         chosenDay = dayId
 
-                                        MealPrepForSpecificDay(dayId, navController, viewModel)
+                                        MealPrepForSpecificDay(
+                                            dayId,
+                                            navController,
+                                            MealPlanningViewModel()
+                                        )
                                     }
 
                                     composable(GroceriesAddition.route) {
@@ -136,7 +152,8 @@ class MainActivity : ComponentActivity() {
 
                                     composable(RecipeCreation.route) {
                                         RecipeCreationScreen(
-                                            navController, scope, modalBottomSheetState,viewModal)
+                                            navController, scope, modalBottomSheetState, viewModal
+                                        )
                                     }
                                 }
 

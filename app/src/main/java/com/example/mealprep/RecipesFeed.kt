@@ -1,5 +1,9 @@
 package com.example.mealprep
 
+import android.os.Build
+import android.os.Environment
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -14,24 +18,29 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.littlelemon.Dish
-import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+import java.io.File
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecipesFeed(
     navController: NavHostController,
-    dishes: List<Dish> = listOf(),
+    recipes: List<Recipe> = listOf(),
     isMealPlanningOn: Boolean,
-    viewModel: MealPlanningViewModel
+    viewModel: RecipeCreationViewModel
 ) {
     Column {
         LazyVerticalGrid(
@@ -40,22 +49,27 @@ fun RecipesFeed(
                 .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-            itemsIndexed(dishes) { _, dish ->
-                MenuDish(navController, dish, isMealPlanningOn, viewModel)
+            itemsIndexed(recipes) { _, recipe ->
+                MenuDish(navController, recipe, isMealPlanningOn, viewModel)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun MenuDish(
     navController: NavHostController? = null,
-    dish: Dish,
+    recipe: Recipe,
     isMealPlanningOn: Boolean,
-    viewModel: MealPlanningViewModel
+    viewModel: RecipeCreationViewModel
 ) {
-    val chosenDishesForMealPrep = viewModel.list.observeAsState().value
+    val chosenDishesForMealPrep = viewModel.listChosenMeals.observeAsState().value
+
+    val photoStrState = viewModel.photo.collectAsState()
+
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier
@@ -63,11 +77,13 @@ fun MenuDish(
             .wrapContentSize(),
         onClick = {
             if (!isMealPlanningOn) {
-                navController?.navigate(DishDetails.route + "/${dish.id}")
+                navController?.navigate(DishDetails.route + "/${recipe.id}")
             } else {
-                viewModel.performQuery(dish)
+                viewModel.performQueryForChosenMeals(recipe)
             }
         }) {
+
+        var bitmap = Converters().converterStringToBitmap(photoStrState.value)
 
         Row {
             Column(
@@ -76,20 +92,37 @@ fun MenuDish(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                Image(
-                    painter = painterResource(id = dish.imageResource),
-                    contentDescription = "Image",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(144.dp, 171.dp)
-                        .clip(
-                            RoundedCornerShape(16.dp)
+                bitmap?.asImageBitmap()?.let {
+                    val mediaStorageDir: File? = context.getExternalFilesDir(null)
+                    val fileName =
+                        photoStrState.value.substring(photoStrState.value.lastIndexOf('/') + 1)
+
+                    val dir = File(mediaStorageDir?.path)
+
+                    viewModel.saveImage(bitmap, dir, fileName)
+
+                    Converters().converterStringToBitmap(recipe.photo.toString())?.let { it1 ->
+                        Image(
+                            bitmap = it1.asImageBitmap(),
+                            contentDescription = "Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(144.dp, 171.dp)
+                                .clip(
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .alpha(
+                                    if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
+                                            recipe
+                                        ) == true
+                                    ) 0.2F else 1F
+                                )
                         )
-                        .alpha(if (isMealPlanningOn && chosenDishesForMealPrep?.contains(dish) == true) 0.2F else 1F)
-                )
+                    }
+                }
 
                 Text(
-                    text = dish.name.addEmptyLines(2),
+                    text = recipe.name.addEmptyLines(2),
                     maxLines = 2,
                     fontSize = 20.sp,
                     fontFamily = fontFamilyForBodyB1,
@@ -112,13 +145,13 @@ fun MenuDish(
                     )
                     Column() {
                         Text(
-                            text = "Prep: ${dish.prepTime}",
+                            text = "Prep: ${recipe.cook_time}",
                             fontFamily = fontFamilyForBodyB2,
                             color = MealPrepColor.grey_800,
                             fontSize = 14.sp
                         )
                         Text(
-                            text = "Cook: ${dish.cookTimeTime}",
+                            text = "Cook: ${recipe.cook_time}",
                             fontFamily = fontFamilyForBodyB2,
                             color = MealPrepColor.grey_800,
                             fontSize = 14.sp
@@ -131,3 +164,4 @@ fun MenuDish(
 }
 
 fun String.addEmptyLines(lines: Int) = this + "\n".repeat(lines)
+

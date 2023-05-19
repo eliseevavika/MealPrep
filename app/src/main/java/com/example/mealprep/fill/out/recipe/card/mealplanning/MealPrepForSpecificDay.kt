@@ -72,13 +72,14 @@ fun MealPrepForSpecificDay(
                         val result = dishes.value.filter { dish ->
                             dish.name.lowercase().contains(it.lowercase())
                         }
-                        if (result.isNotEmpty()) {
-                            filteredDishes.value = result.toMutableStateList()
-                        } else {
-                            filteredDishes.value = mutableListOf()
-                        }
+                        //ToDo change the source for DB
+//                        if (result.isNotEmpty()) {
+//                            filteredDishes.value = result.toMutableStateList()
+//                        } else {
+//                            filteredDishes.value = mutableListOf()
+//                        }
                     })
-                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
+//                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
                 }
             }
         }

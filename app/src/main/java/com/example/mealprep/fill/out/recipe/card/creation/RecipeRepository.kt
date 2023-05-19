@@ -9,14 +9,6 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeDao.insertRecipeAndIngredientTransaction(recipe, list)
     }
 
-//    suspend fun getRecipeWithIngredients(recipe: Recipe) {
-//        recipeDao.getRecipeWithIngredients(recipe.id)
-//    }
-
-//    suspend fun insertAllIngredientsForRecipe(list: List<Ingredient>) {
-//        recipeDao.insertIngredients(list)
-//    }
-
     // on below line we are creating a delete method
     // for deleting our note from database.
     suspend fun delete(recipe: Recipe) {

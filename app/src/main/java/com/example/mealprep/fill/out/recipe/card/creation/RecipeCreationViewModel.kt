@@ -1,12 +1,25 @@
 package com.example.mealprep.fill.out.recipe.card.creation
 
+import android.Manifest
 import android.app.Application
+import android.content.ContentValues.TAG
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.util.Log
+import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
 import com.example.mealprep.AppDatabase
-import com.example.mealprep.Ingredient
+import com.example.mealprep.Converters
 import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
@@ -14,12 +27,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.*
+
 
 class RecipeCreationViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: RecipeRepository
 
-    private var allRecipes: LiveData<List<Recipe>>
+    var allRecipes: LiveData<List<Recipe>>
 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
@@ -189,6 +207,46 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         _photo.value = str
 
     }
+//    fun verifyPermissions(): Boolean? {
+//
+//        // This will return the current Status
+//        val permissionExternalMemory =
+//            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
+//            val STORAGE_PERMISSIONS = arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//            // If permission not granted then ask for permission real time.
+//            ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, 1)
+//            return false
+//        }
+//        return true
+//    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun saveImage(image: Bitmap, storageDir: File, imageFileName: String) {
+        var successDirCreated = false
+        if (!storageDir.exists()) {
+            successDirCreated = storageDir.mkdir()
+        }
+        if (successDirCreated) {
+            val imageFile = File(storageDir, imageFileName)
+            val savedImagePath: String = imageFile.getAbsolutePath()
+            try {
+                val resized = Bitmap.createScaledBitmap(
+                    image,
+                    (image.width * 0.8).toInt(),
+                    (image.height * 0.8).toInt(),
+                    true
+                )
+                val fOut: OutputStream = FileOutputStream(imageFile)
+                resized.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
+                _photo.value = Converters().convertBitmapToString(resized)
+                fOut.close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        } else {
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered(): Boolean {
@@ -211,7 +269,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             creation_date = Calendar.getInstance().time
         )
         addRecipe(recipe)
-
     }
 
     fun deleteRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
@@ -223,7 +280,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun updateRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
         repository.update(recipe)
     }
-
 
     // on below line we are creating a new method for adding a new note to our database
     // we are calling a method from our repository to add a new note.
@@ -238,5 +294,20 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     fun setTabIndex(index: Int) {
         _chosenTabIndex.value = index
+    }
+
+    private var _listChosenMeals = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMeals: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMeals
+
+    fun performQueryForChosenMeals(
+        dish: Recipe
+    ) {
+        if (_listChosenMeals.value?.contains(dish) == true) {
+            _listChosenMeals.value = _listChosenMeals.value?.minus(dish) ?: listOf(dish)
+        } else {
+            _listChosenMeals.value = _listChosenMeals.value?.plus(dish) ?: listOf(dish)
+        }
     }
 }

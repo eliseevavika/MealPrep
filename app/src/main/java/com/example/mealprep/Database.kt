@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+import android.app.LocaleManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -9,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
+import com.bumptech.glide.Glide
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import java.io.ByteArrayOutputStream
 import java.util.*
@@ -16,18 +18,12 @@ import java.util.*
 
 @Entity(tableName = "user")
 data class UserRoom(
-    @PrimaryKey(autoGenerate = true)
-    @NonNull
-    val id: Int,
-    val email: String,
-    val password: String
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Int, val email: String, val password: String
 )
 
 @Entity(tableName = "recipe")
 data class Recipe(
-    @PrimaryKey(autoGenerate = true)
-    @NonNull
-    val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
     var photo: String?,
@@ -40,8 +36,7 @@ data class Recipe(
 )
 
 @Entity(
-    tableName = "ingredient",
-    foreignKeys = [ForeignKey(
+    tableName = "ingredient", foreignKeys = [ForeignKey(
         entity = Recipe::class,
         parentColumns = ["id"],
         childColumns = ["recipe_id"],
@@ -57,12 +52,9 @@ data class Ingredient(
 )
 
 data class RecipeWithIngredients(
-    @Embedded val recipe: Recipe,
-    @Relation(
-        parentColumn = "id",
-        entityColumn = "recipe_id"
-    )
-    val ingredientsList: List<Ingredient>
+    @Embedded val recipe: Recipe, @Relation(
+        parentColumn = "id", entityColumn = "recipe_id"
+    ) val ingredientsList: List<Ingredient>
 )
 
 @Entity(tableName = "mealplan")
@@ -72,12 +64,9 @@ data class MealplanRoom(
 //    val recipes: List<Int>?
 )
 
-
 @Entity(tableName = "instruction")
 data class InstructionRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val description: String,
-    val recipe_id: Int
+    @PrimaryKey(autoGenerate = true) val id: Int, val description: String, val recipe_id: Int
 )
 
 @Dao
@@ -85,12 +74,6 @@ interface UserDao {
     @Query("SELECT * FROM User")
     fun getAll(): LiveData<List<UserRoom>>
 }
-
-//    @Insert
-//    fun insertAll(vararg menuItems: MenuItemRoom)
-//
-//    @Query("SELECT (SELECT COUNT(*) FROM MenuItemRoom) == 0")
-//    fun isEmpty(): Boolean
 
 @Dao
 interface RecipeDao {
@@ -102,8 +85,7 @@ interface RecipeDao {
 
     @Transaction
     suspend fun insertRecipeAndIngredientTransaction(
-        recipe: Recipe,
-        ingredients: List<Groceries>?
+        recipe: Recipe, ingredients: List<Groceries>?
     ) {
         // Anything inside this method runs in a single transaction.
         val list = mutableListOf<Ingredient>()
@@ -112,9 +94,7 @@ interface RecipeDao {
 
         ingredients?.forEach { ingredient ->
             val item = Ingredient(
-                name = ingredient.name,
-                completed = false,
-                recipe_id = recipeId
+                name = ingredient.name, completed = false, recipe_id = recipeId
             )
             list.add(item)
         }
@@ -139,11 +119,6 @@ interface RecipeDao {
 interface IngredientDao {
     @Insert
     suspend fun insertIngredient(ingredient: Ingredient)
-
-//    @Insert
-//    suspend fun insertIngredientsForRecipe(ingredients: List<Ingredient>)
-//    @Query("SELECT * FROM Recipe")
-//    fun getRecipeWithIngredients(): List<RecipeWithIngredientslist>
 }
 
 @Dao
@@ -170,9 +145,7 @@ abstract class AppDatabase : RoomDatabase() {
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "app_database"
+                    context.applicationContext, AppDatabase::class.java, "app_database"
                 ).fallbackToDestructiveMigration()
                     //TODO (fallbackToDestructiveMigration)
                     // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
