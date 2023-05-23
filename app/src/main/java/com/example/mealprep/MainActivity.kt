@@ -113,15 +113,15 @@ class MainActivity : ComponentActivity() {
                                     composable(
                                         DishDetails.route + "/{${DishDetails.argDishId}}",
                                         arguments = listOf(navArgument(DishDetails.argDishId) {
-                                            type = NavType.IntType
+                                            type = NavType.LongType
                                         })
                                     ) { backStackEntry ->
                                         val id = requireNotNull(
-                                            backStackEntry.arguments?.getInt(
+                                            backStackEntry.arguments?.getLong(
                                                 DishDetails.argDishId
                                             )
                                         ) { "Dish id is null" }
-                                        DishDetails(id, navController)
+                                        DishDetails(id, navController, viewModal)
                                     }
 
                                     composable(

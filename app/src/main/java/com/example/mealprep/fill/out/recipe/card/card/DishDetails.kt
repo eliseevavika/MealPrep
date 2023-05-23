@@ -1,5 +1,7 @@
 package com.example.littlelemon
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,12 +10,15 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -21,7 +26,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.mealprep.Converters
+import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.TabScreenForRecipeCard
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
@@ -48,8 +56,15 @@ fun TopAppBarDishDetail(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DishDetails(id: Int, navController: NavHostController) {
+fun DishDetails(
+    id: Long,
+    navController: NavHostController,
+    viewModel: RecipeCreationViewModel
+) {
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBarDishDetail(navController)
@@ -57,18 +72,27 @@ fun DishDetails(id: Int, navController: NavHostController) {
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
                 Column {
-                    UpperPart(id)
+                    viewModel.getRecipe(id)
 
-                    LowerPart(id)
+                    viewModel.getListOfIngredients(id)
+
+                    viewModel.getListOfSteps(id)
+
+                    UpperPart(viewModel)
+
+                    LowerPart(viewModel)
                 }
             }
         }
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun UpperPart(id: Int) {
-    val dish = requireNotNull(DishRepository.getDish(id))
+fun UpperPart(viewModel: RecipeCreationViewModel) {
+    val recipe = viewModel.returnedRecipe.observeAsState().value
+
+    var bitmap = recipe?.photo?.let { Converters().converterStringToBitmap(it) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy((-150).dp),
@@ -76,14 +100,17 @@ fun UpperPart(id: Int) {
             .background(MealPrepColor.grey_100)
             .height(300.dp)
     ) {
-        Image(
-            painter = painterResource(id = dish.imageResource),
-            contentDescription = "Dish image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-        )
+
+        bitmap?.let {
+            Image(
+                bitmap = it.asImageBitmap(),
+                contentDescription = "Dish image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+            )
+        }
 
         Box(
             modifier = Modifier
@@ -102,7 +129,7 @@ fun UpperPart(id: Int) {
                     verticalAlignment = CenterVertically
                 ) {
                     Text(
-                        text = "${dish.name}", fontFamily = fontFamilyForBodyB1,
+                        text = "${recipe?.name}", fontFamily = fontFamilyForBodyB1,
                         fontSize = 24.sp, fontWeight = FontWeight.Bold, maxLines = 2
                     )
                 }
@@ -127,7 +154,7 @@ fun UpperPart(id: Int) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "${dish.cookTimeTime} min", fontFamily = fontFamilyForBodyB2,
+                                text = "${recipe?.cook_time} min", fontFamily = fontFamilyForBodyB2,
                                 fontSize = 16.sp
                             )
                         }
@@ -187,6 +214,8 @@ fun UpperPart(id: Int) {
 }
 
 @Composable
-fun LowerPart(id: Int) {
-    TabScreenForRecipeCard(id)
+fun LowerPart(viewModel: RecipeCreationViewModel) {
+        TabScreenForRecipeCard(viewModel)
+
+
 }

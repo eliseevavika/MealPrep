@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -13,7 +14,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.littlelemon.DishRepository
+import com.example.mealprep.Ingredient
+import com.example.mealprep.Recipe
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -22,15 +25,13 @@ import com.example.meaprep.R
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun ListIngredientsCardScreen(
-    id: Int
+    viewModel: RecipeCreationViewModel
 ) {
     Box(modifier = Modifier.padding(16.dp)) {
-        val dish = requireNotNull(DishRepository.getDish(id))
-        val listIngredients = dish.ingredientsList
-
+        val ingredientsList = viewModel.returnedListIngredient.observeAsState().value
         LazyColumn {
-            if (!listIngredients.isNullOrEmpty()) {
-                items(listIngredients) { item ->
+            if (!ingredientsList.isNullOrEmpty()) {
+                items(ingredientsList) { item ->
                     Column(
                         modifier = Modifier
                             .background(Color.White)
@@ -49,7 +50,7 @@ fun ListIngredientsCardScreen(
 @ExperimentalUnitApi
 @Composable
 fun setUpRow(
-    item: Groceries
+    ingredient: Ingredient
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -73,7 +74,7 @@ fun setUpRow(
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
-                text = item.name, fontFamily = fontFamilyForBodyB2,
+                text = ingredient.name, fontFamily = fontFamilyForBodyB2,
                 fontSize = 16.sp
             )
         }

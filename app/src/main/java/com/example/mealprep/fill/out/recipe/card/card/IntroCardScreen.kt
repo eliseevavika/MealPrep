@@ -8,24 +8,24 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.littlelemon.Dish
-import com.example.littlelemon.DishRepository
+import com.example.mealprep.Recipe
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun IntroCardScreen(id: Int) {
-    val dish = requireNotNull(DishRepository.getDish(id))
+fun IntroCardScreen(viewModel: RecipeCreationViewModel) {
 
+    val recipe = viewModel.returnedRecipe.observeAsState().value
     Box(modifier = Modifier.padding(16.dp)) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Text(
@@ -34,7 +34,7 @@ fun IntroCardScreen(id: Int) {
                 fontSize = 20.sp,
             )
             Text(
-                text = "${dish.description}", fontFamily = fontFamilyForBodyB2,
+                text = "${recipe?.description}", fontFamily = fontFamilyForBodyB2,
                 fontSize = 16.sp
             )
             Text(
@@ -42,29 +42,29 @@ fun IntroCardScreen(id: Int) {
                 text = "Source", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
-            SourceOfRecipe(dish)
+            recipe?.let { SourceOfRecipe(it) }
         }
     }
 }
 
 @Composable
-fun SourceOfRecipe(dish: Dish) {
+fun SourceOfRecipe(recipe: Recipe) {
     val mAnnotatedLinkString = buildAnnotatedString {
 
-        val mStr = dish.source
+        val mStr = recipe.source
 
-        append(mStr)
+        append(mStr.toString())
         addStyle(
             style = SpanStyle(
                 color = Color.Blue,
                 textDecoration = TextDecoration.Underline
-            ), start = 0, end = mStr.length
+            ), start = 0, end = mStr?.length ?: 0
         )
         addStringAnnotation(
             tag = "URL",
-            annotation = mStr,
+            annotation = mStr.toString(),
             start = 0,
-            end = mStr.length
+            end = mStr?.length ?: 0
         )
     }
 
@@ -82,15 +82,4 @@ fun SourceOfRecipe(dish: Dish) {
             }
         )
     }
-}
-
-@Composable
-fun ExtraIntroCardScreen() {
-    IntroCardScreen(1)
-}
-
-@Preview
-@Composable
-fun IntroCardScreenPreview() {
-    ExtraIntroCardScreen()
 }

@@ -14,14 +14,16 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mealprep.NoRippleInteractionSource
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun TabScreenForRecipeCard(id: Int) {
+fun TabScreenForRecipeCard(viewModel: RecipeCreationViewModel) {
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
+
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(
@@ -61,9 +63,9 @@ fun TabScreenForRecipeCard(id: Int) {
             }
         }
         when (tabIndex) {
-            0 -> IntroCardScreen(id)
-            1 -> ListIngredientsCardScreen(id)
-            2 -> StepsCardScreen(id)
+            0 -> IntroCardScreen(viewModel)
+            1 -> ListIngredientsCardScreen(viewModel)
+            2 -> StepsCardScreen(viewModel)
         }
     }
 }

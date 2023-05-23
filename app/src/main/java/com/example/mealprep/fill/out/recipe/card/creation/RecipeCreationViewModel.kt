@@ -1,33 +1,18 @@
 package com.example.mealprep.fill.out.recipe.card.creation
 
-import android.Manifest
 import android.app.Application
-import android.content.ContentValues.TAG
-import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
-import android.util.Log
-import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.*
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.example.mealprep.AppDatabase
-import com.example.mealprep.Converters
-import com.example.mealprep.Recipe
+import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -38,6 +23,12 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val repository: RecipeRepository
 
     var allRecipes: LiveData<List<Recipe>>
+
+    val returnedRecipe = MutableLiveData<Recipe>()
+
+    val returnedListIngredient = MutableLiveData<List<Ingredient>>()
+
+    val returnedListSteps = MutableLiveData<List<Step>>()
 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
@@ -285,7 +276,11 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     // we are calling a method from our repository to add a new note.
     fun addRecipe(recipe: Recipe) =
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertRecipeAndIngredientTransaction(recipe, _listIngredients.value)
+            repository.insertRecipeIngredientAndStepTransaction(
+                recipe,
+                _listIngredients.value,
+                _listSteps.value
+            )
         }
 
     fun setImageUri(uri: Uri?) {
@@ -308,6 +303,24 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             _listChosenMeals.value = _listChosenMeals.value?.minus(dish) ?: listOf(dish)
         } else {
             _listChosenMeals.value = _listChosenMeals.value?.plus(dish) ?: listOf(dish)
+        }
+    }
+
+    fun getRecipe(id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            returnedRecipe.postValue(repository.getRecipeById(id))
+        }
+    }
+
+    fun getListOfIngredients(recipeId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            returnedListIngredient.postValue(repository.getListOfIngredients(recipeId))
+        }
+    }
+
+    fun getListOfSteps(recipeId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            returnedListSteps.postValue(repository.getListOfSteps(recipeId))
         }
     }
 }

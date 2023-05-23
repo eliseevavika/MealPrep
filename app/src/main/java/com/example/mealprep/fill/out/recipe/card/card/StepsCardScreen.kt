@@ -7,13 +7,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.littlelemon.DishRepository
+import com.example.mealprep.Recipe
+import com.example.mealprep.Step
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -21,15 +24,16 @@ import com.example.meaprep.R
 
 @Composable
 fun StepsCardScreen(
-    id: Int
+    viewModel: RecipeCreationViewModel
 ) {
+    val recipe = viewModel.returnedRecipe.observeAsState().value
     Box(modifier = Modifier.padding(16.dp)) {
-        val dish = requireNotNull(DishRepository.getDish(id))
-        val listIngredients = dish.instructions
-
+//        val dish = requireNotNull(DishRepository.getDish(recipeId))
+//        val listSteps = recipe?.let { viewModel.getListOfSteps(it.id) }
+        val listSteps = viewModel.returnedListSteps.observeAsState().value
         LazyColumn {
-            if (!listIngredients.isNullOrEmpty()) {
-                items(listIngredients) { step ->
+            if (!listSteps.isNullOrEmpty()) {
+                items(listSteps) { step ->
                     Column(
                         modifier = Modifier
                             .background(Color.White)
@@ -37,7 +41,7 @@ fun StepsCardScreen(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        setUpRowForInstruction(step)
+                        setUpRowForStep(step)
                     }
                 }
             }
@@ -46,8 +50,8 @@ fun StepsCardScreen(
 }
 
 @Composable
-fun setUpRowForInstruction(
-    step: String
+fun setUpRowForStep(
+    step: Step
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -69,7 +73,7 @@ fun setUpRowForInstruction(
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
-                text = step, fontFamily = fontFamilyForBodyB2,
+                text = step.description, fontFamily = fontFamilyForBodyB2,
                 fontSize = 16.sp
             )
         }

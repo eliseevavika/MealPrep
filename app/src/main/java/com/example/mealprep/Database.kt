@@ -1,6 +1,5 @@
 package com.example.mealprep
 
-import android.app.LocaleManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,8 +9,8 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
-import com.bumptech.glide.Glide
 import com.example.mealprep.fill.out.recipe.card.Groceries
+import com.example.mealprep.fill.out.recipe.card.Steps
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -23,7 +22,7 @@ data class UserRoom(
 
 @Entity(tableName = "recipe")
 data class Recipe(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
     var photo: String?,
@@ -64,9 +63,11 @@ data class MealplanRoom(
 //    val recipes: List<Int>?
 )
 
-@Entity(tableName = "instruction")
-data class InstructionRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int, val description: String, val recipe_id: Int
+@Entity(tableName = "step")
+data class Step(
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
+    val description: String,
+    val recipe_id: Long
 )
 
 @Dao
@@ -83,12 +84,17 @@ interface RecipeDao {
     @Insert
     suspend fun insertIngredients(ingredients: List<Ingredient>)
 
+    @Insert
+    suspend fun insertSteps(steps: List<Step>)
+
     @Transaction
-    suspend fun insertRecipeAndIngredientTransaction(
-        recipe: Recipe, ingredients: List<Groceries>?
+    suspend fun insertRecipeIngredientAndStepTransaction(
+        recipe: Recipe, ingredients: List<Groceries>?, steps: List<Steps>?
     ) {
         // Anything inside this method runs in a single transaction.
-        val list = mutableListOf<Ingredient>()
+        val listIngredients = mutableListOf<Ingredient>()
+
+        val listSteps = mutableListOf<Step>()
 
         val recipeId = insert(recipe)
 
@@ -96,20 +102,39 @@ interface RecipeDao {
             val item = Ingredient(
                 name = ingredient.name, completed = false, recipe_id = recipeId
             )
-            list.add(item)
+            listIngredients.add(item)
         }
-        insertIngredients(list)
+
+        steps?.forEach { step ->
+            val item = Step(
+                description = step.description, recipe_id = recipeId
+            )
+            listSteps.add(item)
+        }
+
+        insertIngredients(listIngredients)
+        insertSteps(listSteps)
+
     }
 
-    @Transaction
-    @Query("SELECT * FROM Recipe WHERE id = :recipeId")
-    suspend fun getRecipeWithIngredients(recipeId: Int): List<RecipeWithIngredients>
+//    @Transaction
+//    @Query("SELECT * FROM Recipe WHERE id = :recipeId")
+//    suspend fun getRecipeWithIngredients(recipeId: Int): List<RecipeWithIngredients>
 
     @Delete
     suspend fun delete(recipe: Recipe)
 
     @Query("SELECT * FROM Recipe")
     fun getAllRecipes(): LiveData<List<Recipe>>
+
+    @Query("SELECT * FROM Recipe WHERE id = :id")
+    fun getReipeById(id: Long): Recipe
+
+    @Query("SELECT * FROM Ingredient WHERE recipe_id = :recipeId")
+    fun getListOfIngredients(recipeId: Long): List<Ingredient>
+
+    @Query("SELECT * FROM Step WHERE recipe_id = :recipeId")
+    fun getListOfSteps(recipeId: Long): List<Step>
 
     @Update
     suspend fun update(recipe: Recipe)
@@ -128,7 +153,7 @@ interface MealPlanDao {
 }
 
 @Database(
-    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, Ingredient::class, InstructionRoom::class],
+    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, Ingredient::class, Step::class],
     version = 3,
     exportSchema = false
 )

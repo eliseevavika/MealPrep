@@ -49,11 +49,11 @@ fun ListStepsScreen(
                         end = 10.dp
                     )
                 ) {
-                    val ingredientsList = viewModel.listSteps.observeAsState().value
+                    val stepList = viewModel.listSteps.observeAsState().value
 
                     LazyColumn {
-                        if (!ingredientsList.isNullOrEmpty()) {
-                            items(ingredientsList) { item ->
+                        if (!stepList.isNullOrEmpty()) {
+                            items(stepList) { item ->
                                 Column(
                                     modifier = Modifier
                                         .background(Color.White)
