@@ -1,7 +1,9 @@
 package com.example.mealprep
 
+import android.graphics.ImageDecoder
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -24,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
@@ -83,7 +86,7 @@ fun MenuDish(
             }
         }) {
 
-        var bitmap = Converters().converterStringToBitmap(photoStrState.value)
+        var bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
 
         Row {
             Column(
@@ -92,33 +95,52 @@ fun MenuDish(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                bitmap?.asImageBitmap()?.let {
-                    val mediaStorageDir: File? = context.getExternalFilesDir(null)
-                    val fileName =
-                        photoStrState.value.substring(photoStrState.value.lastIndexOf('/') + 1)
+                if (bitmap != null) {
+                    bitmap?.asImageBitmap()?.let {
+                        val mediaStorageDir: File? = context.getExternalFilesDir(null)
+                        val fileName =
+                            photoStrState.value.substring(photoStrState.value.lastIndexOf('/') + 1)
 
-                    val dir = File(mediaStorageDir?.path)
+                        val dir = File(mediaStorageDir?.path)
 
-                    viewModel.saveImage(bitmap, dir, fileName)
+                        viewModel.saveImage(bitmap, dir, fileName)
 
-                    Converters().converterStringToBitmap(recipe.photo.toString())?.let { it1 ->
-                        Image(
-                            bitmap = it1.asImageBitmap(),
-                            contentDescription = "Image",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(144.dp, 171.dp)
-                                .clip(
-                                    RoundedCornerShape(16.dp)
-                                )
-                                .alpha(
-                                    if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
-                                            recipe
-                                        ) == true
-                                    ) 0.2F else 1F
-                                )
-                        )
+                        Converters().converterStringToBitmap(recipe.photo.toString())?.let { it1 ->
+                            Image(
+                                bitmap = it1.asImageBitmap(),
+                                contentDescription = "Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(144.dp, 171.dp)
+                                    .clip(
+                                        RoundedCornerShape(16.dp)
+                                    )
+                                    .alpha(
+                                        if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
+                                                recipe
+                                            ) == true
+                                        ) 0.2F else 1F
+                                    )
+                            )
+                        }
                     }
+                }else{
+                    Image(
+                        painterResource(id = R.drawable.noimage),
+                        contentDescription = "Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(144.dp, 171.dp)
+                            .clip(
+                                RoundedCornerShape(16.dp)
+                            )
+                            .alpha(
+                                if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
+                                        recipe
+                                    ) == true
+                                ) 0.2F else 1F
+                            )
+                    )
                 }
 
                 Text(
