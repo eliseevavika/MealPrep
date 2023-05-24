@@ -24,7 +24,6 @@ fun TabScreenForRecipeCard(viewModel: RecipeCreationViewModel) {
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
 
-
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(
             selectedTabIndex = tabIndex,
@@ -32,7 +31,7 @@ fun TabScreenForRecipeCard(viewModel: RecipeCreationViewModel) {
             indicator = {},
         ) {
             tabs.forEachIndexed { index, title ->
-                var withForTab = if (index != 1) 94.5.dp else 120.dp
+                val withForTab = if (index != 1) 94.5.dp else 120.dp
 
                 Tab(
                     text = {

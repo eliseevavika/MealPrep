@@ -46,7 +46,6 @@ fun TopBarRecipeCreationForm(
             .fillMaxWidth(60f),
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         IconButton(onClick = {
             navController.popBackStack("home", inclusive = false)
         }) {

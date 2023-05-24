@@ -64,14 +64,12 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val _source = MutableStateFlow("")
     val source = _source.asStateFlow()
 
-
     private val _category = MutableStateFlow("")
     val category = _category.asStateFlow()
 
     private val _chosenTabIndex = MutableStateFlow(0)
     val chosenTabIndex = _chosenTabIndex.asStateFlow()
 
-    // List Ingredients
     private var _listIngredients = MutableLiveData<List<Groceries>>()
     private var _last_id: Int = -1
 
@@ -110,7 +108,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
-    // List steps
     private var _listSteps = MutableLiveData<List<Steps>>()
     private var _last__id_steps: Int = -1
 
@@ -281,10 +278,29 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
                 _listIngredients.value,
                 _listSteps.value
             )
+            emptyLiveData()
+
         }
 
     fun setImageUri(uri: Uri?) {
         _uri.value = uri
+    }
+
+    fun emptyLiveData() {
+        _photo.value = ""
+        _source.value = ""
+        _category.value = ""
+        _listSteps.postValue(listOf())
+        _listIngredients.postValue(listOf())
+        _cook_time.postValue(0)
+        _description.value = ""
+        _hours.value = 0
+        _last__id_steps = 0
+        _last_id = 0
+        _uri.value = null
+        _minutes.value = 0
+        _serves.value = ""
+        _title.value = ""
     }
 
     fun setTabIndex(index: Int) {
@@ -321,6 +337,21 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun getListOfSteps(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             returnedListSteps.postValue(repository.getListOfSteps(recipeId))
+        }
+    }
+
+    fun getCookTimeString(cookTime: Int?): String {
+        if (cookTime == null) {
+            return "0 min"
+        } else {
+            val hours: Int = cookTime!! / 60
+
+            val minutes: Int = cookTime % 60
+            return if (hours == 0) {
+                "$minutes min"
+            } else {
+                "$hours h $minutes min"
+            }
         }
     }
 }

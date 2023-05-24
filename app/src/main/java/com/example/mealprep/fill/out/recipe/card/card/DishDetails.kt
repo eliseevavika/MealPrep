@@ -59,32 +59,27 @@ fun TopAppBarDishDetail(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DishDetails(
-    id: Long,
-    navController: NavHostController,
-    viewModel: RecipeCreationViewModel
+    id: Long, navController: NavHostController, viewModel: RecipeCreationViewModel
 ) {
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        topBar = {
-            TopAppBarDishDetail(navController)
-        },
-        content = { padding ->
-            Box(modifier = Modifier.padding(padding)) {
-                Column {
-                    viewModel.getRecipe(id)
+    Scaffold(topBar = {
+        TopAppBarDishDetail(navController)
+    }, content = { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            Column {
+                viewModel.getRecipe(id)
 
-                    viewModel.getListOfIngredients(id)
+                viewModel.getListOfIngredients(id)
 
-                    viewModel.getListOfSteps(id)
+                viewModel.getListOfSteps(id)
 
-                    UpperPart(viewModel)
+                UpperPart(viewModel)
 
-                    LowerPart(viewModel)
-                }
+                LowerPart(viewModel)
             }
         }
-    )
+    })
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -100,10 +95,18 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
             .background(MealPrepColor.grey_100)
             .height(300.dp)
     ) {
-
-        bitmap?.let {
+        if (bitmap != null) {
             Image(
-                bitmap = it.asImageBitmap(),
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Dish image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+            )
+        } else {
+            Image(
+                painterResource(id = R.drawable.noimage),
                 contentDescription = "Dish image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -125,12 +128,14 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .fillMaxHeight(0.5F)
-                        .padding(start = 16.dp, end = 16.dp),
-                    verticalAlignment = CenterVertically
+                        .padding(start = 16.dp, end = 16.dp), verticalAlignment = CenterVertically
                 ) {
                     Text(
-                        text = "${recipe?.name}", fontFamily = fontFamilyForBodyB1,
-                        fontSize = 24.sp, fontWeight = FontWeight.Bold, maxLines = 2
+                        text = "${recipe?.name}",
+                        fontFamily = fontFamilyForBodyB1,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2
                     )
                 }
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
@@ -154,15 +159,16 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "${recipe?.cook_time} min", fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp
+                                text = if (recipe?.cook_time == null) "0 min" else {
+                                    "${recipe?.cook_time} min"
+                                }, fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                             )
                         }
                     }
                     Divider(
                         color = MealPrepColor.grey_400,
                         modifier = Modifier
-                            .fillMaxHeight()  //fill the max height
+                            .fillMaxHeight()
                             .width(1.dp)
                     )
                     Box(Modifier.padding(start = 16.dp, end = 16.dp)) {
@@ -178,15 +184,14 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "Easy", fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp
+                                text = "Easy", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                             )
                         }
                     }
                     Divider(
                         color = MealPrepColor.grey_400,
                         modifier = Modifier
-                            .fillMaxHeight()  //fill the max height
+                            .fillMaxHeight()
                             .width(1.dp)
                     )
                     Box(Modifier.padding(start = 16.dp, end = 16.dp)) {
@@ -202,7 +207,8 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "Serves 3", fontFamily = fontFamilyForBodyB2,
+                                text = "Serves 3",
+                                fontFamily = fontFamilyForBodyB2,
                                 fontSize = 16.sp
                             )
                         }
@@ -215,7 +221,5 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
 
 @Composable
 fun LowerPart(viewModel: RecipeCreationViewModel) {
-        TabScreenForRecipeCard(viewModel)
-
-
+    TabScreenForRecipeCard(viewModel)
 }

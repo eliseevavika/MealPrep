@@ -27,7 +27,6 @@ import com.example.mealprep.ui.theme.fontFamilyForError
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: FocusRequester) {
     val title = viewModel.title.collectAsState()
@@ -38,12 +37,12 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
     val serves = viewModel.serves.collectAsState()
     val source = viewModel.source.collectAsState()
 
-    val pattern = remember { Regex("^\\s*$") }
-
+    val patternForTitle = remember { Regex("^\\s*$") }
+    val patternForHoursAndMinutes = remember { Regex("^\\d+\$") }
     var isError by rememberSaveable { mutableStateOf(true) }
 
     fun validate(text: String) {
-        isError = text.isEmpty() || text.matches(pattern)
+        isError = text.isEmpty() || text.matches(patternForTitle)
     }
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
@@ -55,7 +54,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 text = "Title", fontFamily = fontFamilyForBodyB1,
                 fontSize = 20.sp,
             )
-
             TextField(
                 modifier = Modifier.focusRequester(focusRequester),
                 value = title.value,
@@ -88,7 +86,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                     fontSize = 16.sp,
                     modifier = Modifier.padding(start = 8.dp),
                 )
-            }else{
+            } else {
                 Text(
                     text = "",
                     color = MealPrepColor.error,
@@ -105,9 +103,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 fontSize = 20.sp,
             )
 
-            val maxCharHours = 2
-            val maxCharMinutes = 3
-
             Row {
                 Box(
                     modifier = Modifier
@@ -115,14 +110,16 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         .padding(end = 10.dp)
                 ) {
                     OutlinedTextField(
-                        value = hours.value.toString(),
+                        value = if (hours.value == 0) "" else hours.value.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
-                            viewModel.setHours(it.toInt())
+                            if (it.isEmpty() || it.matches(patternForHoursAndMinutes) && it.length < 3) {
+                                if (it != "") viewModel.setHours(it.toInt()) else viewModel.setHours(
+                                    0
+                                )
+                            }
                             viewModel.setCookTime()
                         },
-//                        onValueChange = {
-//                            if (it.length <= maxCharHours)
                         label = { Text("hours", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         colors = TextFieldDefaults.textFieldColors(
@@ -137,10 +134,14 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 }
                 Box(modifier = Modifier.width(120.dp)) {
                     OutlinedTextField(
-                        value = minutes.value.toString(),
+                        value = if (minutes.value == 0) "" else minutes.value.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
-                            viewModel.setMinutes(it.toInt())
+                            if (it.isEmpty() || it.matches(patternForHoursAndMinutes) && it.length < 3) {
+                                if (it != "") viewModel.setMinutes(it.toInt()) else viewModel.setMinutes(
+                                    0
+                                )
+                            }
                             viewModel.setCookTime()
                         },
                         label = { Text("minutes", fontFamily = fontFamilyForBodyB2) },
@@ -187,7 +188,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         text = "Give your recipe a description", fontFamily = fontFamilyForBodyB2
                     )
                 })
-
             Text(
                 modifier = Modifier.padding(top = 16.dp),
                 text = "Source", fontFamily = fontFamilyForBodyB1,
@@ -198,7 +198,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 textStyle = TextStyle(color = MealPrepColor.black),
                 onValueChange =
                 viewModel::setSource,
-
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
                     cursorColor = MealPrepColor.black,
@@ -212,7 +211,6 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         text = "Your recipe link", fontFamily = fontFamilyForBodyB2
                     )
                 })
-
             Text(
                 modifier = Modifier.padding(top = 16.dp),
                 text = "Category", fontFamily = fontFamilyForBodyB1,
@@ -245,15 +243,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                     viewModel.setServesCount(listServes[index])
                 },
             )
-
             Spacer(modifier = Modifier.padding(vertical = 50.dp))
         }
     }
-}
-
-
-@Preview
-@Composable
-fun IntroCreationScreenPreview() {
-//    IntroCreationScreen(viewModel)
 }

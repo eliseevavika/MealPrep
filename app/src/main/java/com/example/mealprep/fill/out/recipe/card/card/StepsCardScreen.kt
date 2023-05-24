@@ -26,10 +26,7 @@ import com.example.meaprep.R
 fun StepsCardScreen(
     viewModel: RecipeCreationViewModel
 ) {
-    val recipe = viewModel.returnedRecipe.observeAsState().value
     Box(modifier = Modifier.padding(16.dp)) {
-//        val dish = requireNotNull(DishRepository.getDish(recipeId))
-//        val listSteps = recipe?.let { viewModel.getListOfSteps(it.id) }
         val listSteps = viewModel.returnedListSteps.observeAsState().value
         LazyColumn {
             if (!listSteps.isNullOrEmpty()) {

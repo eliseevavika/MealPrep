@@ -25,8 +25,6 @@ fun RecipeCreationScreen(
 ) {
     val focusRequester = remember { FocusRequester() }
 
-
-
     Surface(
         color = MaterialTheme.colors.background
     ) {

@@ -1,10 +1,6 @@
 package com.example.mealprep
 
-import android.graphics.ImageDecoder
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -15,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -26,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
@@ -74,6 +70,8 @@ fun MenuDish(
 
     val context = LocalContext.current
 
+    val cookTimeString = viewModel.getCookTimeString(recipe.cook_time)
+
     Card(
         modifier = Modifier
             .padding(8.dp)
@@ -85,7 +83,6 @@ fun MenuDish(
                 viewModel.performQueryForChosenMeals(recipe)
             }
         }) {
-
         var bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
 
         Row {
@@ -124,7 +121,7 @@ fun MenuDish(
                             )
                         }
                     }
-                }else{
+                } else {
                     Image(
                         painterResource(id = R.drawable.noimage),
                         contentDescription = "Image",
@@ -142,7 +139,6 @@ fun MenuDish(
                             )
                     )
                 }
-
                 Text(
                     text = recipe.name.addEmptyLines(2),
                     maxLines = 2,
@@ -154,8 +150,9 @@ fun MenuDish(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp),
+                        .padding(start = 16.dp, bottom = 16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = CenterVertically
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.icons_clock2),
@@ -165,20 +162,12 @@ fun MenuDish(
                             .align(CenterVertically),
                         tint = MealPrepColor.grey_800
                     )
-                    Column() {
-                        Text(
-                            text = "Prep: ${recipe.cook_time}",
-                            fontFamily = fontFamilyForBodyB2,
-                            color = MealPrepColor.grey_800,
-                            fontSize = 14.sp
-                        )
-                        Text(
-                            text = "Cook: ${recipe.cook_time}",
-                            fontFamily = fontFamilyForBodyB2,
-                            color = MealPrepColor.grey_800,
-                            fontSize = 14.sp
-                        )
-                    }
+                    Text(
+                        text = "Cook: $cookTimeString",
+                        fontFamily = fontFamilyForBodyB2,
+                        color = MealPrepColor.grey_800,
+                        fontSize = 14.sp
+                    )
                 }
             }
         }

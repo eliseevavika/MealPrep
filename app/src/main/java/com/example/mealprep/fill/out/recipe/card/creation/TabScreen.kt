@@ -1,5 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,6 +21,7 @@ import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewMode
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TabScreen(
     viewModal: RecipeCreationViewModel,
@@ -27,7 +30,6 @@ fun TabScreen(
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
-
 
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(
