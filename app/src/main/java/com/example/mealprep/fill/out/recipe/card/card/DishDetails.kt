@@ -186,7 +186,7 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "Easy", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
+                                text = viewModel.getCookingComplexity(recipe?.cook_time), fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                             )
                         }
                     }
@@ -209,7 +209,7 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "Serves 3",
+                                text = "Serves: " + (recipe?.serves?.toString() ?: "0"),
                                 fontFamily = fontFamilyForBodyB2,
                                 fontSize = 16.sp
                             )

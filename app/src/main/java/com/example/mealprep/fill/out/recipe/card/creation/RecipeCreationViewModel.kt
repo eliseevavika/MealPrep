@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
@@ -367,5 +368,15 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     fun setIsValidUrl(isItValidUrl: Boolean) {
         _isValidUrl.value = isItValidUrl
+    }
+
+    fun getCookingComplexity(cookTime: Int?): String {
+        return if (cookTime == null || cookTime <= 15) {
+            "Easy"
+        } else if (cookTime in 16..45) {
+            "Medium"
+        } else {
+            "Hard"
+        }
     }
 }
