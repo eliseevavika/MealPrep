@@ -89,6 +89,8 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
 
     var bitmap = recipe?.photo?.let { Converters().converterStringToBitmap(it) }
 
+    val cookTimeString = viewModel.getCookTimeString(recipe?.cook_time)
+
     Column(
         verticalArrangement = Arrangement.spacedBy((-150).dp),
         modifier = Modifier
@@ -160,7 +162,7 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
                                 text = if (recipe?.cook_time == null) "0 min" else {
-                                    "${recipe?.cook_time} min"
+                                    "$cookTimeString"
                                 }, fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                             )
                         }

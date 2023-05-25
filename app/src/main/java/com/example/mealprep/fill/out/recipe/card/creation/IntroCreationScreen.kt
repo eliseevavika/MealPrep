@@ -19,11 +19,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.mealprep.ui.theme.fontFamilyForError
+import java.util.regex.Pattern
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -39,10 +41,27 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
 
     val patternForTitle = remember { Regex("^\\s*$") }
     val patternForHoursAndMinutes = remember { Regex("^\\d+\$") }
-    var isError by rememberSaveable { mutableStateOf(true) }
 
-    fun validate(text: String) {
-        isError = text.isEmpty() || text.matches(patternForTitle)
+    val isErrorTitle = viewModel.isErrorTitle.collectAsState()
+
+    val isValidUrl = viewModel.isValidUrl.collectAsState()
+
+
+    fun validateTitle(text: String) {
+        viewModel.setIsErrorTitle(text.isEmpty() || text.matches(patternForTitle))
+    }
+
+    fun verifyUrl(url: String) {
+        // Regular expression pattern to validate URLs
+//        val urlPattern = "^(http(s)?:\\/\\/)?[\\w.-]+(\\.[\\w\\.-]+)+[\\S^\\\"]*$"
+
+         val urlPattern: Pattern = Pattern.compile(
+            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+                    + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
+                    + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+            Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
+        )
+        viewModel.setIsValidUrl(url.matches(urlPattern.toRegex()))
     }
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
@@ -60,16 +79,16 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 textStyle = TextStyle(color = MealPrepColor.black),
                 onValueChange = {
                     viewModel.setRecipeName(it)
-                    validate(it)
+                    validateTitle(it)
                 },
-                isError = isError,
-                keyboardActions = KeyboardActions(onAny = { validate(title.value) }),
+                isError = isErrorTitle.value,
+                keyboardActions = KeyboardActions(onAny = { validateTitle(title.value) }),
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
-                    cursorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
-                    focusedIndicatorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
-                    unfocusedIndicatorColor = if (isError) MealPrepColor.error else MealPrepColor.black,
+                    cursorColor = if (isErrorTitle.value) MealPrepColor.error else MealPrepColor.black,
+                    focusedIndicatorColor = if (isErrorTitle.value) MealPrepColor.error else MealPrepColor.black,
+                    unfocusedIndicatorColor = if (isErrorTitle.value) MealPrepColor.error else MealPrepColor.black,
                     focusedLabelColor = MealPrepColor.grey_800,
                     unfocusedLabelColor = MealPrepColor.grey_800,
                 ),
@@ -78,7 +97,7 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         text = "Give your recipe a name", fontFamily = fontFamilyForBodyB2
                     )
                 })
-            if (isError) {
+            if (isErrorTitle.value) {
                 Text(
                     text = "* This field is required",
                     color = MealPrepColor.error,
@@ -196,8 +215,11 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
             TextField(
                 value = source.value,
                 textStyle = TextStyle(color = MealPrepColor.black),
-                onValueChange =
-                viewModel::setSource,
+                onValueChange = { newUrl ->
+                    viewModel.setSource(newUrl)
+                    verifyUrl(newUrl)
+                },
+                isError = !isValidUrl.value,
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
                     cursorColor = MealPrepColor.black,
@@ -211,6 +233,25 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         text = "Your recipe link", fontFamily = fontFamilyForBodyB2
                     )
                 })
+
+            if (!isValidUrl.value) {
+                Text(
+                    text = "* Not a valid URL",
+                    color = MealPrepColor.error,
+                    fontFamily = fontFamilyForError,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            } else {
+                Text(
+                    text = "",
+                    color = MealPrepColor.error,
+                    fontFamily = fontFamilyForError,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(start = 8.dp),
+                )
+            }
+
             Text(
                 modifier = Modifier.padding(top = 16.dp),
                 text = "Category", fontFamily = fontFamilyForBodyB1,
@@ -247,3 +288,4 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
         }
     }
 }
+

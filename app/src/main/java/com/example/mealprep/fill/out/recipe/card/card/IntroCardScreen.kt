@@ -1,5 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -7,10 +9,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -24,8 +27,8 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
 fun IntroCardScreen(viewModel: RecipeCreationViewModel) {
-
     val recipe = viewModel.returnedRecipe.observeAsState().value
+
     Box(modifier = Modifier.padding(16.dp)) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
             Text(
@@ -49,6 +52,10 @@ fun IntroCardScreen(viewModel: RecipeCreationViewModel) {
 
 @Composable
 fun SourceOfRecipe(recipe: Recipe) {
+    fun showMessage(context: Context, message:String){
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+    }
+
     val mAnnotatedLinkString = buildAnnotatedString {
 
         val mStr = recipe.source
@@ -70,16 +77,24 @@ fun SourceOfRecipe(recipe: Recipe) {
 
     val mUriHandler = LocalUriHandler.current
 
-    Column{
+    val context = LocalContext.current
+
+    Column {
         ClickableText(
             text = mAnnotatedLinkString,
             onClick = {
-                mAnnotatedLinkString
-                    .getStringAnnotations("URL", it, it)
-                    .firstOrNull()?.let { stringAnnotation ->
-                        mUriHandler.openUri(stringAnnotation.item)
-                    }
+                try {
+                    mAnnotatedLinkString
+                        .getStringAnnotations("URL", it, it)
+                        .firstOrNull()?.let { stringAnnotation ->
+                            mUriHandler.openUri(stringAnnotation.item)
+                        }
+                } catch (e: Exception) {
+                    showMessage(context, "Not a valid URL")
+                }
             }
         )
     }
+
 }
+

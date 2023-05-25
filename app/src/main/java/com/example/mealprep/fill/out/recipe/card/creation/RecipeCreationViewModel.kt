@@ -76,6 +76,12 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val listIngredients: LiveData<List<Groceries>>
         get() = _listIngredients
 
+    private val _isErrorTitle = MutableStateFlow(false)
+    val isErrorTitle = _isErrorTitle.asStateFlow()
+
+    private val _isValidUrl = MutableStateFlow(true)
+    val isValidUrl = _isValidUrl.asStateFlow()
+
     fun performQueryIngredients(
         ingredientName: String
     ) {
@@ -353,5 +359,13 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
                 "$hours h $minutes min"
             }
         }
+    }
+
+    fun setIsErrorTitle(isItError: Boolean) {
+        _isErrorTitle.value = isItError
+    }
+
+    fun setIsValidUrl(isItValidUrl: Boolean) {
+        _isValidUrl.value = isItValidUrl
     }
 }
