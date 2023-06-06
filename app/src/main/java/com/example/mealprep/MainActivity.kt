@@ -28,7 +28,6 @@ import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
-import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
 import com.example.mealprep.ui.theme.MealPrepTheme
@@ -96,8 +95,7 @@ class MainActivity : ComponentActivity() {
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(
                                             navController,
-                                            MealPlanningViewModel(),
-                                            chosenDay
+                                            viewModal
                                         )
                                     }
 
@@ -142,7 +140,7 @@ class MainActivity : ComponentActivity() {
                                         MealPrepForSpecificDay(
                                             dayId,
                                             navController,
-                                            MealPlanningViewModel()
+                                            viewModal
                                         )
                                     }
 

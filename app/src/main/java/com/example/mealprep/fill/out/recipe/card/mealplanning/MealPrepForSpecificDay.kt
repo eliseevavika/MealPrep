@@ -1,11 +1,14 @@
 package com.example.mealprep.fill.out.recipe.card.mealplanning
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,20 +17,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.littlelemon.DishRepository
 import com.example.mealprep.MealPrep
+import com.example.mealprep.Recipe
 import com.example.mealprep.RecipesFeed
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import kotlinx.coroutines.flow.MutableStateFlow
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPrepForSpecificDay(
     dayId: Int,
     navController: NavHostController,
-    viewModel: MealPlanningViewModel
+    viewModel: RecipeCreationViewModel
 ) {
-    val dishes = remember { mutableStateOf(DishRepository.dishes) }
+    val dishes: List<Recipe> by viewModel.allRecipes.observeAsState(initial = listOf())
 
-    var filteredDishes = remember { mutableStateOf(DishRepository.dishes) }
+    var filteredDishes = remember { mutableStateOf(dishes) }
 
     Scaffold(
         topBar = {
@@ -50,6 +57,7 @@ fun MealPrepForSpecificDay(
                         )
                     },
                     onClick = {
+                        viewModel.addNewMealPlan()
                         navController.navigate(MealPrep.route)
                     },
                     modifier = Modifier
@@ -61,25 +69,21 @@ fun MealPrepForSpecificDay(
                 )
             }
         },
-
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
-
                 Column {
                     Spacer(modifier = Modifier.height(20.dp))
-
                     SearchBar(onSearch = {
-                        val result = dishes.value.filter { dish ->
+                        val result = dishes.filter { dish ->
                             dish.name.lowercase().contains(it.lowercase())
                         }
-                        //ToDo change the source for DB
-//                        if (result.isNotEmpty()) {
-//                            filteredDishes.value = result.toMutableStateList()
-//                        } else {
-//                            filteredDishes.value = mutableListOf()
-//                        }
+                        if (result.isNotEmpty()) {
+                            filteredDishes.value = result.toMutableStateList()
+                        } else {
+                            filteredDishes.value = mutableListOf()
+                        }
                     })
-//                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
+                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
                 }
             }
         }
@@ -93,7 +97,6 @@ fun SearchBar(
     var searchQuery by remember {
         mutableStateOf("")
     }
-
     Column {
         Row(modifier = Modifier.fillMaxWidth()) {
             TextField(
@@ -116,9 +119,7 @@ fun SearchBar(
                 maxLines = 1,
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = "") }
             )
-
             Spacer(modifier = Modifier.width(10.dp))
-
             onSearch(searchQuery)
         }
     }

@@ -11,6 +11,7 @@ import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
+import kotlinx.coroutines.flow.Flow
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -22,7 +23,7 @@ data class UserRoom(
 
 @Entity(tableName = "recipe")
 data class Recipe(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) @NonNull val recipe_id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
     var photo: String?,
@@ -37,7 +38,7 @@ data class Recipe(
 @Entity(
     tableName = "ingredient", foreignKeys = [ForeignKey(
         entity = Recipe::class,
-        parentColumns = ["id"],
+        parentColumns = ["recipe_id"],
         childColumns = ["recipe_id"],
         onDelete = CASCADE,
         onUpdate = CASCADE
@@ -50,17 +51,10 @@ data class Ingredient(
     val recipe_id: Long?
 )
 
-data class RecipeWithIngredients(
-    @Embedded val recipe: Recipe, @Relation(
-        parentColumn = "id", entityColumn = "recipe_id"
-    ) val ingredientsList: List<Ingredient>
-)
-
-@Entity(tableName = "mealplan")
-data class MealplanRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val user_id: Int,
-//    val recipes: List<Int>?
+@Entity(tableName = "recipewithmealplan", primaryKeys = ["recipe_id", "mealplan_id"])
+data class RecipeWithMealPlan(
+    @ColumnInfo(name = "recipe_id") val recipe_id: Long,
+    @ColumnInfo(name = "mealplan_id") val mealplan_id: Int
 )
 
 @Entity(tableName = "step")
@@ -117,18 +111,14 @@ interface RecipeDao {
 
     }
 
-//    @Transaction
-//    @Query("SELECT * FROM Recipe WHERE id = :recipeId")
-//    suspend fun getRecipeWithIngredients(recipeId: Int): List<RecipeWithIngredients>
-
     @Delete
     suspend fun delete(recipe: Recipe)
 
     @Query("SELECT * FROM Recipe")
     fun getAllRecipes(): LiveData<List<Recipe>>
 
-    @Query("SELECT * FROM Recipe WHERE id = :id")
-    fun getReipeById(id: Long): Recipe
+    @Query("SELECT * FROM Recipe WHERE recipe_id = :id")
+    fun getRecipeById(id: Long): Recipe
 
     @Query("SELECT * FROM Ingredient WHERE recipe_id = :recipeId")
     fun getListOfIngredients(recipeId: Long): List<Ingredient>
@@ -138,6 +128,25 @@ interface RecipeDao {
 
     @Update
     suspend fun update(recipe: Recipe)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addRecipeWithMealPlan(recipeWithMealPlan: RecipeWithMealPlan)
+
+    @Transaction
+    suspend fun insertRecipeAndMealPlanTransaction(dayId: Int, recipes: List<Recipe>?) {
+        recipes?.forEach { recipe ->
+            addRecipeWithMealPlan(RecipeWithMealPlan(recipe.recipe_id, dayId))
+
+        }
+    }
+
+    @Query(
+        "SELECT Recipe.*" +
+                "    FROM Recipe" +
+                "    JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id" +
+                "    WHERE recipewithmealplan.mealplan_id = :dayId"
+    )
+    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>>
 }
 
 @Dao
@@ -148,12 +157,23 @@ interface IngredientDao {
 
 @Dao
 interface MealPlanDao {
-    @Query("SELECT * FROM Mealplan")
-    fun getAll(): LiveData<List<MealplanRoom>>
+//    @Query("SELECT * FROM Mealplan")
+//    fun getAll(): LiveData<List<MealPlan>>
+//
+//    @Insert(onConflict = OnConflictStrategy.ABORT)
+//    suspend fun insert(mealPlan: MealPlan): Long
+
+
+}
+
+@Dao
+interface RecipeWithMealPlanDao {
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insertRecipeWithMealPlan(join: RecipeWithMealPlan)
 }
 
 @Database(
-    entities = [UserRoom::class, Recipe::class, MealplanRoom::class, Ingredient::class, Step::class],
+    entities = [UserRoom::class, Recipe::class, Ingredient::class, Step::class, RecipeWithMealPlan::class],
     version = 3,
     exportSchema = false
 )
@@ -162,6 +182,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun getRecipeDao(): RecipeDao
 
     abstract fun getIngredientDao(): IngredientDao
+
+    abstract fun getMealPlanDao(): MealPlanDao
+
+    abstract fun getRecipeWithMealPlanDao(): RecipeWithMealPlanDao
 
     companion object {
         @Volatile
@@ -214,4 +238,5 @@ class Converters {
         }
     }
 }
+
 

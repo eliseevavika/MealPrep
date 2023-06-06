@@ -78,7 +78,7 @@ fun MenuDish(
             .wrapContentSize(),
         onClick = {
             if (!isMealPlanningOn) {
-                navController?.navigate(DishDetails.route + "/${recipe.id}")
+                navController?.navigate(DishDetails.route + "/${recipe.recipe_id}")
             } else {
                 viewModel.performQueryForChosenMeals(recipe)
             }

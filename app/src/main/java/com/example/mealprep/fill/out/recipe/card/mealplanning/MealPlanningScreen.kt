@@ -3,13 +3,8 @@ package com.example.mealprep.fill.out.recipe.card.mealplanning
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -18,43 +13,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.mealprep.BottomNavigationBar
-import com.example.mealprep.MealPrepForSpecificDay
-import com.example.mealprep.addEmptyLines
+import com.example.mealprep.*
+import com.example.mealprep.fill.out.recipe.card.Day
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
+import com.example.mealprep.fill.out.recipe.card.days
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
-    navController: NavHostController,
-    viewModel: MealPlanningViewModel,
-    chosenDayId: Int?
+    navController: NavHostController, viewModel: RecipeCreationViewModel
 ) {
-    val days = listOf(
-        Day(0, DayOfWeek.Sunday),
-        Day(1, DayOfWeek.Monday),
-        Day(2, DayOfWeek.Tuesday),
-        Day(3, DayOfWeek.Wednesday),
-        Day(4, DayOfWeek.Thursday),
-        Day(5, DayOfWeek.Friday),
-        Day(6, DayOfWeek.Saturday)
-    )
+    var chosenDay = viewModel.chosenDay.collectAsState()
 
-    var chosenDay by remember { mutableStateOf(days[0]) }
-
-    val chosenMealsForMealPrepByDay =
-        viewModel.list.observeAsState().value
+    val recipesForSunday =
+        viewModel.recipesForSunday.collectAsState(emptyList()).value
+    val recipesForMonday =
+        viewModel.recipesForMonday.collectAsState(emptyList()).value
+    val recipesForTuesday =
+        viewModel.recipesForTuesday.collectAsState(emptyList()).value
+    val recipesForWednesday =
+        viewModel.recipesForWednesday.collectAsState(emptyList()).value
+    val recipesForThursday =
+        viewModel.recipesForThursday.collectAsState(emptyList()).value
+    val recipesForFriday =
+        viewModel.recipesForFriday.collectAsState(emptyList()).value
+    val recipesForSaturday =
+        viewModel.recipesForSaturday.collectAsState(emptyList()).value
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -65,169 +63,203 @@ fun MealPlanningScreen(
 
     var isSheetFullScreen by remember { mutableStateOf(false) }
     val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
-    val modifier = if (isSheetFullScreen)
-        Modifier
-            .fillMaxSize()
-    else
-        Modifier.fillMaxWidth()
+    val modifier = if (isSheetFullScreen) Modifier.fillMaxSize()
+    else Modifier.fillMaxWidth()
 
     BackHandler(modalSheetState.isVisible) {
         coroutineScope.launch { modalSheetState.hide() }
     }
 
-    ModalBottomSheetLayout(
-        sheetState = modalSheetState,
-        sheetShape = RoundedCornerShape(
-            topStart = roundedCornerRadius,
-            topEnd = roundedCornerRadius
-        ),
-        sheetContent = {
-            Column(
-                modifier = modifier,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                BottomSheetContent(navController, viewModel, chosenDay)
-            }
+    ModalBottomSheetLayout(sheetState = modalSheetState, sheetShape = RoundedCornerShape(
+        topStart = roundedCornerRadius, topEnd = roundedCornerRadius
+    ), sheetContent = {
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            BottomSheetContent(navController, viewModel, days[chosenDay.value])
         }
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBarMealPlanning()
-            },
-            bottomBar = { BottomNavigationBar(navController = navController) },
-            content = { padding ->
-                Box(modifier = Modifier.padding(16.dp)) {
-                    LazyColumn {
-                        if (!days.isNullOrEmpty()) {
-                            items(days) { day ->
-                                Column(
-                                    modifier = Modifier
-                                        .background(Color.White)
-                                        .fillParentMaxWidth(),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.Start
-                                ) {
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight()
-                                            .padding(
-                                                start = 16.dp,
-                                                top = 30.dp,
-                                                end = 16.dp,
-                                                bottom = 30.dp
-                                            )
-                                            .clickable(onClick = {
-                                                coroutineScope.launch {
-                                                    if (modalSheetState.isVisible) {
-                                                        modalSheetState.hide()
-                                                    } else {
-                                                        chosenDay = day
-                                                        modalSheetState.animateTo(
-                                                            ModalBottomSheetValue.Expanded
-                                                        )
-                                                    }
-                                                }
-                                            })
-                                    ) {
-                                        Row(
-                                            modifier = Modifier
-                                                .fillMaxHeight()
-                                                .weight(7f),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                painter = painterResource(id = R.drawable.outline_density_medium_24),
-                                                tint = MealPrepColor.grey_600,
-                                                contentDescription = "Icon",
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(width = 8.dp))
-                                            Text(
-                                                text = day.name.toString(),
-                                                fontFamily = fontFamilyForBodyB2,
-                                                fontSize = 16.sp
+    }) {
+        Scaffold(topBar = {
+            TopAppBarMealPlanning()
+        },
+            bottomBar = { BottomNavigationBar(navController = navController) }
+        ) { padding ->
+            Box(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    days.forEach { day ->
+                        Row(
+                            modifier = Modifier
+                                .padding(
+                                    start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
+                                )
+                                .clickable(onClick = {
+                                    coroutineScope.launch {
+                                        if (modalSheetState.isVisible) {
+                                            modalSheetState.hide()
+                                        } else {
+                                            viewModel.setChosenDay(day.id)
+                                            modalSheetState.animateTo(
+                                                ModalBottomSheetValue.Expanded
                                             )
                                         }
                                     }
-
-                                    if (!chosenMealsForMealPrepByDay.isNullOrEmpty() && chosenDayId == day.id) {
-                                        LazyRow(
-                                            modifier = Modifier
-                                                .fillMaxHeight().padding(start = 8.dp, bottom = 16.dp),
-                                            horizontalArrangement = Arrangement.Start
-                                        ) {
-                                            items(chosenMealsForMealPrepByDay) { dish ->
-                                                Card(
-                                                    modifier = Modifier
-                                                        .padding(8.dp)
-                                                        .wrapContentSize(),
-                                                    onClick = {
-                                                    }) {
-                                                    Row {
-                                                        Column(
-                                                            modifier = Modifier
-                                                                .size(74.dp, 108.dp),
-                                                            verticalArrangement = Arrangement.Center,
-                                                            horizontalAlignment = Alignment.Start,
-
-                                                            ) {
-                                                            Image(
-                                                                painter = painterResource(id = dish.imageResource),
-                                                                contentDescription = "Image",
-                                                                contentScale = ContentScale.Crop,
-                                                                modifier = Modifier
-                                                                    .size(74.dp, 74.dp)
-                                                                    .clip(
-                                                                        RoundedCornerShape(16.dp)
-                                                                    )
-                                                            )
-                                                            Text(
-                                                                text = dish.name.addEmptyLines(2),
-                                                                maxLines = 2,
-                                                                fontFamily = fontFamilyForBodyB1,
-                                                                fontSize = 10.sp,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
+                                })
+                        ) {
+                            Row {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.outline_density_medium_24),
+                                    tint = MealPrepColor.grey_600,
+                                    contentDescription = "Icon",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(width = 8.dp))
+                                Text(
+                                    text = day.title,
+                                    fontFamily = fontFamilyForBodyB2,
+                                    fontSize = 16.sp
+                                )
                             }
+                        }
+
+                        if (!recipesForSunday.isEmpty() && day.id == 0) {
+                            MealPlanRecipesByDay(recipesForSunday, 0)
+                        } else if (!recipesForMonday.isEmpty() && day.id == 1) {
+                            MealPlanRecipesByDay(recipesForMonday, 1)
+                        } else if (!recipesForTuesday.isEmpty() && day.id == 2) {
+                            MealPlanRecipesByDay(recipesForTuesday, 2)
+                        } else if (!recipesForWednesday.isEmpty() && day.id == 3) {
+                            MealPlanRecipesByDay(recipesForWednesday, 3)
+                        } else if (!recipesForThursday.isEmpty() && day.id == 4) {
+                            MealPlanRecipesByDay(recipesForThursday, 4)
+                        } else if (!recipesForFriday.isEmpty() && day.id == 5) {
+                            MealPlanRecipesByDay(recipesForFriday, 5)
+                        } else if (!recipesForSaturday.isEmpty() && day.id == 6) {
+                            MealPlanRecipesByDay(recipesForSaturday, 6)
                         }
                     }
                 }
-            })
+            }
+        }
     }
 }
 
 @Composable
 fun BottomSheetContent(
-    navController: NavHostController,
-    viewModel: MealPlanningViewModel,
-    chosenDay: Day
+    navController: NavHostController, viewModel: RecipeCreationViewModel, chosenDay: Day
 ) {
     Column {
-        BottomSheetListItem(
-            icon = R.drawable.outline_edit_24,
-            title = "Add / Edit plan for ${chosenDay.name}",
+        BottomSheetListItem(icon = R.drawable.outline_edit_24,
+            title = "Add / Edit plan for ${chosenDay.title}",
             onItemClick = {
                 navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
-            }
-        )
-        BottomSheetListItem(
-            icon = R.drawable.outline_delete_24,
+            })
+        BottomSheetListItem(icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
-                viewModel.list.value = null
-            }
-        )
+                viewModel.listChosenMeals.value = null
+            })
     }
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun MealPlanRecipesByDay(recipes: List<Recipe>, day: Int) {
+    Row(
+        modifier = Modifier
+            .padding(start = 8.dp, bottom = 16.dp),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        recipes.forEach { recipe ->
+
+            var bitmap = recipe?.photo?.let {
+                Converters().converterStringToBitmap(it)
+            }
+            if (bitmap != null) {
+                Card(modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                    onClick = {}) {
+                    Row {
+                        Column(
+                            modifier = Modifier.size(74.dp, 108.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start,
+
+                            ) {
+                            bitmap?.let {
+                                Image(
+                                    bitmap = it.asImageBitmap(),
+                                    contentDescription = "Image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(
+                                            74.dp, 74.dp
+                                        )
+                                        .clip(
+                                            RoundedCornerShape(
+                                                16.dp
+                                            )
+                                        )
+                                )
+                            }
+                            Text(
+                                text = recipe?.name?.addEmptyLines(
+                                    2
+                                ) ?: "no name",
+                                maxLines = 2,
+                                fontFamily = fontFamilyForBodyB1,
+                                fontSize = 10.sp,
+                            )
+                        }
+                    }
+                }
+            } else {
+                Card(modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                    onClick = {}) {
+                    Row {
+                        Column(
+                            modifier = Modifier.size(74.dp, 108.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start,
+
+                            ) {
+
+                            Image(
+                                painterResource(id = R.drawable.noimage),
+                                contentDescription = "Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(74.dp, 74.dp)
+                                    .clip(
+                                        RoundedCornerShape(16.dp)
+                                    )
+                            )
+
+                            Text(
+                                text = recipe?.name?.addEmptyLines(
+                                    2
+                                ) ?: "no name",
+                                maxLines = 2,
+                                fontFamily = fontFamilyForBodyB1,
+                                fontSize = 10.sp,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit) {

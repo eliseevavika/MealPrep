@@ -5,14 +5,13 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.AnnotatedString
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
+import com.example.mealprep.fill.out.recipe.card.mealplanning.RecipeCache
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileOutputStream
@@ -21,9 +20,18 @@ import java.util.*
 
 
 class RecipeCreationViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository: RecipeRepository
+
+    private val recipeRepository: RecipeRepository
 
     var allRecipes: LiveData<List<Recipe>>
+
+    var recipesForSunday: Flow<List<Recipe>>
+    var recipesForMonday: Flow<List<Recipe>>
+    var recipesForTuesday: Flow<List<Recipe>>
+    var recipesForWednesday: Flow<List<Recipe>>
+    var recipesForThursday: Flow<List<Recipe>>
+    var recipesForFriday: Flow<List<Recipe>>
+    var recipesForSaturday: Flow<List<Recipe>>
 
     val returnedRecipe = MutableLiveData<Recipe>()
 
@@ -33,15 +41,31 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
-        repository = RecipeRepository(recipeDao)
-        allRecipes = repository.allRecipes
+
+        recipeRepository = RecipeRepository(recipeDao)
+
+        allRecipes = recipeRepository.allRecipes
+
+        recipesForSunday = recipeRepository.recipesForSunday
+        recipesForMonday = recipeRepository.recipesForMonday
+        recipesForTuesday = recipeRepository.recipesForTuesday
+        recipesForWednesday = recipeRepository.recipesForWednesday
+        recipesForThursday = recipeRepository.recipesForThursday
+        recipesForFriday = recipeRepository.recipesForFriday
+        recipesForSaturday = recipeRepository.recipesForSaturday
     }
 
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()
 
+    private val _day = MutableStateFlow(-1)
+    val day = _day.asStateFlow()
+
     private val _hours = MutableStateFlow(0)
     val hours = _hours.asStateFlow()
+
+    private val _chosenDay = MutableStateFlow(0)
+    val chosenDay = _chosenDay.asStateFlow()
 
     private val _minutes = MutableStateFlow(0)
     val minutes = _minutes.asStateFlow()
@@ -266,27 +290,28 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         addRecipe(recipe)
     }
 
+    fun addNewMealPlan() {
+        addMealPlan(_chosenDay.value)
+    }
+
     fun deleteRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
-        repository.delete(recipe)
+        recipeRepository.delete(recipe)
     }
 
-    // on below line we are creating a new method for updating a note. In this we are
-    // calling a update method from our repository to update our note.
-    fun updateRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
-        repository.update(recipe)
-    }
-
-    // on below line we are creating a new method for adding a new note to our database
-    // we are calling a method from our repository to add a new note.
     fun addRecipe(recipe: Recipe) =
         viewModelScope.launch(Dispatchers.IO) {
-            repository.insertRecipeIngredientAndStepTransaction(
+            recipeRepository.insertRecipeIngredientAndStepTransaction(
                 recipe,
                 _listIngredients.value,
                 _listSteps.value
             )
             emptyLiveData()
 
+        }
+
+    fun addMealPlan(dayId: Int) =
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
         }
 
     fun setImageUri(uri: Uri?) {
@@ -330,20 +355,38 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun getRecipe(id: Long) {
+
         viewModelScope.launch(Dispatchers.IO) {
-            returnedRecipe.postValue(repository.getRecipeById(id))
+            val recipe = recipeRepository.getRecipeById(id)
+
+            returnedRecipe.postValue(recipe)
+
+
+        }
+    }
+
+    fun getRecipesForMealPlan(dayId: Int, callback: (Flow<List<Recipe>>) -> Unit) {
+        val cachedRecipes = RecipeCache.getRecipes()
+        if (cachedRecipes != null) {
+            callback(cachedRecipes)
+        } else {
+            viewModelScope.launch(Dispatchers.IO) {
+                val recipes = recipeRepository.getRecipesForTheDay(dayId)
+                RecipeCache.cacheRecipes(recipes)
+                callback(recipes)
+            }
         }
     }
 
     fun getListOfIngredients(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            returnedListIngredient.postValue(repository.getListOfIngredients(recipeId))
+            returnedListIngredient.postValue(recipeRepository.getListOfIngredients(recipeId))
         }
     }
 
     fun getListOfSteps(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            returnedListSteps.postValue(repository.getListOfSteps(recipeId))
+            returnedListSteps.postValue(recipeRepository.getListOfSteps(recipeId))
         }
     }
 
@@ -379,4 +422,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             "Hard"
         }
     }
+
+    fun setChosenDay(dayId: Int) {
+        _chosenDay.value = dayId
+    }
 }
+
+
