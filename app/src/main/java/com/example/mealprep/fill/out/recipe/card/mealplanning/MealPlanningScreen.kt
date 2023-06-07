@@ -39,20 +39,13 @@ fun MealPlanningScreen(
 ) {
     var chosenDay = viewModel.chosenDay.collectAsState()
 
-    val recipesForSunday =
-        viewModel.recipesForSunday.collectAsState(emptyList()).value
-    val recipesForMonday =
-        viewModel.recipesForMonday.collectAsState(emptyList()).value
-    val recipesForTuesday =
-        viewModel.recipesForTuesday.collectAsState(emptyList()).value
-    val recipesForWednesday =
-        viewModel.recipesForWednesday.collectAsState(emptyList()).value
-    val recipesForThursday =
-        viewModel.recipesForThursday.collectAsState(emptyList()).value
-    val recipesForFriday =
-        viewModel.recipesForFriday.collectAsState(emptyList()).value
-    val recipesForSaturday =
-        viewModel.recipesForSaturday.collectAsState(emptyList()).value
+    val recipesForSunday = viewModel.recipesForSunday.observeAsState(listOf()).value
+    val recipesForMonday = viewModel.recipesForMonday.observeAsState(listOf()).value
+    val recipesForTuesday = viewModel.recipesForTuesday.observeAsState(listOf()).value
+    val recipesForWednesday = viewModel.recipesForWednesday.observeAsState(listOf()).value
+    val recipesForThursday = viewModel.recipesForThursday.observeAsState(listOf()).value
+    val recipesForFriday = viewModel.recipesForFriday.observeAsState(listOf()).value
+    val recipesForSaturday = viewModel.recipesForSaturday.observeAsState(listOf()).value
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -83,9 +76,7 @@ fun MealPlanningScreen(
     }) {
         Scaffold(topBar = {
             TopAppBarMealPlanning()
-        },
-            bottomBar = { BottomNavigationBar(navController = navController) }
-        ) { padding ->
+        }, bottomBar = { BottomNavigationBar(navController = navController) }) { padding ->
             Box(modifier = Modifier.padding(16.dp)) {
                 Column(
                     modifier = Modifier
@@ -126,7 +117,6 @@ fun MealPlanningScreen(
                                 )
                             }
                         }
-
                         if (!recipesForSunday.isEmpty() && day.id == 0) {
                             MealPlanRecipesByDay(recipesForSunday, 0)
                         } else if (!recipesForMonday.isEmpty() && day.id == 1) {
@@ -157,9 +147,11 @@ fun BottomSheetContent(
         BottomSheetListItem(icon = R.drawable.outline_edit_24,
             title = "Add / Edit plan for ${chosenDay.title}",
             onItemClick = {
+                viewModel.performQueryForChosenMealsFromDB(chosenDay.id)
                 navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
             })
-        BottomSheetListItem(icon = R.drawable.outline_delete_24,
+        BottomSheetListItem(
+            icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
                 viewModel.listChosenMeals.value = null
@@ -171,21 +163,19 @@ fun BottomSheetContent(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanRecipesByDay(recipes: List<Recipe>, day: Int) {
+    val scrollState = rememberScrollState()
     Row(
-        modifier = Modifier
-            .padding(start = 8.dp, bottom = 16.dp),
+        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp).horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.Start
     ) {
         recipes.forEach { recipe ->
-
             var bitmap = recipe?.photo?.let {
                 Converters().converterStringToBitmap(it)
             }
             if (bitmap != null) {
                 Card(modifier = Modifier
                     .padding(8.dp)
-                    .wrapContentSize(),
-                    onClick = {}) {
+                    .wrapContentSize(), onClick = {}) {
                     Row {
                         Column(
                             modifier = Modifier.size(74.dp, 108.dp),
@@ -223,16 +213,13 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, day: Int) {
             } else {
                 Card(modifier = Modifier
                     .padding(8.dp)
-                    .wrapContentSize(),
-                    onClick = {}) {
+                    .wrapContentSize(), onClick = {}) {
                     Row {
                         Column(
                             modifier = Modifier.size(74.dp, 108.dp),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.Start,
-
-                            ) {
-
+                        ) {
                             Image(
                                 painterResource(id = R.drawable.noimage),
                                 contentDescription = "Image",
@@ -243,7 +230,6 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, day: Int) {
                                         RoundedCornerShape(16.dp)
                                     )
                             )
-
                             Text(
                                 text = recipe?.name?.addEmptyLines(
                                     2
@@ -278,9 +264,7 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
                 tint = MealPrepColor.grey_600
             )
         }
-
         Spacer(modifier = Modifier.width(10.dp))
-
         Row(verticalAlignment = Alignment.Top) {
             Text(
                 text = title,

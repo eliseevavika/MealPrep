@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,8 +56,7 @@ class MainActivity : ComponentActivity() {
                 }
 
                 viewModal = ViewModelProvider(
-                    this,
-                    ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 ).get(RecipeCreationViewModel::class.java)
 
                 val navController = rememberNavController()
@@ -94,8 +94,7 @@ class MainActivity : ComponentActivity() {
 
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(
-                                            navController,
-                                            viewModal
+                                            navController, viewModal
                                         )
                                     }
 
@@ -138,9 +137,7 @@ class MainActivity : ComponentActivity() {
                                         chosenDay = dayId
 
                                         MealPrepForSpecificDay(
-                                            dayId,
-                                            navController,
-                                            viewModal
+                                            dayId, navController, viewModal
                                         )
                                     }
 

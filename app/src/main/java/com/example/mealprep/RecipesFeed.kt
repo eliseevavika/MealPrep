@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -39,17 +38,18 @@ fun RecipesFeed(
     navController: NavHostController,
     recipes: List<Recipe> = listOf(),
     isMealPlanningOn: Boolean,
-    viewModel: RecipeCreationViewModel
+    viewModel: RecipeCreationViewModel,
+    dayId: Int
 ) {
+
     Column {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             itemsIndexed(recipes) { _, recipe ->
-                MenuDish(navController, recipe, isMealPlanningOn, viewModel)
+                MenuDish(navController, recipe, isMealPlanningOn, viewModel, dayId)
             }
         }
     }
@@ -62,33 +62,30 @@ fun MenuDish(
     navController: NavHostController? = null,
     recipe: Recipe,
     isMealPlanningOn: Boolean,
-    viewModel: RecipeCreationViewModel
+    viewModel: RecipeCreationViewModel,
+    dayId: Int
 ) {
-    val chosenDishesForMealPrep = viewModel.listChosenMeals.observeAsState().value
-
     val photoStrState = viewModel.photo.collectAsState()
 
     val context = LocalContext.current
 
     val cookTimeString = viewModel.getCookTimeString(recipe.cook_time)
 
-    Card(
-        modifier = Modifier
-            .padding(8.dp)
-            .wrapContentSize(),
-        onClick = {
-            if (!isMealPlanningOn) {
-                navController?.navigate(DishDetails.route + "/${recipe.recipe_id}")
-            } else {
-                viewModel.performQueryForChosenMeals(recipe)
-            }
-        }) {
+    Card(modifier = Modifier
+        .padding(8.dp)
+        .wrapContentSize(), onClick = {
+        if (!isMealPlanningOn) {
+            navController?.navigate(DishDetails.route + "/${recipe.recipe_id}")
+        } else {
+            viewModel.performQueryForChosenMeals(recipe, dayId)
+        }
+    }) {
+
         var bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
 
         Row {
             Column(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
@@ -113,10 +110,7 @@ fun MenuDish(
                                         RoundedCornerShape(16.dp)
                                     )
                                     .alpha(
-                                        if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
-                                                recipe
-                                            ) == true
-                                        ) 0.2F else 1F
+                                        viewModel.getAlfa(isMealPlanningOn, recipe)
                                     )
                             )
                         }
@@ -132,10 +126,7 @@ fun MenuDish(
                                 RoundedCornerShape(16.dp)
                             )
                             .alpha(
-                                if (isMealPlanningOn && chosenDishesForMealPrep?.contains(
-                                        recipe
-                                    ) == true
-                                ) 0.2F else 1F
+                                viewModel.getAlfa(isMealPlanningOn, recipe)
                             )
                     )
                 }

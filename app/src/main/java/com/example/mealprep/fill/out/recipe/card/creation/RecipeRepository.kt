@@ -20,10 +20,6 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeDao.insertRecipeIngredientAndStepTransaction(recipe, listIngredients, listSteps)
     }
 
-    suspend fun delete(recipe: Recipe) {
-        recipeDao.delete(recipe)
-    }
-
     fun getRecipeById(id: Long): Recipe {
         return recipeDao.getRecipeById(id)
     }
@@ -40,23 +36,23 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeDao.insertRecipeAndMealPlanTransaction(dayId, recipes)
     }
 
-    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>> {
-        return recipeDao.getRecipesForTheDay(dayId)
+    suspend fun deleteRecipeAndMealPlanTransaction(dayId: Int) {
+        recipeDao.deleteRecipeAndMealPlanTransaction(dayId)
     }
 
     val allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes()
 
-    val recipesForSunday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(0)
+    val recipesForSunday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(0)
 
-    val recipesForMonday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(1)
+    val recipesForMonday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(1)
 
-    val recipesForTuesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(2)
+    val recipesForTuesday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(2)
 
-    val recipesForWednesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(3)
+    val recipesForWednesday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(3)
 
-    val recipesForThursday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(4)
+    val recipesForThursday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(4)
 
-    val recipesForFriday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(5)
+    val recipesForFriday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(5)
 
-    val recipesForSaturday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(6)
+    val recipesForSaturday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(6)
 }

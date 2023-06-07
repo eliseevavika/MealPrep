@@ -9,7 +9,6 @@ import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
-import com.example.mealprep.fill.out.recipe.card.mealplanning.RecipeCache
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,13 +24,13 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     var allRecipes: LiveData<List<Recipe>>
 
-    var recipesForSunday: Flow<List<Recipe>>
-    var recipesForMonday: Flow<List<Recipe>>
-    var recipesForTuesday: Flow<List<Recipe>>
-    var recipesForWednesday: Flow<List<Recipe>>
-    var recipesForThursday: Flow<List<Recipe>>
-    var recipesForFriday: Flow<List<Recipe>>
-    var recipesForSaturday: Flow<List<Recipe>>
+    var recipesForSunday: LiveData<List<Recipe>>
+    var recipesForMonday: LiveData<List<Recipe>>
+    var recipesForTuesday: LiveData<List<Recipe>>
+    var recipesForWednesday: LiveData<List<Recipe>>
+    var recipesForThursday: LiveData<List<Recipe>>
+    var recipesForFriday: LiveData<List<Recipe>>
+    var recipesForSaturday: LiveData<List<Recipe>>
 
     val returnedRecipe = MutableLiveData<Recipe>()
 
@@ -291,11 +290,24 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun addNewMealPlan() {
+        if (_chosenDay.value == 0) {
+            _listChosenMeals.value = _listChosenMealsForSunday.value
+        } else if (_chosenDay.value == 1) {
+            _listChosenMeals.value = _listChosenMealsForMonday.value
+        } else if (_chosenDay.value == 2) {
+            _listChosenMeals.value = _listChosenMealsForTuesday.value
+        } else if (_chosenDay.value == 3) {
+            _listChosenMeals.value = _listChosenMealsForWednesday.value
+        } else if (_chosenDay.value == 4) {
+            _listChosenMeals.value = _listChosenMealsForThursday.value
+        } else if (_chosenDay.value == 5) {
+            _listChosenMeals.value = _listChosenMealsForFriday.value
+        } else if (_chosenDay.value == 6) {
+            _listChosenMeals.value = _listChosenMealsForSaturday.value
+        } else {
+            _listChosenMeals.value = listOf()
+        }
         addMealPlan(_chosenDay.value)
-    }
-
-    fun deleteRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
-        recipeRepository.delete(recipe)
     }
 
     fun addRecipe(recipe: Recipe) =
@@ -306,11 +318,11 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
                 _listSteps.value
             )
             emptyLiveData()
-
         }
 
     fun addMealPlan(dayId: Int) =
         viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
             recipeRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
         }
 
@@ -344,37 +356,128 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val listChosenMeals: MutableLiveData<List<Recipe>?>
         get() = _listChosenMeals
 
+    private var _listChosenMealsForSunday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForSunday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForSunday
+
+    private var _listChosenMealsForMonday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForMonday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForMonday
+
+    private var _listChosenMealsForTuesday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForTuesday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForTuesday
+
+    private var _listChosenMealsForWednesday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForWednesday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForWednesday
+
+    private var _listChosenMealsForThursday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForThursday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForThursday
+
+    private var _listChosenMealsForFriday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForFriday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForFriday
+
+    private var _listChosenMealsForSaturday = MutableLiveData<List<Recipe>?>()
+
+    val listChosenMealsForSaturday: MutableLiveData<List<Recipe>?>
+        get() = _listChosenMealsForSaturday
+
     fun performQueryForChosenMeals(
-        dish: Recipe
+        dish: Recipe,
+        dayId: Int,
     ) {
-        if (_listChosenMeals.value?.contains(dish) == true) {
-            _listChosenMeals.value = _listChosenMeals.value?.minus(dish) ?: listOf(dish)
-        } else {
-            _listChosenMeals.value = _listChosenMeals.value?.plus(dish) ?: listOf(dish)
+        if (dayId == 0) {
+            if (_listChosenMealsForSunday.value?.contains(dish) == true) {
+                _listChosenMealsForSunday.value =
+                    _listChosenMealsForSunday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForSunday.value =
+                    _listChosenMealsForSunday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 1) {
+            if (_listChosenMealsForMonday.value?.contains(dish) == true) {
+                _listChosenMealsForMonday.value =
+                    _listChosenMealsForMonday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForMonday.value =
+                    _listChosenMealsForMonday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 2) {
+            if (_listChosenMealsForTuesday.value?.contains(dish) == true) {
+                _listChosenMealsForTuesday.value =
+                    _listChosenMealsForTuesday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForTuesday.value =
+                    _listChosenMealsForTuesday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 3) {
+            if (_listChosenMealsForWednesday.value?.contains(dish) == true) {
+                _listChosenMealsForWednesday.value =
+                    _listChosenMealsForWednesday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForWednesday.value =
+                    _listChosenMealsForWednesday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 4) {
+            if (_listChosenMealsForThursday.value?.contains(dish) == true) {
+                _listChosenMealsForThursday.value =
+                    _listChosenMealsForThursday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForThursday.value =
+                    _listChosenMealsForThursday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 5) {
+            if (_listChosenMealsForFriday.value?.contains(dish) == true) {
+                _listChosenMealsForFriday.value =
+                    _listChosenMealsForFriday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForFriday.value =
+                    _listChosenMealsForFriday.value?.plus(dish) ?: listOf(dish)
+            }
+        } else if (dayId == 6) {
+            if (_listChosenMealsForSaturday.value?.contains(dish) == true) {
+                _listChosenMealsForSaturday.value =
+                    _listChosenMealsForSaturday.value?.minus(dish) ?: listOf(dish)
+            } else {
+                _listChosenMealsForSaturday.value =
+                    _listChosenMealsForSaturday.value?.plus(dish) ?: listOf(dish)
+            }
+        }
+    }
+
+    fun performQueryForChosenMealsFromDB(
+        dayId: Int
+    ) {
+        if (dayId == 0) {
+            _listChosenMealsForSunday.value = recipesForSunday.value
+        } else if (dayId == 1) {
+            _listChosenMealsForMonday.value = recipesForMonday.value
+        } else if (dayId == 2) {
+            _listChosenMealsForTuesday.value = recipesForTuesday.value
+        } else if (dayId == 3) {
+            _listChosenMealsForWednesday.value = recipesForWednesday.value
+        } else if (dayId == 4) {
+            _listChosenMealsForThursday.value = recipesForThursday.value
+        } else if (dayId == 5) {
+            _listChosenMealsForFriday.value = recipesForFriday.value
+        } else if (dayId == 6) {
+            _listChosenMealsForSaturday.value = recipesForSaturday.value
         }
     }
 
     fun getRecipe(id: Long) {
-
         viewModelScope.launch(Dispatchers.IO) {
             val recipe = recipeRepository.getRecipeById(id)
-
             returnedRecipe.postValue(recipe)
-
-
-        }
-    }
-
-    fun getRecipesForMealPlan(dayId: Int, callback: (Flow<List<Recipe>>) -> Unit) {
-        val cachedRecipes = RecipeCache.getRecipes()
-        if (cachedRecipes != null) {
-            callback(cachedRecipes)
-        } else {
-            viewModelScope.launch(Dispatchers.IO) {
-                val recipes = recipeRepository.getRecipesForTheDay(dayId)
-                RecipeCache.cacheRecipes(recipes)
-                callback(recipes)
-            }
         }
     }
 
@@ -426,6 +529,39 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun setChosenDay(dayId: Int) {
         _chosenDay.value = dayId
     }
+
+    fun getAlfa(isMealPlanningOn: Boolean, recipe: Recipe): Float {
+        if (isMealPlanningOn) {
+            if (_chosenDay.value == 0) {
+                if (_listChosenMealsForSunday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 1) {
+                if (_listChosenMealsForMonday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 2) {
+                if (_listChosenMealsForTuesday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 3) {
+                if (_listChosenMealsForWednesday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 4) {
+                if (_listChosenMealsForThursday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 5) {
+                if (_listChosenMealsForFriday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            } else if (_chosenDay.value == 6) {
+                if (_listChosenMealsForSaturday.value?.contains(recipe) == true) {
+                    return 0.2F
+                }
+            }
+        }
+        return 1F
+    }
 }
-
-

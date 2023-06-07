@@ -15,79 +15,67 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.littlelemon.DishRepository
 import com.example.mealprep.MealPrep
 import com.example.mealprep.Recipe
 import com.example.mealprep.RecipesFeed
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
-import kotlinx.coroutines.flow.MutableStateFlow
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPrepForSpecificDay(
-    dayId: Int,
-    navController: NavHostController,
-    viewModel: RecipeCreationViewModel
+    dayId: Int, navController: NavHostController, viewModel: RecipeCreationViewModel
 ) {
     val dishes: List<Recipe> by viewModel.allRecipes.observeAsState(initial = listOf())
 
     var filteredDishes = remember { mutableStateOf(dishes) }
 
-    Scaffold(
-        topBar = {
-            TopAppBarMealbyDays()
-        },
-        floatingActionButton = {
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.Bottom,
-                horizontalAlignment = CenterHorizontally
-            ) {
-                ExtendedFloatingActionButton(
-                    text = {
-                        Text(
-                            text = "Edit",
-                            fontFamily = fontFamilyForBodyB2,
-                            fontSize = 16.sp
-                        )
-                    },
-                    onClick = {
-                        viewModel.addNewMealPlan()
-                        navController.navigate(MealPrep.route)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth(0.80F)
-                        .padding(start = 30.dp),
-                    backgroundColor = MealPrepColor.orange,
-                    contentColor = Color.White,
-                    icon = { }
+    Scaffold(topBar = {
+        TopAppBarMealbyDays()
+    }, floatingActionButton = {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = CenterHorizontally
+        ) {
+            ExtendedFloatingActionButton(text = {
+                Text(
+                    text = "Edit", fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                 )
-            }
-        },
-        content = { padding ->
-            Box(modifier = Modifier.padding(padding)) {
-                Column {
-                    Spacer(modifier = Modifier.height(20.dp))
-                    SearchBar(onSearch = {
-                        val result = dishes.filter { dish ->
-                            dish.name.lowercase().contains(it.lowercase())
-                        }
-                        if (result.isNotEmpty()) {
-                            filteredDishes.value = result.toMutableStateList()
-                        } else {
-                            filteredDishes.value = mutableListOf()
-                        }
-                    })
-                    RecipesFeed(navController, filteredDishes.value, true, viewModel)
-                }
+            },
+                onClick = {
+                    viewModel.addNewMealPlan()
+                    navController.navigate(MealPrep.route)
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.80F)
+                    .padding(start = 30.dp),
+                backgroundColor = MealPrepColor.orange,
+                contentColor = Color.White,
+                icon = { })
+        }
+    }, content = { padding ->
+        Box(modifier = Modifier.padding(padding)) {
+            Column {
+                Spacer(modifier = Modifier.height(20.dp))
+                SearchBar(onSearch = {
+                    val result = dishes.filter { dish ->
+                        dish.name.lowercase().contains(it.lowercase())
+                    }
+                    if (result.isNotEmpty()) {
+                        filteredDishes.value = result.toMutableStateList()
+                    } else {
+                        filteredDishes.value = mutableListOf()
+                    }
+                })
+                RecipesFeed(navController, filteredDishes.value, true, viewModel, dayId)
             }
         }
-    )
+    })
 }
 
 @Composable
@@ -99,8 +87,7 @@ fun SearchBar(
     }
     Column {
         Row(modifier = Modifier.fillMaxWidth()) {
-            TextField(
-                value = searchQuery,
+            TextField(value = searchQuery,
                 onValueChange = { searchQuery = it },
                 placeholder = {
                     Text(
@@ -117,8 +104,7 @@ fun SearchBar(
                     cursorColor = MealPrepColor.orange
                 ),
                 maxLines = 1,
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "") }
-            )
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "") })
             Spacer(modifier = Modifier.width(10.dp))
             onSearch(searchQuery)
         }

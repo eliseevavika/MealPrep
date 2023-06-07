@@ -105,7 +105,6 @@ interface RecipeDao {
             )
             listSteps.add(item)
         }
-
         insertIngredients(listIngredients)
         insertSteps(listSteps)
 
@@ -136,17 +135,19 @@ interface RecipeDao {
     suspend fun insertRecipeAndMealPlanTransaction(dayId: Int, recipes: List<Recipe>?) {
         recipes?.forEach { recipe ->
             addRecipeWithMealPlan(RecipeWithMealPlan(recipe.recipe_id, dayId))
-
         }
     }
 
-    @Query(
-        "SELECT Recipe.*" +
-                "    FROM Recipe" +
-                "    JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id" +
-                "    WHERE recipewithmealplan.mealplan_id = :dayId"
-    )
-    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>>
+    @Query("DELETE FROM recipewithmealplan WHERE mealplan_id = :dayId")
+    fun deleteRecipeWithMealPlan(dayId: Int)
+
+    @Transaction
+    suspend fun deleteRecipeAndMealPlanTransaction(dayId: Int) {
+        deleteRecipeWithMealPlan(dayId)
+    }
+
+    @Query("SELECT Recipe.*  FROM Recipe JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id WHERE recipewithmealplan.mealplan_id = :dayId")
+    fun getRecipesForTheDay(dayId: Int): LiveData<List<Recipe>>
 }
 
 @Dao
