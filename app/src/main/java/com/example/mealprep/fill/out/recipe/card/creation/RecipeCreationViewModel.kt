@@ -564,4 +564,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         }
         return 1F
     }
+
+    fun deleteAllRecipesForDay(dayId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
+        }
+    }
 }

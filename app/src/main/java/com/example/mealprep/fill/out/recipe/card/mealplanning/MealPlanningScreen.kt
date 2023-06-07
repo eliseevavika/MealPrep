@@ -154,7 +154,7 @@ fun BottomSheetContent(
             icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
-                viewModel.listChosenMeals.value = null
+                viewModel.deleteAllRecipesForDay(chosenDay.id)
             })
     }
 }
