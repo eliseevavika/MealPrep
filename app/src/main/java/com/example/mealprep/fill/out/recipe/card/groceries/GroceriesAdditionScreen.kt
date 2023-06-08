@@ -5,8 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -27,9 +25,10 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.mealprep.Ingredient
 import com.example.mealprep.NoRippleInteractionSource
 import com.example.mealprep.bounceClick
-import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
@@ -39,7 +38,7 @@ import com.example.meaprep.R
 @Composable
 fun GroceriesAdditionScreen(
     navController: NavHostController,
-    viewModel: GroceriesViewModel
+    viewModel: RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -55,15 +54,14 @@ fun GroceriesAdditionScreen(
                         end = 10.dp
                     )
                 ) {
-                    val ingredientsList = viewModel.listExtras.observeAsState().value
+                    val listExtraGroceries = viewModel.listExtraGroceries.observeAsState().value
 
-                    LazyColumn {
-                        if (!ingredientsList.isNullOrEmpty()) {
-                            items(ingredientsList) { item ->
+                    Column {
+                        if (!listExtraGroceries.isNullOrEmpty()) {
+                            listExtraGroceries.forEach { item ->
                                 Column(
                                     modifier = Modifier
                                         .background(Color.White)
-                                        .fillParentMaxWidth()
                                         .padding(end = 10.dp, top = 10.dp, start = 10.dp),
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
@@ -90,7 +88,7 @@ fun GroceriesAdditionScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TopBar(viewModel: GroceriesViewModel, navController: NavHostController) {
+fun TopBar(viewModel: RecipeCreationViewModel, navController: NavHostController) {
     Column {
         TopBarGroceriesAdditionForm(viewModel, navController)
         KeyboardHandlingSearch(viewModel)
@@ -99,12 +97,12 @@ fun TopBar(viewModel: GroceriesViewModel, navController: NavHostController) {
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingSearch(viewModel: GroceriesViewModel) {
+fun KeyboardHandlingSearch(viewModel: RecipeCreationViewModel) {
 
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQuery(input)
+        viewModel.performQueryForExtraGroceries(input)
     }
 
     Column(
@@ -128,7 +126,6 @@ fun KeyboardHandlingSearch(viewModel: GroceriesViewModel) {
                         onDone = {
                             callback()
                             input = ""
-
                         }
                     ),
                     value = input,
@@ -178,29 +175,26 @@ fun KeyboardHandlingSearch(viewModel: GroceriesViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpGroceries(
-    viewModel: GroceriesViewModel,
-    item: Groceries
+    viewModel: RecipeCreationViewModel,
+    item: Ingredient
 ) {
     var input by remember { mutableStateOf(" ") }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .fillMaxHeight()
             .padding(start = 16.dp, end = 16.dp),
 
         ) {
-
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setName(item, input)
+            viewModel.setNameForExtraGrocery(item, input)
             focusManager.clearFocus()
         }
 
         Row(
             modifier = Modifier
-                .fillMaxHeight()
                 .weight(7f), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
@@ -209,7 +203,6 @@ fun setUpGroceries(
                 contentDescription = "Icon Check",
                 modifier = Modifier.size(16.dp)
             )
-
             TextField(keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
             ),
@@ -223,7 +216,6 @@ fun setUpGroceries(
 
                 onValueChange = {
                     input = it
-
                 },
                 textStyle = TextStyle(color = MealPrepColor.black),
                 colors = TextFieldDefaults.textFieldColors(
@@ -240,7 +232,7 @@ fun setUpGroceries(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElement(item)
+                    viewModel.removeElementFromListExtraFroceries(item)
                 },
                 modifier = Modifier
                     .size(25.dp)

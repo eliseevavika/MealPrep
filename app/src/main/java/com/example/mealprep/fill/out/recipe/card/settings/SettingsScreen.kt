@@ -10,10 +10,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.mealprep.BottomNavigationBar
 import com.example.mealprep.fill.out.recipe.card.TopBarForSettingsScreen
-import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 
 @Composable
-fun SettingsScreen(navController: NavHostController, viewModel: GroceriesViewModel) {
+fun SettingsScreen(navController: NavHostController, viewModal: RecipeCreationViewModel,) {
     Scaffold(topBar = {
         TopBarForSettingsScreen()
     }, bottomBar = {

@@ -2,8 +2,8 @@ package com.example.mealprep.fill.out.recipe.card
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -24,14 +24,15 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mealprep.BottomNavigationBar
 import com.example.mealprep.GroceriesAddition
-import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
+import com.example.mealprep.Ingredient
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewModel) {
+fun GroceriesScreen(navController: NavHostController, viewModel: RecipeCreationViewModel) {
     Scaffold(topBar = {
         TopBarForGroceriesScreen()
     }, floatingActionButton = {
@@ -43,7 +44,7 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                 .padding(all = 16.dp),
             backgroundColor = MealPrepColor.orange,
             contentColor = Color.White,
-            ) {
+        ) {
             Icon(
                 imageVector = Icons.Filled.Add,
                 contentDescription = "Add",
@@ -58,25 +59,27 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                 top = 30.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
             ), verticalArrangement = Arrangement.Top
         ) {
-            val listGroceries = viewModel.listGroceries.observeAsState().value
+            val listGroceries = viewModel.ingredientsFromMealPlans.observeAsState(listOf()).value
 
             Column(
                 Modifier.wrapContentHeight()
             ) {
                 var expand by remember { mutableStateOf(false) }
-                val chosenGroceries = viewModel.chosenGroceries.observeAsState().value
+                val completedIngredients = viewModel.completedIngredients.observeAsState().value
 
-                LazyColumn(Modifier.weight(1f)) {
-                    if (!listGroceries.isNullOrEmpty()) {
-                        items(listGroceries) { item ->
+                Column(
+                    Modifier
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())) {
+                    if (listGroceries.isNotEmpty()) {
+                        listGroceries.forEach { item ->
                             Column(
                                 modifier = Modifier
-                                    .background(Color.White)
-                                    .fillParentMaxWidth(),
+                                    .background(Color.White),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                setUpLines(item, viewModel, false)
+                                setUpLines(item, viewModel, false, completedIngredients)
                             }
                             if (listGroceries.last() == item) {
                                 Row(
@@ -112,14 +115,13 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
                         }
                     }
                     if (expand) {
-                        if (!chosenGroceries.isNullOrEmpty()) {
-                            items(chosenGroceries) { item ->
+                        if (!completedIngredients.isNullOrEmpty()) {
+                            completedIngredients.forEach { item ->
                                 Column(
-                                    modifier = Modifier.fillParentMaxWidth(),
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    setUpLines(item, viewModel, true)
+                                    setUpLines(item, viewModel, true, completedIngredients)
                                 }
                             }
                         }
@@ -134,10 +136,11 @@ fun GroceriesScreen(navController: NavHostController, viewModel: GroceriesViewMo
 @ExperimentalUnitApi
 @Composable
 fun setUpLines(
-    item: Groceries, viewModel: GroceriesViewModel, isCompleted: Boolean
+    item: Ingredient,
+    viewModel: RecipeCreationViewModel,
+    isCompleted: Boolean,
+    completedIngredients: List<Ingredient>?
 ) {
-    val chosenGroceries = viewModel.chosenGroceries.observeAsState().value
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -153,7 +156,7 @@ fun setUpLines(
             verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(
-                selected = chosenGroceries?.contains(item) ?: false,
+                selected = completedIngredients?.contains(item) ?: false,
                 modifier = Modifier.size(16.dp),
                 colors = RadioButtonDefaults.colors(
                     selectedColor = MealPrepColor.orange, unselectedColor = MealPrepColor.black

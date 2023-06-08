@@ -40,6 +40,18 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeDao.deleteRecipeAndMealPlanTransaction(dayId)
     }
 
+    suspend fun makeIngredientComplete(ingredient: Ingredient) {
+        recipeDao.makeIngredientComplete(ingredient)
+    }
+
+    suspend fun makeIngredientActing(ingredient: Ingredient) {
+        recipeDao.makeIngredientActing(ingredient)
+    }
+
+    suspend fun insertExtraIngredientToDB(ingredient: Ingredient) {
+        recipeDao.insertIngredient(ingredient)
+    }
+
     val allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes()
 
     val recipesForSunday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(0)
@@ -55,4 +67,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     val recipesForFriday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(5)
 
     val recipesForSaturday: LiveData<List<Recipe>> = recipeDao.getRecipesForTheDay(6)
+
+    val ingredientsFromMealPlans: LiveData<List<Ingredient>> =
+        recipeDao.getAllIngredientsFromMealPlansNotCompleted()
+
+    val completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients()
 }

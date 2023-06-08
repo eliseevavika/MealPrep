@@ -14,13 +14,16 @@ import androidx.navigation.NavHostController
 import com.example.mealprep.Groceries
 import com.example.mealprep.NoRippleInteractionSource
 import com.example.mealprep.bounceClick
-import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
+import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun TopBarGroceriesAdditionForm(viewModel: GroceriesViewModel, navController: NavHostController) {
+fun TopBarGroceriesAdditionForm(
+    viewModel: RecipeCreationViewModel,
+    navController: NavHostController
+) {
 
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -45,7 +48,7 @@ fun TopBarGroceriesAdditionForm(viewModel: GroceriesViewModel, navController: Na
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
-                viewModel.addExtrasToTheList()
+                viewModel.addExtraGroceriesToTheDB()
                 navController.navigate(Groceries.route)
             }) {
             Text(

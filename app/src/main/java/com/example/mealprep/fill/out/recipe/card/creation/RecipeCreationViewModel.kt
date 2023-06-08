@@ -38,6 +38,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     val returnedListSteps = MutableLiveData<List<Step>>()
 
+    var ingredientsFromMealPlans: LiveData<List<Ingredient>>
+
+    var completedIngredients: LiveData<List<Ingredient>>
+
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
@@ -52,6 +56,9 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         recipesForThursday = recipeRepository.recipesForThursday
         recipesForFriday = recipeRepository.recipesForFriday
         recipesForSaturday = recipeRepository.recipesForSaturday
+
+        ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+        completedIngredients = recipeRepository.completedIngredients
     }
 
     private val _title = MutableStateFlow("")
@@ -106,6 +113,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     private val _isValidUrl = MutableStateFlow(true)
     val isValidUrl = _isValidUrl.asStateFlow()
 
+    private var _listExtraGroceries = MutableLiveData<List<Ingredient>?>()
+    val listExtraGroceries: MutableLiveData<List<Ingredient>?>
+        get() = _listExtraGroceries
+
     fun performQueryIngredients(
         ingredientName: String
     ) {
@@ -156,6 +167,47 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             _listSteps.value = _listSteps.value?.plus(item) ?: listOf(item)
         }
     }
+
+    fun performQueryForExtraGroceries(
+        ingredientName: String
+    ) {
+        if (ingredientName.isNotEmpty()) {
+            val ingredient = Ingredient(
+                name = ingredientName,
+                completed = false,
+                recipe_id = null
+            )
+            _listExtraGroceries.value =
+                _listExtraGroceries.value?.plus(ingredient) ?: listOf(ingredient)
+        }
+    }
+
+    fun setNameForExtraGrocery(
+        item: Ingredient,
+        input: String
+    ) {
+        _listExtraGroceries.value?.forEach { grocery ->
+            if (grocery.id == item.id) {
+                grocery.name = input
+            }
+        }
+    }
+
+    fun removeElementFromListExtraFroceries(
+        item: Ingredient
+    ) {
+        _listExtraGroceries.value = _listExtraGroceries.value?.filter { it != item }
+    }
+
+    fun addExtraGroceriesToTheDB() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _listExtraGroceries.value?.forEach { ingredient ->
+                recipeRepository.insertExtraIngredientToDB(ingredient)
+            }
+            emptyLiveDataForExtraGroceries()
+        }
+    }
+
 
     fun removeElementSteps(
         item: Steps
@@ -330,6 +382,28 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         _uri.value = uri
     }
 
+    fun performQueryForGroceries(
+        ingredient: Ingredient
+    ) {
+        if (completedIngredients.value?.contains(ingredient) == true) {
+            makeIngredientActing(ingredient)
+        } else {
+            makeIngredientComplete(ingredient)
+        }
+    }
+
+    private fun makeIngredientActing(ingredient: Ingredient) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.makeIngredientActing(ingredient)
+        }
+    }
+
+    fun makeIngredientComplete(ingredient: Ingredient) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.makeIngredientComplete(ingredient)
+        }
+    }
+
     fun emptyLiveData() {
         _photo.value = ""
         _source.value = ""
@@ -345,6 +419,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         _minutes.value = 0
         _serves.value = ""
         _title.value = ""
+    }
+
+    fun emptyLiveDataForExtraGroceries() {
+        _listExtraGroceries.postValue(emptyList())
     }
 
     fun setTabIndex(index: Int) {

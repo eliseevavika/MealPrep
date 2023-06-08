@@ -45,9 +45,9 @@ data class Recipe(
     )]
 )
 data class Ingredient(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) @NonNull val id: Long = 0,
     var name: String,
-    val completed: Boolean = false,
+    var completed: Boolean = false,
     val recipe_id: Long?
 )
 
@@ -77,6 +77,9 @@ interface RecipeDao {
 
     @Insert
     suspend fun insertIngredients(ingredients: List<Ingredient>)
+
+    @Insert
+    suspend fun insertIngredient(ingredient: Ingredient)
 
     @Insert
     suspend fun insertSteps(steps: List<Step>)
@@ -110,6 +113,7 @@ interface RecipeDao {
 
     }
 
+
     @Delete
     suspend fun delete(recipe: Recipe)
 
@@ -138,6 +142,9 @@ interface RecipeDao {
         }
     }
 
+    @Query("SELECT * FROM Ingredient WHERE id = :ingredientId")
+    suspend fun getIngredientById(ingredientId: Long): Ingredient?
+
     @Query("DELETE FROM recipewithmealplan WHERE mealplan_id = :dayId")
     fun deleteRecipeWithMealPlan(dayId: Int)
 
@@ -146,25 +153,47 @@ interface RecipeDao {
         deleteRecipeWithMealPlan(dayId)
     }
 
+    @Transaction
     @Query("SELECT Recipe.*  FROM Recipe JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id WHERE recipewithmealplan.mealplan_id = :dayId")
     fun getRecipesForTheDay(dayId: Int): LiveData<List<Recipe>>
+
+    @Transaction
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id WHERE NOT Ingredient.completed UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed")
+    fun getAllIngredientsFromMealPlansNotCompleted(): LiveData<List<Ingredient>>
+
+    @Transaction
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id WHERE Ingredient.completed UNION SELECT * FROM Ingredient WHERE completed")
+    fun getAllCompletedIngredients(): LiveData<List<Ingredient>>
+
+    @Transaction
+    @Update
+    suspend fun updateIngredient(ingredient: Ingredient)
+
+    @Transaction
+    suspend fun makeIngredientComplete(ingredient: Ingredient) {
+        val ingredient = getIngredientById(ingredient.id)
+        if (ingredient != null) {
+            ingredient.completed = true
+            updateIngredient(ingredient)
+        }
+    }
+
+    @Transaction
+    suspend fun makeIngredientActing(ingredient: Ingredient) {
+        val ingredient = getIngredientById(ingredient.id)
+        if (ingredient != null) {
+            ingredient.completed = false
+            updateIngredient(ingredient)
+        }
+    }
 }
 
 @Dao
 interface IngredientDao {
-    @Insert
-    suspend fun insertIngredient(ingredient: Ingredient)
 }
 
 @Dao
 interface MealPlanDao {
-//    @Query("SELECT * FROM Mealplan")
-//    fun getAll(): LiveData<List<MealPlan>>
-//
-//    @Insert(onConflict = OnConflictStrategy.ABORT)
-//    suspend fun insert(mealPlan: MealPlan): Long
-
-
 }
 
 @Dao

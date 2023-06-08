@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +26,6 @@ import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
-import com.example.mealprep.fill.out.recipe.card.groceries.GroceriesViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
@@ -99,12 +97,12 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(Groceries.route) {
-                                        GroceriesScreen(navController, GroceriesViewModel())
+                                        GroceriesScreen(navController, viewModal)
 
                                     }
 
                                     composable(Settings.route) {
-                                        SettingsScreen(navController, GroceriesViewModel())
+                                        SettingsScreen(navController, viewModal)
                                     }
 
                                     composable(
@@ -142,7 +140,7 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(GroceriesAddition.route) {
-                                        GroceriesAdditionScreen(navController, GroceriesViewModel())
+                                        GroceriesAdditionScreen(navController, viewModal)
                                     }
 
                                     composable(RecipeCreation.route) {
