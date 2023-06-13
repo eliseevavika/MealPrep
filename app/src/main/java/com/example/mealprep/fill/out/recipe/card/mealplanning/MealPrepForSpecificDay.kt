@@ -30,7 +30,7 @@ fun MealPrepForSpecificDay(
 ) {
     val dishes: List<Recipe> by viewModel.allRecipes.observeAsState(initial = listOf())
 
-    var filteredDishes = remember { mutableStateOf(dishes) }
+    var filteredDishes by remember { mutableStateOf(dishes) }
 
     Scaffold(topBar = {
         TopAppBarMealbyDays()
@@ -67,12 +67,12 @@ fun MealPrepForSpecificDay(
                         dish.name.lowercase().contains(it.lowercase())
                     }
                     if (result.isNotEmpty()) {
-                        filteredDishes.value = result.toMutableStateList()
+                        filteredDishes = result.toMutableStateList()
                     } else {
-                        filteredDishes.value = mutableListOf()
+                        filteredDishes = mutableListOf()
                     }
                 })
-                RecipesFeed(navController, filteredDishes.value, true, viewModel, dayId)
+                RecipesFeed(navController, filteredDishes, true, viewModel, dayId)
             }
         }
     })

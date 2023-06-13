@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -30,17 +31,21 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
             .background(color = colorResource(id = R.color.white))
             .padding(start = 15.dp, top = 15.dp, bottom = 5.dp)
     ) {
-        Row(verticalAlignment =  Alignment.Bottom) {
+        Row(verticalAlignment = Alignment.Bottom) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = title,
                 tint = MealPrepColor.grey_600,
             )
         }
-
         Spacer(modifier = Modifier.width(10.dp))
-        Row(verticalAlignment =  Alignment.Top) {
-            Text(text = title, color = Color.Black, fontFamily = fontFamilyForBodyB2, fontSize = 16.sp)
+        Row(verticalAlignment = Alignment.Top) {
+            Text(
+                text = title,
+                color = Color.Black,
+                fontFamily = fontFamilyForBodyB2,
+                fontSize = 16.sp
+            )
         }
     }
 }

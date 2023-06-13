@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -28,24 +28,37 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
     navController: NavHostController, viewModel: RecipeCreationViewModel
 ) {
-    var chosenDay = viewModel.chosenDay.collectAsState()
+    val recipesForSunday by rememberUpdatedState(viewModel.recipesForSunday.collectAsState(listOf())).value
+    val recipesForMonday by rememberUpdatedState(viewModel.recipesForMonday.collectAsState(listOf())).value
+    val recipesForTuesday by rememberUpdatedState(viewModel.recipesForTuesday.collectAsState(listOf())).value
+    val recipesForWednesday by rememberUpdatedState(
+        viewModel.recipesForWednesday.collectAsState(
+            listOf()
+        )
+    ).value
+    val recipesForThursday by rememberUpdatedState(
+        viewModel.recipesForThursday.collectAsState(
+            listOf()
+        )
+    ).value
+    val recipesForFriday by rememberUpdatedState(viewModel.recipesForFriday.collectAsState(listOf())).value
+    val recipesForSaturday by rememberUpdatedState(
+        viewModel.recipesForSaturday.collectAsState(
+            listOf()
+        )
+    ).value
 
-    val recipesForSunday = viewModel.recipesForSunday.observeAsState(listOf()).value
-    val recipesForMonday = viewModel.recipesForMonday.observeAsState(listOf()).value
-    val recipesForTuesday = viewModel.recipesForTuesday.observeAsState(listOf()).value
-    val recipesForWednesday = viewModel.recipesForWednesday.observeAsState(listOf()).value
-    val recipesForThursday = viewModel.recipesForThursday.observeAsState(listOf()).value
-    val recipesForFriday = viewModel.recipesForFriday.observeAsState(listOf()).value
-    val recipesForSaturday = viewModel.recipesForSaturday.observeAsState(listOf()).value
+    val chosenDay by rememberUpdatedState(viewModel.chosenDay.collectAsState()).value
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -71,12 +84,13 @@ fun MealPlanningScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            BottomSheetContent(navController, viewModel, days[chosenDay.value])
+            BottomSheetContent(navController, viewModel, days[chosenDay])
         }
     }) {
         Scaffold(topBar = {
             TopAppBarMealPlanning()
         }, bottomBar = { BottomNavigationBar(navController = navController) }) { padding ->
+
             Box(modifier = Modifier.padding(16.dp)) {
                 Column(
                     modifier = Modifier
@@ -95,9 +109,7 @@ fun MealPlanningScreen(
                                             modalSheetState.hide()
                                         } else {
                                             viewModel.setChosenDay(day.id)
-                                            modalSheetState.animateTo(
-                                                ModalBottomSheetValue.Expanded
-                                            )
+                                            modalSheetState.show()
                                         }
                                     }
                                 })
@@ -143,18 +155,19 @@ fun MealPlanningScreen(
 fun BottomSheetContent(
     navController: NavHostController, viewModel: RecipeCreationViewModel, chosenDay: Day
 ) {
+    val rememberedDay = remember(chosenDay) { chosenDay }
+
     Column {
         BottomSheetListItem(icon = R.drawable.outline_edit_24,
-            title = "Add / Edit plan for ${chosenDay.title}",
+            title = "Add / Edit plan for ${rememberedDay.title}",
             onItemClick = {
-                viewModel.performQueryForChosenMealsFromDB(chosenDay.id)
-                navController?.navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
+                viewModel.performQueryForChosenMealsFromDB(rememberedDay.id)
+                navController?.navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
             })
-        BottomSheetListItem(
-            icon = R.drawable.outline_delete_24,
+        BottomSheetListItem(icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
-                viewModel.deleteAllRecipesForDay(chosenDay.id)
+                viewModel.deleteAllRecipesForDay(rememberedDay.id)
             })
     }
 }
@@ -162,10 +175,12 @@ fun BottomSheetContent(
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MealPlanRecipesByDay(recipes: List<Recipe>, day: Int) {
+fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
     val scrollState = rememberScrollState()
     Row(
-        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp).horizontalScroll(scrollState),
+        modifier = Modifier
+            .padding(start = 8.dp, bottom = 16.dp)
+            .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.Start
     ) {
         recipes.forEach { recipe ->
@@ -275,3 +290,4 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
         }
     }
 }
+

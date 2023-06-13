@@ -12,6 +12,7 @@ import androidx.room.ForeignKey.Companion.CASCADE
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import java.io.ByteArrayOutputStream
 import java.util.*
 
@@ -155,7 +156,7 @@ interface RecipeDao {
 
     @Transaction
     @Query("SELECT Recipe.*  FROM Recipe JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id WHERE recipewithmealplan.mealplan_id = :dayId")
-    fun getRecipesForTheDay(dayId: Int): LiveData<List<Recipe>>
+    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>>
 
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id WHERE NOT Ingredient.completed UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed")

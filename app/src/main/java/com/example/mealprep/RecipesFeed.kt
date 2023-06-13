@@ -2,6 +2,7 @@ package com.example.mealprep
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -10,13 +11,13 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -29,6 +30,7 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import java.io.File
 
 
@@ -41,15 +43,24 @@ fun RecipesFeed(
     viewModel: RecipeCreationViewModel,
     dayId: Int
 ) {
-
     Column {
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             horizontalArrangement = Arrangement.SpaceAround
         ) {
             itemsIndexed(recipes) { _, recipe ->
-                MenuDish(navController, recipe, isMealPlanningOn, viewModel, dayId)
+                MenuDish(
+                    navController,
+                    recipe,
+                    isMealPlanningOn,
+                    viewModel,
+                    dayId,
+                    onPerformQuery = {
+                        viewModel.performQueryForChosenMeals(it, dayId)
+                    }
+                )
             }
         }
     }
@@ -63,9 +74,10 @@ fun MenuDish(
     recipe: Recipe,
     isMealPlanningOn: Boolean,
     viewModel: RecipeCreationViewModel,
-    dayId: Int
+    dayId: Int,
+    onPerformQuery: (Recipe) -> Unit
 ) {
-    val photoStrState = viewModel.photo.collectAsState()
+    val photoStrState by viewModel.photo.collectAsState()
 
     val context = LocalContext.current
 
@@ -77,9 +89,35 @@ fun MenuDish(
         if (!isMealPlanningOn) {
             navController?.navigate(DishDetails.route + "/${recipe.recipe_id}")
         } else {
-            viewModel.performQueryForChosenMeals(recipe, dayId)
+            onPerformQuery(recipe)
         }
     }) {
+        val chosenMealsForThisDay = if (dayId == 0) {
+            viewModel.listChosenMealsForSunday.collectAsState().value
+        } else if (dayId == 1) {
+            viewModel.listChosenMealsForMonday.collectAsState().value
+        } else if (dayId == 2) {
+            viewModel.listChosenMealsForTuesday.collectAsState().value
+        } else if (dayId == 3) {
+            viewModel.listChosenMealsForWednesday.collectAsState().value
+        } else if (dayId == 4) {
+            viewModel.listChosenMealsForThursday.collectAsState().value
+        } else if (dayId == 5) {
+            viewModel.listChosenMealsForFriday.collectAsState().value
+        } else if (dayId == 6) {
+            viewModel.listChosenMealsForSaturday.collectAsState().value
+        } else {
+            emptyList()
+        }
+
+        val alpha = remember(recipe, dayId, chosenMealsForThisDay) {
+            if (isMealPlanningOn && chosenMealsForThisDay.contains(recipe)) {
+                0.2f
+            } else {
+                1f
+            }
+        }
+
 
         var bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
 
@@ -93,7 +131,7 @@ fun MenuDish(
                     bitmap?.asImageBitmap()?.let {
                         val mediaStorageDir: File? = context.getExternalFilesDir(null)
                         val fileName =
-                            photoStrState.value.substring(photoStrState.value.lastIndexOf('/') + 1)
+                            photoStrState.substring(photoStrState.lastIndexOf('/') + 1)
 
                         val dir = File(mediaStorageDir?.path)
 
@@ -109,9 +147,7 @@ fun MenuDish(
                                     .clip(
                                         RoundedCornerShape(16.dp)
                                     )
-                                    .alpha(
-                                        viewModel.getAlfa(isMealPlanningOn, recipe)
-                                    )
+                                    .alpha(alpha)
                             )
                         }
                     }
@@ -125,9 +161,7 @@ fun MenuDish(
                             .clip(
                                 RoundedCornerShape(16.dp)
                             )
-                            .alpha(
-                                viewModel.getAlfa(isMealPlanningOn, recipe)
-                            )
+                            .alpha(alpha)
                     )
                 }
                 Text(
@@ -138,30 +172,39 @@ fun MenuDish(
                     modifier = Modifier.padding(start = 16.dp)
                 )
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.icons_clock2),
-                        contentDescription = "Clock icon",
-                        Modifier
-                            .size(24.dp)
-                            .align(CenterVertically),
-                        tint = MealPrepColor.grey_800
-                    )
-                    Text(
-                        text = "Cook: $cookTimeString",
-                        fontFamily = fontFamilyForBodyB2,
-                        color = MealPrepColor.grey_800,
-                        fontSize = 14.sp
-                    )
-                }
+                //separated it to this new Composable, because it caused an unnecessary recomposition of Icon ( painter = painterResource(id = R.drawable.icons_clock2))
+                CooktimeIconAndTitle(cookTimeString)
             }
         }
+    }
+}
+
+@Composable
+fun CooktimeIconAndTitle(cookTimeString: String) {
+    val clockIconPainter = painterResource(id = R.drawable.icons_clock2)
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = CenterVertically
+    ) {
+        Icon(
+            painter = clockIconPainter,
+            contentDescription = "Clock icon",
+            Modifier
+                .size(24.dp)
+                .align(CenterVertically),
+            tint = MealPrepColor.grey_800
+        )
+
+        Text(
+            text = "Cook: $cookTimeString",
+            fontFamily = fontFamilyForBodyB2,
+            color = MealPrepColor.grey_800,
+            fontSize = 14.sp
+        )
     }
 }
 

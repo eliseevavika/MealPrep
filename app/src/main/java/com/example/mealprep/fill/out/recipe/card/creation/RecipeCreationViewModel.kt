@@ -24,13 +24,13 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     var allRecipes: LiveData<List<Recipe>>
 
-    var recipesForSunday: LiveData<List<Recipe>>
-    var recipesForMonday: LiveData<List<Recipe>>
-    var recipesForTuesday: LiveData<List<Recipe>>
-    var recipesForWednesday: LiveData<List<Recipe>>
-    var recipesForThursday: LiveData<List<Recipe>>
-    var recipesForFriday: LiveData<List<Recipe>>
-    var recipesForSaturday: LiveData<List<Recipe>>
+    var recipesForSunday: Flow<List<Recipe>>
+    var recipesForMonday: Flow<List<Recipe>>
+    var recipesForTuesday: Flow<List<Recipe>>
+    var recipesForWednesday: Flow<List<Recipe>>
+    var recipesForThursday: Flow<List<Recipe>>
+    var recipesForFriday: Flow<List<Recipe>>
+    var recipesForSaturday: Flow<List<Recipe>>
 
     val returnedRecipe = MutableLiveData<Recipe>()
 
@@ -434,39 +434,39 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val listChosenMeals: MutableLiveData<List<Recipe>?>
         get() = _listChosenMeals
 
-    private var _listChosenMealsForSunday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForSunday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForSunday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForSunday: StateFlow<List<Recipe>>
         get() = _listChosenMealsForSunday
 
-    private var _listChosenMealsForMonday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForMonday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForMonday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForMonday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForMonday
 
-    private var _listChosenMealsForTuesday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForTuesday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForTuesday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForTuesday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForTuesday
 
-    private var _listChosenMealsForWednesday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForWednesday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForWednesday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForWednesday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForWednesday
 
-    private var _listChosenMealsForThursday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForThursday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForThursday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForThursday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForThursday
 
-    private var _listChosenMealsForFriday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForFriday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForFriday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForFriday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForFriday
 
-    private var _listChosenMealsForSaturday = MutableLiveData<List<Recipe>?>()
+    private var _listChosenMealsForSaturday = MutableStateFlow<List<Recipe>>(emptyList())
 
-    val listChosenMealsForSaturday: MutableLiveData<List<Recipe>?>
+    val listChosenMealsForSaturday: MutableStateFlow<List<Recipe>>
         get() = _listChosenMealsForSaturday
 
     fun performQueryForChosenMeals(
@@ -535,21 +535,38 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun performQueryForChosenMealsFromDB(
         dayId: Int
     ) {
-        if (dayId == 0) {
-            _listChosenMealsForSunday.value = recipesForSunday.value
-        } else if (dayId == 1) {
-            _listChosenMealsForMonday.value = recipesForMonday.value
-        } else if (dayId == 2) {
-            _listChosenMealsForTuesday.value = recipesForTuesday.value
-        } else if (dayId == 3) {
-            _listChosenMealsForWednesday.value = recipesForWednesday.value
-        } else if (dayId == 4) {
-            _listChosenMealsForThursday.value = recipesForThursday.value
-        } else if (dayId == 5) {
-            _listChosenMealsForFriday.value = recipesForFriday.value
-        } else if (dayId == 6) {
-            _listChosenMealsForSaturday.value = recipesForSaturday.value
+        viewModelScope.launch {
+            if (dayId == 0) {
+                recipesForSunday.collect { recipes ->
+                    _listChosenMealsForSunday.value = recipes
+                }
+            } else if (dayId == 1) {
+                recipesForMonday.collect { recipes ->
+                    _listChosenMealsForMonday.value = recipes
+                }
+            } else if (dayId == 2) {
+                recipesForTuesday.collect { recipes ->
+                    _listChosenMealsForTuesday.value = recipes
+                }
+            } else if (dayId == 3) {
+                recipesForWednesday.collect { recipes ->
+                    _listChosenMealsForWednesday.value = recipes
+                }
+            } else if (dayId == 4) {
+                recipesForThursday.collect { recipes ->
+                    _listChosenMealsForThursday.value = recipes
+                }
+            } else if (dayId == 5) {
+                recipesForFriday.collect { recipes ->
+                    _listChosenMealsForFriday.value = recipes
+                }
+            } else if (dayId == 6) {
+                recipesForSaturday.collect { recipes ->
+                    _listChosenMealsForSaturday.value = recipes
+                }
+            }
         }
+
     }
 
     fun getRecipe(id: Long) {
@@ -608,40 +625,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         _chosenDay.value = dayId
     }
 
-    fun getAlfa(isMealPlanningOn: Boolean, recipe: Recipe): Float {
-        if (isMealPlanningOn) {
-            if (_chosenDay.value == 0) {
-                if (_listChosenMealsForSunday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 1) {
-                if (_listChosenMealsForMonday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 2) {
-                if (_listChosenMealsForTuesday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 3) {
-                if (_listChosenMealsForWednesday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 4) {
-                if (_listChosenMealsForThursday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 5) {
-                if (_listChosenMealsForFriday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            } else if (_chosenDay.value == 6) {
-                if (_listChosenMealsForSaturday.value?.contains(recipe) == true) {
-                    return 0.2F
-                }
-            }
-        }
-        return 1F
-    }
 
     fun deleteAllRecipesForDay(dayId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
