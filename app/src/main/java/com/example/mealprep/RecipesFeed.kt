@@ -2,7 +2,6 @@ package com.example.mealprep
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -30,7 +28,6 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
-import com.google.accompanist.drawablepainter.rememberDrawablePainter
 import java.io.File
 
 
@@ -152,17 +149,7 @@ fun MenuDish(
                         }
                     }
                 } else {
-                    Image(
-                        painterResource(id = R.drawable.noimage),
-                        contentDescription = "Image",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(144.dp, 171.dp)
-                            .clip(
-                                RoundedCornerShape(16.dp)
-                            )
-                            .alpha(alpha)
-                    )
+                    ShowDefaultImage(alpha)
                 }
                 Text(
                     text = recipe.name.addEmptyLines(2),
@@ -171,8 +158,7 @@ fun MenuDish(
                     fontFamily = fontFamilyForBodyB1,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-
-                //separated it to this new Composable, because it caused an unnecessary recomposition of Icon ( painter = painterResource(id = R.drawable.icons_clock2))
+//ToDo: recompose a lot
                 CooktimeIconAndTitle(cookTimeString)
             }
         }
@@ -210,3 +196,17 @@ fun CooktimeIconAndTitle(cookTimeString: String) {
 
 fun String.addEmptyLines(lines: Int) = this + "\n".repeat(lines)
 
+@Composable
+fun ShowDefaultImage(alpha: Float) {
+    Image(
+        painterResource(id = R.drawable.noimage),
+        contentDescription = "Image",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .size(144.dp, 171.dp)
+            .clip(
+                RoundedCornerShape(16.dp)
+            )
+            .alpha(alpha)
+    )
+}
