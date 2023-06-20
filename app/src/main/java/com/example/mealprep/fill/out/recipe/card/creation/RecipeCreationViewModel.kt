@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
@@ -42,6 +44,8 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     var completedIngredients: LiveData<List<Ingredient>>
 
+    var recipesByDay: List<Flow<List<Recipe>>>
+
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
@@ -56,6 +60,16 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         recipesForThursday = recipeRepository.recipesForThursday
         recipesForFriday = recipeRepository.recipesForFriday
         recipesForSaturday = recipeRepository.recipesForSaturday
+
+        recipesByDay = listOf(
+            recipesForSunday,
+            recipesForMonday,
+            recipesForTuesday,
+            recipesForWednesday,
+            recipesForThursday,
+            recipesForFriday,
+            recipesForSaturday
+        )
 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
         completedIngredients = recipeRepository.completedIngredients
@@ -207,7 +221,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             emptyLiveDataForExtraGroceries()
         }
     }
-
 
     fun removeElementSteps(
         item: Steps
@@ -434,6 +447,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     val listChosenMeals: MutableLiveData<List<Recipe>?>
         get() = _listChosenMeals
 
+
     private var _listChosenMealsForSunday = MutableStateFlow<List<Recipe>>(emptyList())
 
     val listChosenMealsForSunday: StateFlow<List<Recipe>>
@@ -566,7 +580,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
                 }
             }
         }
-
     }
 
     fun getRecipe(id: Long) {

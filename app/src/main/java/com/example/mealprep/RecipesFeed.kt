@@ -158,7 +158,6 @@ fun MenuDish(
                     fontFamily = fontFamilyForBodyB1,
                     modifier = Modifier.padding(start = 16.dp)
                 )
-//ToDo: recompose a lot
                 CooktimeIconAndTitle(cookTimeString)
             }
         }

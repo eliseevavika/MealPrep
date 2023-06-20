@@ -28,35 +28,19 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+import kotlinx.coroutines.FlowPreview
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class, FlowPreview::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
-    navController: NavHostController, viewModel: RecipeCreationViewModel
+    navController: NavHostController,
+    viewModel: RecipeCreationViewModel,
 ) {
-    val recipesForSunday by rememberUpdatedState(viewModel.recipesForSunday.collectAsState(listOf())).value
-    val recipesForMonday by rememberUpdatedState(viewModel.recipesForMonday.collectAsState(listOf())).value
-    val recipesForTuesday by rememberUpdatedState(viewModel.recipesForTuesday.collectAsState(listOf())).value
-    val recipesForWednesday by rememberUpdatedState(
-        viewModel.recipesForWednesday.collectAsState(
-            listOf()
-        )
-    ).value
-    val recipesForThursday by rememberUpdatedState(
-        viewModel.recipesForThursday.collectAsState(
-            listOf()
-        )
-    ).value
-    val recipesForFriday by rememberUpdatedState(viewModel.recipesForFriday.collectAsState(listOf())).value
-    val recipesForSaturday by rememberUpdatedState(
-        viewModel.recipesForSaturday.collectAsState(
-            listOf()
-        )
-    ).value
+    val recipesByDay by rememberUpdatedState(viewModel.recipesByDay)
 
     val chosenDay by rememberUpdatedState(viewModel.chosenDay.collectAsState()).value
 
@@ -71,6 +55,7 @@ fun MealPlanningScreen(
     val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
     val modifier = if (isSheetFullScreen) Modifier.fillMaxSize()
     else Modifier.fillMaxWidth()
+    val scrollState = rememberScrollState()
 
     BackHandler(modalSheetState.isVisible) {
         coroutineScope.launch { modalSheetState.hide() }
@@ -87,17 +72,24 @@ fun MealPlanningScreen(
             BottomSheetContent(navController, viewModel, days[chosenDay])
         }
     }) {
-        Scaffold(topBar = {
-            TopAppBarMealPlanning()
-        }, bottomBar = { BottomNavigationBar(navController = navController) }) { padding ->
+        Scaffold(
+            topBar = {
+                TopAppBarMealPlanning()
+            },
+            bottomBar = { BottomNavigationBar(navController = navController) },
+
+            ) { padding ->
 
             Box(modifier = Modifier.padding(16.dp)) {
                 Column(
                     modifier = Modifier
                         .background(Color.White)
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                 ) {
                     days.forEach { day ->
+                        val recipesForDay =
+                            recipesByDay.getOrNull(day.id)?.collectAsState(emptyList())?.value
+                        
                         Row(
                             modifier = Modifier
                                 .padding(
@@ -115,12 +107,8 @@ fun MealPlanningScreen(
                                 })
                         ) {
                             Row {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.outline_density_medium_24),
-                                    tint = MealPrepColor.grey_600,
-                                    contentDescription = "Icon",
-                                    modifier = Modifier.size(16.dp)
-                                )
+                                //extracted composable to skip recomposition
+                                ShowIcon()
                                 Spacer(modifier = Modifier.width(width = 8.dp))
                                 Text(
                                     text = day.title,
@@ -129,22 +117,12 @@ fun MealPlanningScreen(
                                 )
                             }
                         }
-                        if (!recipesForSunday.isEmpty() && day.id == 0) {
-                            MealPlanRecipesByDay(recipesForSunday, 0)
-                        } else if (!recipesForMonday.isEmpty() && day.id == 1) {
-                            MealPlanRecipesByDay(recipesForMonday, 1)
-                        } else if (!recipesForTuesday.isEmpty() && day.id == 2) {
-                            MealPlanRecipesByDay(recipesForTuesday, 2)
-                        } else if (!recipesForWednesday.isEmpty() && day.id == 3) {
-                            MealPlanRecipesByDay(recipesForWednesday, 3)
-                        } else if (!recipesForThursday.isEmpty() && day.id == 4) {
-                            MealPlanRecipesByDay(recipesForThursday, 4)
-                        } else if (!recipesForFriday.isEmpty() && day.id == 5) {
-                            MealPlanRecipesByDay(recipesForFriday, 5)
-                        } else if (!recipesForSaturday.isEmpty() && day.id == 6) {
-                            MealPlanRecipesByDay(recipesForSaturday, 6)
+
+                        if (recipesForDay != null) {
+                            MealPlanRecipesByDay(recipesForDay, day.id)
                         }
                     }
+
                 }
             }
         }
@@ -183,21 +161,21 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.Start
     ) {
-        recipes.forEach { recipe ->
+        recipes?.forEach { recipe ->
             var bitmap = recipe?.photo?.let {
                 Converters().converterStringToBitmap(it)
             }
-            if (bitmap != null) {
-                Card(modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(), onClick = {}) {
-                    Row {
-                        Column(
-                            modifier = Modifier.size(74.dp, 108.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
+            Card(modifier = Modifier
+                .padding(8.dp)
+                .wrapContentSize(), onClick = {}) {
+                Row {
+                    Column(
+                        modifier = Modifier.size(74.dp, 108.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start,
 
-                            ) {
+                        ) {
+                        if (bitmap != null) {
                             bitmap?.let {
                                 Image(
                                     bitmap = it.asImageBitmap(),
@@ -214,53 +192,23 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
                                         )
                                 )
                             }
-                            Text(
-                                text = recipe?.name?.addEmptyLines(
-                                    2
-                                ) ?: "no name",
-                                maxLines = 2,
-                                fontFamily = fontFamilyForBodyB1,
-                                fontSize = 10.sp,
-                            )
+                        } else {
+                            ShowDefaultIconForRecipe()
                         }
-                    }
-                }
-            } else {
-                Card(modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(), onClick = {}) {
-                    Row {
-                        Column(
-                            modifier = Modifier.size(74.dp, 108.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
-                        ) {
-                            Image(
-                                painterResource(id = R.drawable.noimage),
-                                contentDescription = "Image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(74.dp, 74.dp)
-                                    .clip(
-                                        RoundedCornerShape(16.dp)
-                                    )
-                            )
-                            Text(
-                                text = recipe?.name?.addEmptyLines(
-                                    2
-                                ) ?: "no name",
-                                maxLines = 2,
-                                fontFamily = fontFamilyForBodyB1,
-                                fontSize = 10.sp,
-                            )
-                        }
+                        Text(
+                            text = recipe?.name?.addEmptyLines(
+                                2
+                            ) ?: "no name",
+                            maxLines = 2,
+                            fontFamily = fontFamilyForBodyB1,
+                            fontSize = 10.sp,
+                        )
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit) {
@@ -291,3 +239,26 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
     }
 }
 
+@Composable
+fun ShowIcon() {
+    Icon(
+        painter = painterResource(id = R.drawable.outline_density_medium_24),
+        tint = MealPrepColor.grey_600,
+        contentDescription = "Icon",
+        modifier = Modifier.size(16.dp)
+    )
+}
+
+@Composable
+fun ShowDefaultIconForRecipe() {
+    Image(
+        painterResource(id = R.drawable.noimage),
+        contentDescription = "Image",
+        contentScale = ContentScale.Crop,
+        modifier = Modifier
+            .size(74.dp, 74.dp)
+            .clip(
+                RoundedCornerShape(16.dp)
+            )
+    )
+}
