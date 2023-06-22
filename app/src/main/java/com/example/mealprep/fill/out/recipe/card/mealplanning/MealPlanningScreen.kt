@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -28,21 +27,20 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
-import kotlinx.coroutines.FlowPreview
 
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class, FlowPreview::class)
+@OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
     navController: NavHostController,
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
 ) {
-    val recipesByDay by rememberUpdatedState(viewModel.recipesByDay)
+    val recipesByDay = remember(viewModel().recipesByDay) { viewModel().recipesByDay }
 
-    val chosenDay by rememberUpdatedState(viewModel.chosenDay.collectAsState()).value
+    val chosenDay by rememberUpdatedState(viewModel().chosenDay.collectAsState()).value
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -51,7 +49,7 @@ fun MealPlanningScreen(
         skipHalfExpanded = true
     )
 
-    var isSheetFullScreen by remember { mutableStateOf(false) }
+    val isSheetFullScreen by remember { mutableStateOf(false) }
     val roundedCornerRadius = if (isSheetFullScreen) 0.dp else 12.dp
     val modifier = if (isSheetFullScreen) Modifier.fillMaxSize()
     else Modifier.fillMaxWidth()
@@ -87,42 +85,43 @@ fun MealPlanningScreen(
                         .verticalScroll(scrollState)
                 ) {
                     days.forEach { day ->
-                        val recipesForDay =
-                            recipesByDay.getOrNull(day.id)?.collectAsState(emptyList())?.value
-                        
-                        Row(
-                            modifier = Modifier
-                                .padding(
-                                    start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
-                                )
-                                .clickable(onClick = {
-                                    coroutineScope.launch {
-                                        if (modalSheetState.isVisible) {
-                                            modalSheetState.hide()
-                                        } else {
-                                            viewModel.setChosenDay(day.id)
-                                            modalSheetState.show()
+                        key(day.id) {
+                            val recipesForDay =
+                                recipesByDay.getOrNull(day.id)?.collectAsState(initial = listOf())?.value
+
+                            Row(
+                                modifier = Modifier
+                                    .padding(
+                                        start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
+                                    )
+                                    .clickable(onClick = {
+                                        coroutineScope.launch {
+                                            if (modalSheetState.isVisible) {
+                                                modalSheetState.hide()
+                                            } else {
+                                                viewModel().setChosenDay(day.id)
+                                                modalSheetState.show()
+                                            }
                                         }
-                                    }
-                                })
-                        ) {
-                            Row {
-                                //extracted composable to skip recomposition
-                                ShowIcon()
-                                Spacer(modifier = Modifier.width(width = 8.dp))
-                                Text(
-                                    text = day.title,
-                                    fontFamily = fontFamilyForBodyB2,
-                                    fontSize = 16.sp
-                                )
+                                    })
+                            ) {
+                                Row {
+                                    //extracted composable to skip recomposition
+                                    ShowIcon()
+                                    Spacer(modifier = Modifier.width(width = 8.dp))
+                                    Text(
+                                        text = day.title,
+                                        fontFamily = fontFamilyForBodyB2,
+                                        fontSize = 16.sp
+                                    )
+                                }
+                            }
+
+                            if (recipesForDay != null && recipesForDay.isNotEmpty()) {
+                                MealPlanRecipesByDay { recipesForDay }
                             }
                         }
-
-                        if (recipesForDay != null) {
-                            MealPlanRecipesByDay(recipesForDay, day.id)
-                        }
                     }
-
                 }
             }
         }
@@ -131,7 +130,7 @@ fun MealPlanningScreen(
 
 @Composable
 fun BottomSheetContent(
-    navController: NavHostController, viewModel: RecipeCreationViewModel, chosenDay: Day
+    navController: NavHostController, viewModel: () -> RecipeCreationViewModel, chosenDay: Day
 ) {
     val rememberedDay = remember(chosenDay) { chosenDay }
 
@@ -139,13 +138,13 @@ fun BottomSheetContent(
         BottomSheetListItem(icon = R.drawable.outline_edit_24,
             title = "Add / Edit plan for ${rememberedDay.title}",
             onItemClick = {
-                viewModel.performQueryForChosenMealsFromDB(rememberedDay.id)
-                navController?.navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
+                viewModel().performQueryForChosenMealsFromDB(rememberedDay.id)
+                navController.navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
             })
         BottomSheetListItem(icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
-                viewModel.deleteAllRecipesForDay(rememberedDay.id)
+                viewModel().deleteAllRecipesForDay(rememberedDay.id)
             })
     }
 }
@@ -153,7 +152,7 @@ fun BottomSheetContent(
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
+fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
     val scrollState = rememberScrollState()
     Row(
         modifier = Modifier
@@ -161,24 +160,25 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
             .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.Start
     ) {
-        recipes?.forEach { recipe ->
-            var bitmap = recipe?.photo?.let {
-                Converters().converterStringToBitmap(it)
-            }
-            Card(modifier = Modifier
-                .padding(8.dp)
-                .wrapContentSize(), onClick = {}) {
-                Row {
-                    Column(
-                        modifier = Modifier.size(74.dp, 108.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start,
+        recipes().forEach { recipe ->
+            val recipeName = remember(recipe.recipe_id){recipe.name.addEmptyLines(2)}
+            key(recipe.recipe_id) {
+                val bitmap = recipe.photo?.let {
+                    Converters().converterStringToBitmap(it)
+                }
+                Card(modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(), onClick = {}) {
+                    Row {
+                        Column(
+                            modifier = Modifier.size(74.dp, 108.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start,
 
-                        ) {
-                        if (bitmap != null) {
-                            bitmap?.let {
+                            ) {
+                            if (bitmap != null) {
                                 Image(
-                                    bitmap = it.asImageBitmap(),
+                                    bitmap = bitmap.asImageBitmap(),
                                     contentDescription = "Image",
                                     contentScale = ContentScale.Crop,
                                     modifier = Modifier
@@ -191,18 +191,16 @@ fun MealPlanRecipesByDay(recipes: List<Recipe>, dayId: Int) {
                                             )
                                         )
                                 )
+                            } else {
+                                ShowDefaultIconForRecipe()
                             }
-                        } else {
-                            ShowDefaultIconForRecipe()
+                            Text(
+                                text = recipeName,
+                                maxLines = 2,
+                                fontFamily = fontFamilyForBodyB1,
+                                fontSize = 10.sp,
+                            )
                         }
-                        Text(
-                            text = recipe?.name?.addEmptyLines(
-                                2
-                            ) ?: "no name",
-                            maxLines = 2,
-                            fontFamily = fontFamilyForBodyB1,
-                            fontSize = 10.sp,
-                        )
                     }
                 }
             }

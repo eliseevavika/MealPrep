@@ -10,12 +10,8 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -25,17 +21,15 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.mealprep.ui.theme.fontFamilyForError
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.seconds
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TopBarRecipeCreationForm(
     navController: NavHostController,
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     focusRequester: FocusRequester
 ) {
-    val chosenTabIndex = viewModel.chosenTabIndex.collectAsState()
+    val chosenTabIndex by viewModel().chosenTabIndex.collectAsState()
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
     Row(
@@ -60,11 +54,11 @@ fun TopBarRecipeCreationForm(
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
-                if (viewModel.isRquiredDataEntered()) {
-                    viewModel.addNewRecipe()
+                if (viewModel().isRquiredDataEntered()) {
+                    viewModel().addNewRecipe()
                     navController?.navigate(Home.route)
                 } else {
-                    if (chosenTabIndex.value == 1 || chosenTabIndex.value == 2) {
+                    if (chosenTabIndex == 1 || chosenTabIndex == 2) {
                         showDialog = true
                     }
                     focusRequester.requestFocus()

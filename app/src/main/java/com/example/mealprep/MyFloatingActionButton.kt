@@ -13,14 +13,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MyFloatingActionButton(scope: CoroutineScope, state: ModalBottomSheetState) {
-    FloatingActionButton(
-        modifier = Modifier
-            .padding(all = 16.dp),
+fun MyFloatingActionButton(scope: () -> CoroutineScope, state: () -> ModalBottomSheetState) {
+    FloatingActionButton(modifier = Modifier.padding(all = 16.dp),
         backgroundColor = MealPrepColor.orange,
         onClick = {
-            scope.launch {
-                state.show()
+            scope().launch {
+                state().show()
             }
         }) {
         Icon(imageVector = Icons.Filled.Add, contentDescription = "Add", tint = MealPrepColor.white)

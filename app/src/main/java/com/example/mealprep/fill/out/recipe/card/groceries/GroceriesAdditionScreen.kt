@@ -38,7 +38,7 @@ import com.example.meaprep.R
 @Composable
 fun GroceriesAdditionScreen(
     navController: NavHostController,
-    viewModel: RecipeCreationViewModel
+    viewModel: () -> RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -54,27 +54,29 @@ fun GroceriesAdditionScreen(
                         end = 10.dp
                     )
                 ) {
-                    val listExtraGroceries = viewModel.listExtraGroceries.observeAsState().value
+                    val listExtraGroceries = viewModel().listExtraGroceries.observeAsState().value
 
                     Column {
                         if (!listExtraGroceries.isNullOrEmpty()) {
                             listExtraGroceries.forEach { item ->
-                                Column(
-                                    modifier = Modifier
-                                        .background(Color.White)
-                                        .padding(end = 10.dp, top = 10.dp, start = 10.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Box(
+                                key(item.id) {
+                                    Column(
                                         modifier = Modifier
-                                            .fillMaxWidth()
-                                            .wrapContentHeight()
-                                            .background(MaterialTheme.colors.background)
-                                            .border(1.dp, MealPrepColor.grey_400)
-
+                                            .background(Color.White)
+                                            .padding(end = 10.dp, top = 10.dp, start = 10.dp),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
-                                        setUpGroceries(viewModel, item)
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .wrapContentHeight()
+                                                .background(MaterialTheme.colors.background)
+                                                .border(1.dp, MealPrepColor.grey_400)
+
+                                        ) {
+                                            setUpGroceries(viewModel, item)
+                                        }
                                     }
                                 }
                             }
@@ -88,7 +90,7 @@ fun GroceriesAdditionScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TopBar(viewModel: RecipeCreationViewModel, navController: NavHostController) {
+fun TopBar(viewModel: () -> RecipeCreationViewModel, navController: NavHostController) {
     Column {
         TopBarGroceriesAdditionForm(viewModel, navController)
         KeyboardHandlingSearch(viewModel)
@@ -97,12 +99,11 @@ fun TopBar(viewModel: RecipeCreationViewModel, navController: NavHostController)
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingSearch(viewModel: RecipeCreationViewModel) {
-
+fun KeyboardHandlingSearch(viewModel: () -> RecipeCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQueryForExtraGroceries(input)
+        viewModel().performQueryForExtraGroceries(input)
     }
 
     Column(
@@ -175,10 +176,11 @@ fun KeyboardHandlingSearch(viewModel: RecipeCreationViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpGroceries(
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     item: Ingredient
 ) {
     var input by remember { mutableStateOf(" ") }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -189,7 +191,7 @@ fun setUpGroceries(
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setNameForExtraGrocery(item, input)
+            viewModel().setNameForExtraGrocery(item, input)
             focusManager.clearFocus()
         }
 
@@ -232,7 +234,7 @@ fun setUpGroceries(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElementFromListExtraFroceries(item)
+                    viewModel().removeElementFromListExtraFroceries(item)
                 },
                 modifier = Modifier
                     .size(25.dp)

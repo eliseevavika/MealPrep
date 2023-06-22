@@ -20,34 +20,28 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    scope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
-    viewModel: RecipeCreationViewModel
+    scope: () -> CoroutineScope,
+    modalBottomSheetState: () -> ModalBottomSheetState,
+    viewModel: () -> RecipeCreationViewModel
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBarHome()
-        },
+    val recipeList: List<Recipe> by viewModel().allRecipes.observeAsState(initial = listOf())
+
+    Scaffold(topBar = {
+        TopAppBarHome()
+    },
         floatingActionButton = {
             MyFloatingActionButton(
-                scope,
-                modalBottomSheetState
+                scope, modalBottomSheetState
             )
         },
         bottomBar = { BottomNavigationBar(navController = navController) },
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
-                val recipeList: List<Recipe> by viewModel.allRecipes.observeAsState(initial = listOf())
                 Column {
                     RecipesFeed(
-                        navController,
-                        recipeList,
-                        false,
-                        viewModel,
-                        -1
+                        navController, recipeList, false, viewModel, -1
                     )
                 }
             }
-        }
-    )
+        })
 }

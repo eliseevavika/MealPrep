@@ -21,7 +21,7 @@ fun RecipeCreationScreen(
     navController: NavHostController,
     scope: CoroutineScope,
     modalBottomSheetState: ModalBottomSheetState,
-    viewModal: RecipeCreationViewModel,
+    viewModal: () -> RecipeCreationViewModel,
 ) {
     val focusRequester = remember { FocusRequester() }
 

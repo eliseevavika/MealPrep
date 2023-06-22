@@ -19,7 +19,7 @@ import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun TabScreenForRecipeCard(viewModel: RecipeCreationViewModel) {
+fun TabScreenForRecipeCard(viewModel: () -> RecipeCreationViewModel) {
     var tabIndex by remember { mutableStateOf(0) }
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
@@ -31,34 +31,36 @@ fun TabScreenForRecipeCard(viewModel: RecipeCreationViewModel) {
             indicator = {},
         ) {
             tabs.forEachIndexed { index, title ->
-                val withForTab = if (index != 1) 94.5.dp else 120.dp
+                key(index) {
+                    val withForTab = if (index != 1) 94.5.dp else 120.dp
 
-                Tab(
-                    text = {
-                        Text(
-                            text = title,
-                            fontFamily = fontFamilyForBodyB2,
-                            fontSize = 16.sp,
-                            color = if (tabIndex == index) MealPrepColor.white else MealPrepColor.grey_800,
+                    Tab(
+                        text = {
+                            Text(
+                                text = title,
+                                fontFamily = fontFamilyForBodyB2,
+                                fontSize = 16.sp,
+                                color = if (tabIndex == index) MealPrepColor.white else MealPrepColor.grey_800,
 
-                            modifier = Modifier
-                                .drawBehind {
-                                    drawRoundRect(
-                                        color = if (tabIndex == index) MealPrepColor.orange else MealPrepColor.transparent,
-                                        cornerRadius = CornerRadius(x = 100f, y = 100f),
+                                modifier = Modifier
+                                    .drawBehind {
+                                        drawRoundRect(
+                                            color = if (tabIndex == index) MealPrepColor.orange else MealPrepColor.transparent,
+                                            cornerRadius = CornerRadius(x = 100f, y = 100f),
+                                        )
+                                    }
+                                    .size(width = withForTab, height = 36.dp)
+                                    .padding(
+                                        top = 8.dp,
+                                        bottom = 8.dp
                                     )
-                                }
-                                .size(width = withForTab, height = 36.dp)
-                                .padding(
-                                    top = 8.dp,
-                                    bottom = 8.dp
-                                )
-                        )
-                    },
-                    selected = tabIndex == index,
-                    onClick = { tabIndex = index },
-                    interactionSource = NoRippleInteractionSource()
-                )
+                            )
+                        },
+                        selected = tabIndex == index,
+                        onClick = { tabIndex = index },
+                        interactionSource = NoRippleInteractionSource()
+                    )
+                }
             }
         }
         when (tabIndex) {

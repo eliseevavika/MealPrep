@@ -4,6 +4,6 @@ import androidx.compose.runtime.Composable
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 
 @Composable
-fun StepsCreationScreen(viewModel: RecipeCreationViewModel) {
+fun StepsCreationScreen(viewModel: () -> RecipeCreationViewModel) {
     ListStepsScreen(viewModel)
 }

@@ -26,8 +26,8 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
-fun IntroCardScreen(viewModel: RecipeCreationViewModel) {
-    val recipe = viewModel.returnedRecipe.observeAsState().value
+fun IntroCardScreen(viewModel: () -> RecipeCreationViewModel) {
+    val recipe = viewModel().returnedRecipe.observeAsState().value
 
     Box(modifier = Modifier.padding(16.dp)) {
         Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
@@ -52,14 +52,12 @@ fun IntroCardScreen(viewModel: RecipeCreationViewModel) {
 
 @Composable
 fun SourceOfRecipe(recipe: Recipe) {
-    fun showMessage(context: Context, message:String){
+    fun showMessage(context: Context, message: String) {
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     val mAnnotatedLinkString = buildAnnotatedString {
-
         val mStr = recipe.source
-
         append(mStr.toString())
         addStyle(
             style = SpanStyle(

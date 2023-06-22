@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -27,7 +28,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.mealprep.Converters
-import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.TabScreenForRecipeCard
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
@@ -59,7 +59,7 @@ fun TopAppBarDishDetail(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DishDetails(
-    id: Long, navController: NavHostController, viewModel: RecipeCreationViewModel
+    id: Long, navController: NavHostController, viewModel: () -> RecipeCreationViewModel
 ) {
     val scope = rememberCoroutineScope()
 
@@ -68,11 +68,11 @@ fun DishDetails(
     }, content = { padding ->
         Box(modifier = Modifier.padding(padding)) {
             Column {
-                viewModel.getRecipe(id)
+                viewModel().getRecipe(id)
 
-                viewModel.getListOfIngredients(id)
+                viewModel().getListOfIngredients(id)
 
-                viewModel.getListOfSteps(id)
+                viewModel().getListOfSteps(id)
 
                 UpperPart(viewModel)
 
@@ -84,12 +84,14 @@ fun DishDetails(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun UpperPart(viewModel: RecipeCreationViewModel) {
-    val recipe = viewModel.returnedRecipe.observeAsState().value
+fun UpperPart(viewModel: () -> RecipeCreationViewModel) {
+    val recipe = viewModel().returnedRecipe.observeAsState().value
 
-    var bitmap = recipe?.photo?.let { Converters().converterStringToBitmap(it) }
+    val bitmap = recipe?.photo?.let { Converters().converterStringToBitmap(it) }
 
-    val cookTimeString = viewModel.getCookTimeString(recipe?.cook_time)
+    val cookTimeString = remember(recipe){
+        viewModel().getCookTimeString(recipe?.cook_time)
+    }
 
     Column(
         verticalArrangement = Arrangement.spacedBy((-150).dp),
@@ -125,7 +127,7 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                 .background(Color.White)
                 .padding(16.dp)
         ) {
-            Column() {
+            Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -186,7 +188,9 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = viewModel.getCookingComplexity(recipe?.cook_time), fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
+                                text = viewModel().getCookingComplexity(recipe?.cook_time),
+                                fontFamily = fontFamilyForBodyB2,
+                                fontSize = 16.sp
                             )
                         }
                     }
@@ -222,6 +226,6 @@ fun UpperPart(viewModel: RecipeCreationViewModel) {
 }
 
 @Composable
-fun LowerPart(viewModel: RecipeCreationViewModel) {
+fun LowerPart(viewModel: () -> RecipeCreationViewModel) {
     TabScreenForRecipeCard(viewModel)
 }

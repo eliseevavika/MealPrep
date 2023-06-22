@@ -3,7 +3,6 @@ package com.example.mealprep.fill.out.recipe.card
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.provider.MediaStore
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -24,35 +23,32 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mealprep.Converters
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.meaprep.R
-import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RequestContentPermission(viewModel: RecipeCreationViewModel) {
-    val photoStrState = viewModel.photo.collectAsState()
+fun RequestContentPermission(viewModel: () -> RecipeCreationViewModel) {
+    val photoStrState = viewModel().photo.collectAsState()
 
-    val imageUri = viewModel.uri.collectAsState()
+    val imageUri = viewModel().uri.collectAsState()
 
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        viewModel.setImageUri(uri)
+        viewModel().setImageUri(uri)
     }
     Box {
         if (imageUri.value != null) {
             ConstraintLayout {
                 val (photo, remove, edit) = createRefs()
-                var bitmap = Converters().converterStringToBitmap(photoStrState.value)
+                val bitmap = Converters().converterStringToBitmap(photoStrState.value)
 
-                bitmap?.let { btm ->
+                bitmap?.let {
                     Image(
                         bitmap = bitmap.asImageBitmap(),
                         contentDescription = null,
@@ -75,10 +71,11 @@ fun RequestContentPermission(viewModel: RecipeCreationViewModel) {
                         .padding(16.dp)
                         .drawBehind {
                             drawCircle(
-                                color = MealPrepColor.white, radius = this.size.maxDimension / 2.0f
+                                color = MealPrepColor.white,
+                                radius = this.size.maxDimension / 2.0f
                             )
                         }, onClick = {
-                        viewModel.setImageUri(null)
+                        viewModel().setImageUri(null)
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.outline_delete_24),
@@ -94,7 +91,8 @@ fun RequestContentPermission(viewModel: RecipeCreationViewModel) {
                         .padding(16.dp)
                         .drawBehind {
                             drawCircle(
-                                color = MealPrepColor.white, radius = this.size.maxDimension / 2.0f
+                                color = MealPrepColor.white,
+                                radius = this.size.maxDimension / 2.0f
                             )
                         }, onClick = {
                         launcher.launch("image/*")
@@ -114,12 +112,12 @@ fun RequestContentPermission(viewModel: RecipeCreationViewModel) {
         imageUri.value?.let {
             if (Build.VERSION.SDK_INT < 28) {
                 val bitmapValue = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                viewModel.setPhoto(Converters().convertBitmapToString(bitmapValue!!))
+                viewModel().setPhoto(Converters().convertBitmapToString(bitmapValue!!))
 
             } else {
                 val source = ImageDecoder.createSource(context.contentResolver, it)
                 val bitmapValue = ImageDecoder.decodeBitmap(source)
-                viewModel.setPhoto(Converters().convertBitmapToString(bitmapValue!!))
+                viewModel().setPhoto(Converters().convertBitmapToString(bitmapValue))
             }
         }
     }
@@ -135,7 +133,7 @@ private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
         onClick = {
             launcher.launch("image/*")
         }) {
-        Column() {
+        Column {
             Icon(
                 modifier = Modifier.align(CenterHorizontally),
                 painter = painterResource(id = R.drawable.outline_photo_camera_24),

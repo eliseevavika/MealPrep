@@ -5,8 +5,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.*
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
@@ -26,7 +25,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     var allRecipes: LiveData<List<Recipe>>
 
-    var recipesForSunday: Flow<List<Recipe>>
+    val recipesForSunday: Flow<List<Recipe>>
     var recipesForMonday: Flow<List<Recipe>>
     var recipesForTuesday: Flow<List<Recipe>>
     var recipesForWednesday: Flow<List<Recipe>>
@@ -74,6 +73,10 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
         completedIngredients = recipeRepository.completedIngredients
     }
+
+
+    operator fun <T> List<T>.component6(): T = this[5]
+    operator fun <T> List<T>.component7(): T = this[6]
 
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()
@@ -151,8 +154,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setNameIngredients(
-        item: Groceries,
-        input: String
+        item: Groceries, input: String
     ) {
         val undatedItem = Groceries(item.id, input)
 
@@ -187,9 +189,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     ) {
         if (ingredientName.isNotEmpty()) {
             val ingredient = Ingredient(
-                name = ingredientName,
-                completed = false,
-                recipe_id = null
+                name = ingredientName, completed = false, recipe_id = null
             )
             _listExtraGroceries.value =
                 _listExtraGroceries.value?.plus(ingredient) ?: listOf(ingredient)
@@ -197,8 +197,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setNameForExtraGrocery(
-        item: Ingredient,
-        input: String
+        item: Ingredient, input: String
     ) {
         _listExtraGroceries.value?.forEach { grocery ->
             if (grocery.id == item.id) {
@@ -229,8 +228,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun setNameSteps(
-        item: Steps,
-        input: String
+        item: Steps, input: String
     ) {
         val undatedItem = Steps(item.id, 1, input)
 
@@ -315,10 +313,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
             val savedImagePath: String = imageFile.getAbsolutePath()
             try {
                 val resized = Bitmap.createScaledBitmap(
-                    image,
-                    (image.width * 0.8).toInt(),
-                    (image.height * 0.8).toInt(),
-                    true
+                    image, (image.width * 0.8).toInt(), (image.height * 0.8).toInt(), true
                 )
                 val fOut: OutputStream = FileOutputStream(imageFile)
                 resized.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
@@ -375,21 +370,17 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         addMealPlan(_chosenDay.value)
     }
 
-    fun addRecipe(recipe: Recipe) =
-        viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.insertRecipeIngredientAndStepTransaction(
-                recipe,
-                _listIngredients.value,
-                _listSteps.value
-            )
-            emptyLiveData()
-        }
+    fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
+        recipeRepository.insertRecipeIngredientAndStepTransaction(
+            recipe, _listIngredients.value, _listSteps.value
+        )
+        emptyLiveData()
+    }
 
-    fun addMealPlan(dayId: Int) =
-        viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
-            recipeRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
-        }
+    fun addMealPlan(dayId: Int) = viewModelScope.launch(Dispatchers.IO) {
+        recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
+        recipeRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
+    }
 
     fun setImageUri(uri: Uri?) {
         _uri.value = uri

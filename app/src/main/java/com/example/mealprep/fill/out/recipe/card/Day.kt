@@ -1,11 +1,9 @@
 package com.example.mealprep.fill.out.recipe.card
 
-import com.example.mealprep.fill.out.recipe.card.mealplanning.DayOfWeek
-
 
 data class Day(
     val id: Int,
-    var title: String
+    val title: String
 )
 
 val days = listOf(

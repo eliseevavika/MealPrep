@@ -26,9 +26,9 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPrepForSpecificDay(
-    dayId: Int, navController: NavHostController, viewModel: RecipeCreationViewModel
+    dayId: Int, navController: NavHostController, viewModel: () -> RecipeCreationViewModel
 ) {
-    val dishes: List<Recipe> by viewModel.allRecipes.observeAsState(initial = listOf())
+    val dishes: List<Recipe> by viewModel().allRecipes.observeAsState(initial = listOf())
 
     var filteredDishes by remember { mutableStateOf(dishes) }
 
@@ -48,7 +48,7 @@ fun MealPrepForSpecificDay(
                 )
             },
                 onClick = {
-                    viewModel.addNewMealPlan()
+                    viewModel().addNewMealPlan()
                     navController.navigate(MealPrep.route)
                 },
                 modifier = Modifier

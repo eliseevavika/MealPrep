@@ -47,9 +47,11 @@ fun <T> CategoryDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
 
-    Box(modifier = modifier
-        .height(IntrinsicSize.Min)
-        .width(200.dp)) {
+    Box(
+        modifier = modifier
+            .height(IntrinsicSize.Min)
+            .width(200.dp)
+    ) {
         TextField(
             placeholder = { Text(placeholder, fontFamily = fontFamilyForBodyB2) },
             value = items.getOrNull(selectedIndex)?.let { selectedItemToString(it) } ?: "",
@@ -119,18 +121,20 @@ fun <T> CategoryDropdownMenu(
                             }
                         }
                         itemsIndexed(items) { index, item ->
-                            val selectedItem = index == selectedIndex
-                            drawItem(
-                                item,
-                                selectedItem,
-                                true
-                            ) {
-                                onItemSelected(index, item)
-                                expanded = false
-                            }
+                            key(item) {
+                                val selectedItem = index == selectedIndex
+                                drawItem(
+                                    item,
+                                    selectedItem,
+                                    true
+                                ) {
+                                    onItemSelected(index, item)
+                                    expanded = false
+                                }
 
-                            if (index < items.lastIndex) {
-                                Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                                if (index < items.lastIndex) {
+                                    Divider(modifier = Modifier.padding(horizontal = 16.dp))
+                                }
                             }
                         }
                     }

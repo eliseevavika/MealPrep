@@ -24,7 +24,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TabScreen(
-    viewModal: RecipeCreationViewModel,
+    viewModal: () -> RecipeCreationViewModel,
     focusRequester: FocusRequester
 ) {
     var tabIndex by remember { mutableStateOf(0) }
@@ -38,37 +38,39 @@ fun TabScreen(
             indicator = {},
         ) {
             tabs.forEachIndexed { index, title ->
-                var withForTab = if (index != 1) 94.5.dp else 120.dp
-                Tab(
-                    text = {
-                        Text(
-                            text = title,
-                            fontFamily = fontFamilyForBodyB2,
-                            fontSize = 16.sp,
-                            color = if (tabIndex == index) MealPrepColor.white else MealPrepColor.grey_800,
+                key(index) {
+                    var withForTab = if (index != 1) 94.5.dp else 120.dp
+                    Tab(
+                        text = {
+                            Text(
+                                text = title,
+                                fontFamily = fontFamilyForBodyB2,
+                                fontSize = 16.sp,
+                                color = if (tabIndex == index) MealPrepColor.white else MealPrepColor.grey_800,
 
-                            modifier = Modifier
-                                .drawBehind {
-                                    drawRoundRect(
-                                        color = if (tabIndex == index) MealPrepColor.orange else MealPrepColor.transparent,
-                                        cornerRadius = CornerRadius(x = 100f, y = 100f)
+                                modifier = Modifier
+                                    .drawBehind {
+                                        drawRoundRect(
+                                            color = if (tabIndex == index) MealPrepColor.orange else MealPrepColor.transparent,
+                                            cornerRadius = CornerRadius(x = 100f, y = 100f)
+                                        )
+                                    }
+                                    .size(width = withForTab, height = 36.dp)
+                                    .padding(
+                                        top = 8.dp,
+                                        bottom = 8.dp
                                     )
-                                }
-                                .size(width = withForTab, height = 36.dp)
-                                .padding(
-                                    top = 8.dp,
-                                    bottom = 8.dp
-                                )
-                        )
-                    },
+                            )
+                        },
 
-                    selected = tabIndex == index,
-                    onClick = {
-                        tabIndex = index
-                        viewModal.setTabIndex(index)
-                    },
-                    interactionSource = NoRippleInteractionSource()
-                )
+                        selected = tabIndex == index,
+                        onClick = {
+                            tabIndex = index
+                            viewModal().setTabIndex(index)
+                        },
+                        interactionSource = NoRippleInteractionSource()
+                    )
+                }
             }
         }
         when (tabIndex) {

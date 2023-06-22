@@ -32,7 +32,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun GroceriesScreen(navController: NavHostController, viewModel: RecipeCreationViewModel) {
+fun GroceriesScreen(navController: NavHostController, viewModel: () -> RecipeCreationViewModel) {
     Scaffold(topBar = {
         TopBarForGroceriesScreen()
     }, floatingActionButton = {
@@ -51,85 +51,98 @@ fun GroceriesScreen(navController: NavHostController, viewModel: RecipeCreationV
                 tint = MealPrepColor.white
             )
         }
-    }, bottomBar = {
-        BottomNavigationBar(navController = navController)
-    }, content = { padding ->
-        Column(
-            modifier = Modifier.padding(
-                top = 30.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
-            ), verticalArrangement = Arrangement.Top
-        ) {
-            val listGroceries = viewModel.ingredientsFromMealPlans.observeAsState(listOf()).value
-
+    },
+        bottomBar = {
+            BottomNavigationBar(navController = navController)
+        },
+        content = { padding ->
             Column(
-                Modifier.wrapContentHeight()
+                modifier = Modifier.padding(
+                    top = 30.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
+                ), verticalArrangement = Arrangement.Top
             ) {
-                var expand by remember { mutableStateOf(false) }
-                val completedIngredients = viewModel.completedIngredients.observeAsState().value
+                val listGroceries =
+                    viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value
 
                 Column(
-                    Modifier
-                        .weight(1f)
-                        .verticalScroll(rememberScrollState())) {
-                    if (listGroceries.isNotEmpty()) {
-                        listGroceries.forEach { item ->
-                            Column(
-                                modifier = Modifier
-                                    .background(Color.White),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                setUpLines(item, viewModel, false, completedIngredients)
-                            }
-                            if (listGroceries.last() == item) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(
-                                            top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
-                                        ),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Completed",
-                                        color = MealPrepColor.orange,
-                                        fontSize = 20.sp,
-                                        textAlign = TextAlign.Start,
-                                        fontWeight = FontWeight.Normal,
+                    Modifier.wrapContentHeight()
+                ) {
+                    var expand by remember { mutableStateOf(false) }
+                    val completedIngredients =
+                        viewModel().completedIngredients.observeAsState().value
+
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        if (listGroceries.isNotEmpty()) {
+                            listGroceries.forEach { item ->
+                                key(item.id) {
+                                    Column(
                                         modifier = Modifier
-                                            .padding(start = 8.dp)
-                                    )
-                                    IconButton(
-                                        modifier = Modifier.rotate(if (expand) 180F else 0F),
-                                        onClick = {
-                                            expand = !expand
-                                        }) {
-                                        Icon(
-                                            imageVector = Icons.Default.KeyboardArrowDown,
-                                            tint = MealPrepColor.orange,
-                                            contentDescription = "Drop Down Arrow"
-                                        )
+                                            .background(Color.White),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        setUpLines(item, viewModel, false, completedIngredients)
+                                    }
+                                    if (listGroceries.last() == item) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(
+                                                    top = 20.dp,
+                                                    start = 8.dp,
+                                                    end = 8.dp,
+                                                    bottom = 8.dp
+                                                ),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Text(
+                                                text = "Completed",
+                                                color = MealPrepColor.orange,
+                                                fontSize = 20.sp,
+                                                textAlign = TextAlign.Start,
+                                                fontWeight = FontWeight.Normal,
+                                                modifier = Modifier
+                                                    .padding(start = 8.dp)
+                                            )
+                                            IconButton(
+                                                modifier = Modifier.rotate(if (expand) 180F else 0F),
+                                                onClick = {
+                                                    expand = !expand
+                                                }) {
+                                                Icon(
+                                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                                    tint = MealPrepColor.orange,
+                                                    contentDescription = "Drop Down Arrow"
+                                                )
+                                            }
+                                        }
                                     }
                                 }
+
                             }
                         }
-                    }
-                    if (expand) {
-                        if (!completedIngredients.isNullOrEmpty()) {
-                            completedIngredients.forEach { item ->
-                                Column(
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    setUpLines(item, viewModel, true, completedIngredients)
+                        if (expand) {
+                            if (!completedIngredients.isNullOrEmpty()) {
+                                completedIngredients.forEach { item ->
+                                    key(item.id) {
+                                        Column(
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            setUpLines(item, viewModel, true, completedIngredients)
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
-    })
+        })
 }
 
 
@@ -137,7 +150,7 @@ fun GroceriesScreen(navController: NavHostController, viewModel: RecipeCreationV
 @Composable
 fun setUpLines(
     item: Ingredient,
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     isCompleted: Boolean,
     completedIngredients: List<Ingredient>?
 ) {
@@ -162,7 +175,7 @@ fun setUpLines(
                     selectedColor = MealPrepColor.orange, unselectedColor = MealPrepColor.black
                 ),
                 onClick = {
-                    viewModel.performQueryForGroceries(item)
+                    viewModel().performQueryForGroceries(item)
                 },
             )
             Spacer(modifier = Modifier.width(width = 8.dp))

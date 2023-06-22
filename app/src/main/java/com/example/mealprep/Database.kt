@@ -27,7 +27,7 @@ data class Recipe(
     @PrimaryKey(autoGenerate = true) @NonNull val recipe_id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
-    var photo: String?,
+    val photo: String?,
     @ColumnInfo(name = "cook_time") val cook_time: Int?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,

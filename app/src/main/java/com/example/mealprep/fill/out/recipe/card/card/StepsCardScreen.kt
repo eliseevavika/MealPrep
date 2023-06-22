@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mealprep.Recipe
 import com.example.mealprep.Step
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
@@ -24,10 +23,11 @@ import com.example.meaprep.R
 
 @Composable
 fun StepsCardScreen(
-    viewModel: RecipeCreationViewModel
+    viewModel: () -> RecipeCreationViewModel
 ) {
+    val listSteps = viewModel().returnedListSteps.observeAsState().value
+
     Box(modifier = Modifier.padding(16.dp)) {
-        val listSteps = viewModel.returnedListSteps.observeAsState().value
         LazyColumn {
             if (!listSteps.isNullOrEmpty()) {
                 items(listSteps) { step ->

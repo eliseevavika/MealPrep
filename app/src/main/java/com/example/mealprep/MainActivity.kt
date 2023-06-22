@@ -59,6 +59,7 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
+
                 val modalBottomSheetState =
                     rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
                 val scope = rememberCoroutineScope()
@@ -79,30 +80,28 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
-                                var chosenDay: Int? = null
-
                                 NavHost(
                                     navController = navController, startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
-                                        HomeScreen(
-                                            navController, scope, modalBottomSheetState, viewModal
-                                        )
+                                        HomeScreen(navController,
+                                            { scope },
+                                            { modalBottomSheetState }) { viewModal }
                                     }
 
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(
-                                            navController, viewModal
-                                        )
+                                            navController
+                                        ) { viewModal }
                                     }
 
                                     composable(Groceries.route) {
-                                        GroceriesScreen(navController, viewModal)
+                                        GroceriesScreen(navController) { viewModal }
 
                                     }
 
                                     composable(Settings.route) {
-                                        SettingsScreen(navController, viewModal)
+                                        SettingsScreen(navController) { viewModal }
                                     }
 
                                     composable(
@@ -116,7 +115,7 @@ class MainActivity : ComponentActivity() {
                                                 DishDetails.argDishId
                                             )
                                         ) { "Dish id is null" }
-                                        DishDetails(id, navController, viewModal)
+                                        DishDetails(id, navController) { viewModal }
                                     }
 
                                     composable(
@@ -132,21 +131,20 @@ class MainActivity : ComponentActivity() {
                                                 MealPrepForSpecificDay.argDayId
                                             )
                                         ) { "Dish id is null" }
-                                        chosenDay = dayId
 
                                         MealPrepForSpecificDay(
-                                            dayId, navController, viewModal
-                                        )
+                                            dayId, navController
+                                        ) { viewModal }
                                     }
 
                                     composable(GroceriesAddition.route) {
-                                        GroceriesAdditionScreen(navController, viewModal)
+                                        GroceriesAdditionScreen(navController) { viewModal }
                                     }
 
                                     composable(RecipeCreation.route) {
                                         RecipeCreationScreen(
-                                            navController, scope, modalBottomSheetState, viewModal
-                                        )
+                                            navController, scope, modalBottomSheetState
+                                        ) { viewModal }
                                     }
                                 }
 

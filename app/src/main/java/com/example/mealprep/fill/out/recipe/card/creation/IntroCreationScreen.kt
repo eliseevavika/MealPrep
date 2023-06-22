@@ -2,7 +2,6 @@ package com.example.mealprep.fill.out.recipe.card
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -10,16 +9,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
@@ -30,38 +26,35 @@ import java.util.regex.Pattern
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: FocusRequester) {
-    val title = viewModel.title.collectAsState()
-    val hours = viewModel.hours.collectAsState()
-    val minutes = viewModel.minutes.collectAsState()
-    val description = viewModel.description.collectAsState()
-    val category = viewModel.category.collectAsState()
-    val serves = viewModel.serves.collectAsState()
-    val source = viewModel.source.collectAsState()
+fun IntroCreationScreen(viewModel: () -> RecipeCreationViewModel, focusRequester: FocusRequester) {
+    val title by viewModel().title.collectAsState()
+    val hours by viewModel().hours.collectAsState()
+    val minutes by viewModel().minutes.collectAsState()
+    val description by viewModel().description.collectAsState()
+    val category by viewModel().category.collectAsState()
+    val serves by viewModel().serves.collectAsState()
+    val source by viewModel().source.collectAsState()
 
     val patternForTitle = remember { Regex("^\\s*$") }
     val patternForHoursAndMinutes = remember { Regex("^\\d+\$") }
 
-    val isErrorTitle = viewModel.isErrorTitle.collectAsState()
+    val isErrorTitle = viewModel().isErrorTitle.collectAsState()
 
-    val isValidUrl = viewModel.isValidUrl.collectAsState()
+    val isValidUrl = viewModel().isValidUrl.collectAsState()
 
 
     fun validateTitle(text: String) {
-        viewModel.setIsErrorTitle(text.isEmpty() || text.matches(patternForTitle))
+        viewModel().setIsErrorTitle(text.isEmpty() || text.matches(patternForTitle))
     }
 
     fun verifyUrl(url: String) {
-        // Regular expression pattern to validate URLs
-//        val urlPattern = "^(http(s)?:\\/\\/)?[\\w.-]+(\\.[\\w\\.-]+)+[\\S^\\\"]*$"
-
-         val urlPattern: Pattern = Pattern.compile(
+        val urlPattern: Pattern = Pattern.compile(
             "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
                     + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
                     + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
             Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
         )
-        viewModel.setIsValidUrl(url.matches(urlPattern.toRegex()))
+        viewModel().setIsValidUrl(url.matches(urlPattern.toRegex()))
     }
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
@@ -75,14 +68,14 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
             )
             TextField(
                 modifier = Modifier.focusRequester(focusRequester),
-                value = title.value,
+                value = title,
                 textStyle = TextStyle(color = MealPrepColor.black),
                 onValueChange = {
-                    viewModel.setRecipeName(it)
+                    viewModel().setRecipeName(it)
                     validateTitle(it)
                 },
                 isError = isErrorTitle.value,
-                keyboardActions = KeyboardActions(onAny = { validateTitle(title.value) }),
+                keyboardActions = KeyboardActions(onAny = { validateTitle(title) }),
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
@@ -129,15 +122,15 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                         .padding(end = 10.dp)
                 ) {
                     OutlinedTextField(
-                        value = if (hours.value == 0) "" else hours.value.toString(),
+                        value = if (hours == 0) "" else hours.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
                             if (it.isEmpty() || it.matches(patternForHoursAndMinutes) && it.length < 3) {
-                                if (it != "") viewModel.setHours(it.toInt()) else viewModel.setHours(
+                                if (it != "") viewModel().setHours(it.toInt()) else viewModel().setHours(
                                     0
                                 )
                             }
-                            viewModel.setCookTime()
+                            viewModel().setCookTime()
                         },
                         label = { Text("hours", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -153,15 +146,15 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 }
                 Box(modifier = Modifier.width(120.dp)) {
                     OutlinedTextField(
-                        value = if (minutes.value == 0) "" else minutes.value.toString(),
+                        value = if (minutes == 0) "" else minutes.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
                         onValueChange = {
                             if (it.isEmpty() || it.matches(patternForHoursAndMinutes) && it.length < 3) {
-                                if (it != "") viewModel.setMinutes(it.toInt()) else viewModel.setMinutes(
+                                if (it != "") viewModel().setMinutes(it.toInt()) else viewModel().setMinutes(
                                     0
                                 )
                             }
-                            viewModel.setCookTime()
+                            viewModel().setCookTime()
                         },
                         label = { Text("minutes", fontFamily = fontFamilyForBodyB2) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -189,10 +182,10 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 fontSize = 20.sp,
             )
             TextField(
-                value = description.value,
+                value = description,
                 textStyle = TextStyle(color = MealPrepColor.black),
                 onValueChange =
-                viewModel::setDescription,
+                viewModel()::setDescription,
 
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
@@ -213,10 +206,10 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
                 fontSize = 20.sp,
             )
             TextField(
-                value = source.value,
+                value = source,
                 textStyle = TextStyle(color = MealPrepColor.black),
                 onValueChange = { newUrl ->
-                    viewModel.setSource(newUrl)
+                    viewModel().setSource(newUrl)
                     verifyUrl(newUrl)
                 },
                 isError = !isValidUrl.value,
@@ -263,8 +256,8 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
             CategoryDropdownMenu(
                 placeholder = "Select a category",
                 items = listCategory,
-                selectedIndex = listCategory.indexOf(category.value),
-                onItemSelected = { index, _ -> viewModel.setCategory(listCategory[index]) },
+                selectedIndex = listCategory.indexOf(category),
+                onItemSelected = { index, _ -> viewModel().setCategory(listCategory[index]) },
             )
 
             Text(
@@ -279,9 +272,9 @@ fun IntroCreationScreen(viewModel: RecipeCreationViewModel, focusRequester: Focu
             CategoryDropdownMenu(
                 placeholder = "Select number of servings",
                 items = listServes,
-                selectedIndex = listServes.indexOf(serves.value),
+                selectedIndex = listServes.indexOf(serves),
                 onItemSelected = { index, _ ->
-                    viewModel.setServesCount(listServes[index])
+                    viewModel().setServesCount(listServes[index])
                 },
             )
             Spacer(modifier = Modifier.padding(vertical = 50.dp))

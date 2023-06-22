@@ -35,7 +35,7 @@ import com.example.meaprep.R
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
 fun ListIngredientsCreationScreen(
-    viewModel: RecipeCreationViewModel
+    viewModel: () -> RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -51,7 +51,7 @@ fun ListIngredientsCreationScreen(
                         end = 10.dp
                     )
                 ) {
-                    val ingredientsList = viewModel.listIngredients.observeAsState().value
+                    val ingredientsList = viewModel().listIngredients.observeAsState().value
 
                     LazyColumn {
                         if (!ingredientsList.isNullOrEmpty()) {
@@ -87,11 +87,11 @@ fun ListIngredientsCreationScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo3(viewModel: RecipeCreationViewModel) {
+fun KeyboardHandlingDemo3(viewModel: () -> RecipeCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQueryIngredients(input)
+        viewModel().performQueryIngredients(input)
     }
 
     Column(
@@ -115,7 +115,6 @@ fun KeyboardHandlingDemo3(viewModel: RecipeCreationViewModel) {
                         onDone = {
                             callback()
                             input = ""
-
                         }
                     ),
                     value = input,
@@ -163,7 +162,7 @@ fun KeyboardHandlingDemo3(viewModel: RecipeCreationViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpRow(
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     item: Groceries
 ) {
     var input by remember { mutableStateOf(" ") }
@@ -179,7 +178,7 @@ fun setUpRow(
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setNameIngredients(item, input)
+            viewModel().setNameIngredients(item, input)
             focusManager.clearFocus()
         }
 
@@ -224,7 +223,7 @@ fun setUpRow(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElementIngredients(item)
+                    viewModel().removeElementIngredients(item)
                 },
                 modifier = Modifier
                     .size(25.dp)

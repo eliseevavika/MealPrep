@@ -21,10 +21,8 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
 fun TopBarGroceriesAdditionForm(
-    viewModel: RecipeCreationViewModel,
-    navController: NavHostController
+    viewModel: () -> RecipeCreationViewModel, navController: NavHostController
 ) {
-
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -41,14 +39,13 @@ fun TopBarGroceriesAdditionForm(
         }
         Text(text = "Extra ingredients", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
 
-        Button(
-            colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.transparent),
+        Button(colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.transparent),
             interactionSource = NoRippleInteractionSource(),
             elevation = ButtonDefaults.elevation(0.dp, 0.dp),
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
-                viewModel.addExtraGroceriesToTheDB()
+                viewModel().addExtraGroceriesToTheDB()
                 navController.navigate(Groceries.route)
             }) {
             Text(

@@ -4,8 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,7 +16,6 @@ import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mealprep.Ingredient
-import com.example.mealprep.Recipe
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
@@ -25,10 +25,11 @@ import com.example.meaprep.R
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun ListIngredientsCardScreen(
-    viewModel: RecipeCreationViewModel
+    viewModel: () -> RecipeCreationViewModel
 ) {
+    val ingredientsList = viewModel().returnedListIngredient.observeAsState().value
+
     Box(modifier = Modifier.padding(16.dp)) {
-        val ingredientsList = viewModel.returnedListIngredient.observeAsState().value
         LazyColumn {
             if (!ingredientsList.isNullOrEmpty()) {
                 items(ingredientsList) { item ->
@@ -60,7 +61,6 @@ fun setUpRow(
             .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 16.dp),
 
         ) {
-
         Row(
             modifier = Modifier
                 .fillMaxHeight()

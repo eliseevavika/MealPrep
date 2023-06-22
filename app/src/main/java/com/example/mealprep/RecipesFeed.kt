@@ -37,28 +37,26 @@ fun RecipesFeed(
     navController: NavHostController,
     recipes: List<Recipe> = listOf(),
     isMealPlanningOn: Boolean,
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     dayId: Int
 ) {
-    Column {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            itemsIndexed(recipes) { _, recipe ->
-                MenuDish(
-                    navController,
-                    recipe,
-                    isMealPlanningOn,
-                    viewModel,
-                    dayId,
-                    onPerformQuery = {
-                        viewModel.performQueryForChosenMeals(it, dayId)
-                    }
-                )
-            }
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalArrangement = Arrangement.SpaceAround
+    ) {
+        itemsIndexed(recipes) { _, recipe ->
+            MenuDish(
+                navController,
+                recipe,
+                isMealPlanningOn,
+                viewModel(),
+                dayId,
+                onPerformQuery = {
+                    viewModel().performQueryForChosenMeals(it, dayId)
+                }
+            )
         }
     }
 }
@@ -79,6 +77,8 @@ fun MenuDish(
     val context = LocalContext.current
 
     val cookTimeString = viewModel.getCookTimeString(recipe.cook_time)
+
+   val recipeName = remember(recipe.recipe_id){recipe.name.addEmptyLines(2)}
 
     Card(modifier = Modifier
         .padding(8.dp)
@@ -115,8 +115,7 @@ fun MenuDish(
             }
         }
 
-
-        var bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
+        val bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
 
         Row {
             Column(
@@ -152,7 +151,7 @@ fun MenuDish(
                     ShowDefaultImage(alpha)
                 }
                 Text(
-                    text = recipe.name.addEmptyLines(2),
+                    text = recipeName,
                     maxLines = 2,
                     fontSize = 20.sp,
                     fontFamily = fontFamilyForBodyB1,

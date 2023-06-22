@@ -33,7 +33,7 @@ import com.example.meaprep.R
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalUnitApi::class)
 @Composable
 fun ListStepsScreen(
-    viewModel: RecipeCreationViewModel
+    viewModel: () -> RecipeCreationViewModel
 ) {
     Surface(
         color = MaterialTheme.colors.background
@@ -49,7 +49,7 @@ fun ListStepsScreen(
                         end = 10.dp
                     )
                 ) {
-                    val stepList = viewModel.listSteps.observeAsState().value
+                    val stepList = viewModel().listSteps.observeAsState().value
 
                     LazyColumn {
                         if (!stepList.isNullOrEmpty()) {
@@ -84,11 +84,11 @@ fun ListStepsScreen(
 
 @ExperimentalComposeUiApi
 @Composable
-fun KeyboardHandlingDemo(viewModel: RecipeCreationViewModel) {
+fun KeyboardHandlingDemo(viewModel: () -> RecipeCreationViewModel) {
     var input by remember { mutableStateOf("") }
 
     val callback = {
-        viewModel.performQuerySteps(input)
+        viewModel().performQuerySteps(input)
     }
 
     Column(
@@ -158,7 +158,7 @@ fun KeyboardHandlingDemo(viewModel: RecipeCreationViewModel) {
 @ExperimentalUnitApi
 @Composable
 fun setUpInstructions(
-    viewModel: RecipeCreationViewModel,
+    viewModel: () -> RecipeCreationViewModel,
     item: Steps
 ) {
     var input by remember { mutableStateOf(" ") }
@@ -174,7 +174,7 @@ fun setUpInstructions(
         val focusManager = LocalFocusManager.current
 
         val callback = {
-            viewModel.setNameSteps(item, input)
+            viewModel().setNameSteps(item, input)
             focusManager.clearFocus()
         }
 
@@ -219,7 +219,7 @@ fun setUpInstructions(
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {
-                    viewModel.removeElementSteps(item)
+                    viewModel().removeElementSteps(item)
                 },
                 modifier = Modifier
                     .size(25.dp)
