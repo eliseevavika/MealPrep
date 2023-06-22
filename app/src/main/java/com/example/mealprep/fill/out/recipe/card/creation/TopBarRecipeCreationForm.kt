@@ -25,7 +25,7 @@ import com.example.mealprep.ui.theme.fontFamilyForError
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TopBarRecipeCreationForm(
-    navController: NavHostController,
+    navController: () -> NavHostController,
     viewModel: () -> RecipeCreationViewModel,
     focusRequester: FocusRequester
 ) {
@@ -41,7 +41,7 @@ fun TopBarRecipeCreationForm(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
-            navController.popBackStack("home", inclusive = false)
+            navController().popBackStack("home", inclusive = false)
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
         }
@@ -56,7 +56,7 @@ fun TopBarRecipeCreationForm(
             onClick = {
                 if (viewModel().isRquiredDataEntered()) {
                     viewModel().addNewRecipe()
-                    navController?.navigate(Home.route)
+                    navController()?.navigate(Home.route)
                 } else {
                     if (chosenTabIndex == 1 || chosenTabIndex == 2) {
                         showDialog = true

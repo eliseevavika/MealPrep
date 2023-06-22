@@ -21,7 +21,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
 fun TopBarGroceriesAdditionForm(
-    viewModel: () -> RecipeCreationViewModel, navController: NavHostController
+    viewModel: () -> RecipeCreationViewModel, navController: () -> NavHostController
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -46,7 +46,7 @@ fun TopBarGroceriesAdditionForm(
             modifier = Modifier.bounceClick(),
             onClick = {
                 viewModel().addExtraGroceriesToTheDB()
-                navController.navigate(Groceries.route)
+                navController().navigate(Groceries.route)
             }) {
             Text(
                 text = "Save",

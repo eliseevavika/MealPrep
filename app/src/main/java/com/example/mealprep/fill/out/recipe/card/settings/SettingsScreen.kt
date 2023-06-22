@@ -13,13 +13,13 @@ import com.example.mealprep.fill.out.recipe.card.TopBarForSettingsScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 
 @Composable
-fun SettingsScreen(navController: NavHostController, viewModal: () -> RecipeCreationViewModel) {
+fun SettingsScreen(navController: () -> NavHostController, viewModal: () -> RecipeCreationViewModel) {
     Scaffold(topBar = {
         TopBarForSettingsScreen()
     },
-        bottomBar = {
-            BottomNavigationBar(navController = navController)
-        },
+//        bottomBar = {
+//            BottomNavigationBar(navController = navController)
+//        },
         content = { padding ->
             Column(
                 modifier = Modifier.padding(

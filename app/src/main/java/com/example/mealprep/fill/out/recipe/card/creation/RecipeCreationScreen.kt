@@ -18,7 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RecipeCreationScreen(
-    navController: NavHostController,
+    navController: () -> NavHostController,
     scope: CoroutineScope,
     modalBottomSheetState: ModalBottomSheetState,
     viewModal: () -> RecipeCreationViewModel,

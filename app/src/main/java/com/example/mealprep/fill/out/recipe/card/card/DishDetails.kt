@@ -25,7 +25,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.mealprep.Converters
 import com.example.mealprep.fill.out.recipe.card.TabScreenForRecipeCard
@@ -37,7 +36,7 @@ import com.example.meaprep.R
 
 @Composable
 fun TopAppBarDishDetail(
-    navController: NavController
+    navController: () -> NavHostController
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -49,7 +48,7 @@ fun TopAppBarDishDetail(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
-            navController.popBackStack("home", inclusive = false)
+            navController().popBackStack("home", inclusive = false)
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
         }
@@ -59,13 +58,15 @@ fun TopAppBarDishDetail(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DishDetails(
-    id: Long, navController: NavHostController, viewModel: () -> RecipeCreationViewModel
+    id: Long, navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel
 ) {
     val scope = rememberCoroutineScope()
 
-    Scaffold(topBar = {
+    Scaffold(
+        topBar = {
         TopAppBarDishDetail(navController)
-    }, content = { padding ->
+    },
+        content = { padding ->
         Box(modifier = Modifier.padding(padding)) {
             Column {
                 viewModel().getRecipe(id)

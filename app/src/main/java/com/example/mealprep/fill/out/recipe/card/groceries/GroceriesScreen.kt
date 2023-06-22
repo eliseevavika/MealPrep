@@ -32,13 +32,13 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun GroceriesScreen(navController: NavHostController, viewModel: () -> RecipeCreationViewModel) {
+fun GroceriesScreen(navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel) {
     Scaffold(topBar = {
         TopBarForGroceriesScreen()
     }, floatingActionButton = {
         FloatingActionButton(
             onClick = {
-                navController.navigate(GroceriesAddition.route)
+                navController().navigate(GroceriesAddition.route)
             },
             modifier = Modifier
                 .padding(all = 16.dp),
@@ -52,9 +52,9 @@ fun GroceriesScreen(navController: NavHostController, viewModel: () -> RecipeCre
             )
         }
     },
-        bottomBar = {
-            BottomNavigationBar(navController = navController)
-        },
+//        bottomBar = {
+//            BottomNavigationBar(navController = navController)
+//        },
         content = { padding ->
             Column(
                 modifier = Modifier.padding(

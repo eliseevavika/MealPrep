@@ -37,7 +37,7 @@ import com.example.meaprep.R
 @OptIn(ExperimentalUnitApi::class)
 @Composable
 fun GroceriesAdditionScreen(
-    navController: NavHostController,
+    navController: () -> NavHostController,
     viewModel: () -> RecipeCreationViewModel
 ) {
     Surface(
@@ -90,7 +90,7 @@ fun GroceriesAdditionScreen(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun TopBar(viewModel: () -> RecipeCreationViewModel, navController: NavHostController) {
+fun TopBar(viewModel: () -> RecipeCreationViewModel, navController: () -> NavHostController) {
     Column {
         TopBarGroceriesAdditionForm(viewModel, navController)
         KeyboardHandlingSearch(viewModel)

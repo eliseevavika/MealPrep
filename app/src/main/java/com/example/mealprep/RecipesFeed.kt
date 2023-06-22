@@ -34,8 +34,8 @@ import java.io.File
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecipesFeed(
-    navController: NavHostController,
-    recipes: List<Recipe> = listOf(),
+    navController: () -> NavHostController,
+    recipes: () -> List<Recipe> = { listOf() },
     isMealPlanningOn: Boolean,
     viewModel: () -> RecipeCreationViewModel,
     dayId: Int
@@ -46,17 +46,16 @@ fun RecipesFeed(
             .fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        itemsIndexed(recipes) { _, recipe ->
+        itemsIndexed(recipes()) { _, recipe ->
             MenuDish(
                 navController,
                 recipe,
                 isMealPlanningOn,
                 viewModel(),
-                dayId,
-                onPerformQuery = {
-                    viewModel().performQueryForChosenMeals(it, dayId)
-                }
-            )
+                dayId
+            ) {
+                viewModel().performQueryForChosenMeals(it, dayId)
+            }
         }
     }
 }
@@ -65,7 +64,7 @@ fun RecipesFeed(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class)
 @Composable
 fun MenuDish(
-    navController: NavHostController? = null,
+    navController: (() -> NavHostController),
     recipe: Recipe,
     isMealPlanningOn: Boolean,
     viewModel: RecipeCreationViewModel,
@@ -84,7 +83,7 @@ fun MenuDish(
         .padding(8.dp)
         .wrapContentSize(), onClick = {
         if (!isMealPlanningOn) {
-            navController?.navigate(DishDetails.route + "/${recipe.recipe_id}")
+            navController()?.navigate(DishDetails.route + "/${recipe.recipe_id}")
         } else {
             onPerformQuery(recipe)
         }

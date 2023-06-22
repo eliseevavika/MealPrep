@@ -8,8 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -53,7 +51,7 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun BottomSheetContent(
-    navController: NavHostController,
+    navController: () -> NavHostController,
     scope: CoroutineScope,
     modalBottomSheetState: ModalBottomSheetState
 ) {
@@ -63,7 +61,7 @@ fun BottomSheetContent(
             title = "Create new recipe",
             onItemClick = {
                 scope.launch { modalBottomSheetState.hide() }
-                navController?.navigate(RecipeCreation.route)
+                navController()?.navigate(RecipeCreation.route)
             },
         )
         BottomSheetListItem(

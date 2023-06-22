@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
-    navController: NavHostController,
+    navController: () -> NavHostController,
     viewModel: () -> RecipeCreationViewModel,
 ) {
     val recipesByDay = remember(viewModel().recipesByDay) { viewModel().recipesByDay }
@@ -74,7 +74,7 @@ fun MealPlanningScreen(
             topBar = {
                 TopAppBarMealPlanning()
             },
-            bottomBar = { BottomNavigationBar(navController = navController) },
+//            bottomBar = { BottomNavigationBar(navController = navController) },
 
             ) { padding ->
 
@@ -130,7 +130,7 @@ fun MealPlanningScreen(
 
 @Composable
 fun BottomSheetContent(
-    navController: NavHostController, viewModel: () -> RecipeCreationViewModel, chosenDay: Day
+    navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel, chosenDay: Day
 ) {
     val rememberedDay = remember(chosenDay) { chosenDay }
 
@@ -139,7 +139,7 @@ fun BottomSheetContent(
             title = "Add / Edit plan for ${rememberedDay.title}",
             onItemClick = {
                 viewModel().performQueryForChosenMealsFromDB(rememberedDay.id)
-                navController.navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
+                navController().navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
             })
         BottomSheetListItem(icon = R.drawable.outline_delete_24,
             title = "Reset menu",
