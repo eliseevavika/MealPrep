@@ -32,29 +32,30 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun GroceriesScreen(navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel) {
+fun GroceriesScreen(
+    navController: () -> NavHostController,
+    viewModel: () -> RecipeCreationViewModel
+) {
     Scaffold(topBar = {
         TopBarForGroceriesScreen()
-    }, floatingActionButton = {
-        FloatingActionButton(
-            onClick = {
-                navController().navigate(GroceriesAddition.route)
-            },
-            modifier = Modifier
-                .padding(all = 16.dp),
-            backgroundColor = MealPrepColor.orange,
-            contentColor = Color.White,
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = "Add",
-                tint = MealPrepColor.white
-            )
-        }
-    },
-//        bottomBar = {
-//            BottomNavigationBar(navController = navController)
-//        },
+    }, bottomBar = { BottomNavigationBar(navController = navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    navController().navigate(GroceriesAddition.route)
+                },
+                modifier = Modifier
+                    .padding(all = 16.dp),
+                backgroundColor = MealPrepColor.orange,
+                contentColor = Color.White,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Add",
+                    tint = MealPrepColor.white
+                )
+            }
+        },
         content = { padding ->
             Column(
                 modifier = Modifier.padding(
@@ -144,7 +145,6 @@ fun GroceriesScreen(navController: () -> NavHostController, viewModel: () -> Rec
             }
         })
 }
-
 
 @ExperimentalUnitApi
 @Composable

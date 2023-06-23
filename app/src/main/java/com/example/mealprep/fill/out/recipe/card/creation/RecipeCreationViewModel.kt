@@ -13,6 +13,7 @@ import com.example.mealprep.fill.out.recipe.card.Steps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -23,7 +24,7 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     private val recipeRepository: RecipeRepository
 
-    var allRecipes: LiveData<List<Recipe>>
+    var allRecipes: LiveData<List<Recipe>> = MutableLiveData(listOf())
 
     val recipesForSunday: Flow<List<Recipe>>
     var recipesForMonday: Flow<List<Recipe>>
@@ -74,9 +75,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         completedIngredients = recipeRepository.completedIngredients
     }
 
-
-    operator fun <T> List<T>.component6(): T = this[5]
-    operator fun <T> List<T>.component7(): T = this[6]
 
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()
@@ -304,25 +302,27 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun saveImage(image: Bitmap, storageDir: File, imageFileName: String) {
-        var successDirCreated = false
-        if (!storageDir.exists()) {
-            successDirCreated = storageDir.mkdir()
-        }
-        if (successDirCreated) {
-            val imageFile = File(storageDir, imageFileName)
-            val savedImagePath: String = imageFile.getAbsolutePath()
-            try {
-                val resized = Bitmap.createScaledBitmap(
-                    image, (image.width * 0.8).toInt(), (image.height * 0.8).toInt(), true
-                )
-                val fOut: OutputStream = FileOutputStream(imageFile)
-                resized.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
-                _photo.value = Converters().convertBitmapToString(resized)
-                fOut.close()
-            } catch (e: Exception) {
-                e.printStackTrace()
+        viewModelScope.launch(Dispatchers.IO) {
+            var successDirCreated = false
+            if (!storageDir.exists()) {
+                successDirCreated = storageDir.mkdir()
             }
-        } else {
+            if (successDirCreated) {
+                val imageFile = File(storageDir, imageFileName)
+                val savedImagePath: String = imageFile.getAbsolutePath()
+                try {
+                    val resized = Bitmap.createScaledBitmap(
+                        image, (image.width * 0.8).toInt(), (image.height * 0.8).toInt(), true
+                    )
+                    val fOut: OutputStream = FileOutputStream(imageFile)
+                    resized.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
+                    _photo.value = Converters().convertBitmapToString(resized)
+                    fOut.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            } else {
+            }
         }
     }
 
@@ -478,61 +478,63 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         dish: Recipe,
         dayId: Int,
     ) {
-        if (dayId == 0) {
-            if (_listChosenMealsForSunday.value?.contains(dish) == true) {
-                _listChosenMealsForSunday.value =
-                    _listChosenMealsForSunday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForSunday.value =
-                    _listChosenMealsForSunday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 1) {
-            if (_listChosenMealsForMonday.value?.contains(dish) == true) {
-                _listChosenMealsForMonday.value =
-                    _listChosenMealsForMonday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForMonday.value =
-                    _listChosenMealsForMonday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 2) {
-            if (_listChosenMealsForTuesday.value?.contains(dish) == true) {
-                _listChosenMealsForTuesday.value =
-                    _listChosenMealsForTuesday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForTuesday.value =
-                    _listChosenMealsForTuesday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 3) {
-            if (_listChosenMealsForWednesday.value?.contains(dish) == true) {
-                _listChosenMealsForWednesday.value =
-                    _listChosenMealsForWednesday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForWednesday.value =
-                    _listChosenMealsForWednesday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 4) {
-            if (_listChosenMealsForThursday.value?.contains(dish) == true) {
-                _listChosenMealsForThursday.value =
-                    _listChosenMealsForThursday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForThursday.value =
-                    _listChosenMealsForThursday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 5) {
-            if (_listChosenMealsForFriday.value?.contains(dish) == true) {
-                _listChosenMealsForFriday.value =
-                    _listChosenMealsForFriday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForFriday.value =
-                    _listChosenMealsForFriday.value?.plus(dish) ?: listOf(dish)
-            }
-        } else if (dayId == 6) {
-            if (_listChosenMealsForSaturday.value?.contains(dish) == true) {
-                _listChosenMealsForSaturday.value =
-                    _listChosenMealsForSaturday.value?.minus(dish) ?: listOf(dish)
-            } else {
-                _listChosenMealsForSaturday.value =
-                    _listChosenMealsForSaturday.value?.plus(dish) ?: listOf(dish)
+        viewModelScope.launch(Dispatchers.IO) {
+            if (dayId == 0) {
+                if (_listChosenMealsForSunday.value.contains(dish)) {
+                    _listChosenMealsForSunday.value =
+                        _listChosenMealsForSunday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForSunday.value =
+                        _listChosenMealsForSunday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 1) {
+                if (_listChosenMealsForMonday.value.contains(dish)) {
+                    _listChosenMealsForMonday.value =
+                        _listChosenMealsForMonday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForMonday.value =
+                        _listChosenMealsForMonday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 2) {
+                if (_listChosenMealsForTuesday.value.contains(dish)) {
+                    _listChosenMealsForTuesday.value =
+                        _listChosenMealsForTuesday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForTuesday.value =
+                        _listChosenMealsForTuesday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 3) {
+                if (_listChosenMealsForWednesday.value.contains(dish)) {
+                    _listChosenMealsForWednesday.value =
+                        _listChosenMealsForWednesday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForWednesday.value =
+                        _listChosenMealsForWednesday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 4) {
+                if (_listChosenMealsForThursday.value.contains(dish)) {
+                    _listChosenMealsForThursday.value =
+                        _listChosenMealsForThursday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForThursday.value =
+                        _listChosenMealsForThursday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 5) {
+                if (_listChosenMealsForFriday.value.contains(dish)) {
+                    _listChosenMealsForFriday.value =
+                        _listChosenMealsForFriday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForFriday.value =
+                        _listChosenMealsForFriday.value.plus(dish) ?: listOf(dish)
+                }
+            } else if (dayId == 6) {
+                if (_listChosenMealsForSaturday.value.contains(dish)) {
+                    _listChosenMealsForSaturday.value =
+                        _listChosenMealsForSaturday.value.minus(dish) ?: listOf(dish)
+                } else {
+                    _listChosenMealsForSaturday.value =
+                        _listChosenMealsForSaturday.value.plus(dish) ?: listOf(dish)
+                }
             }
         }
     }
@@ -540,34 +542,42 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
     fun performQueryForChosenMealsFromDB(
         dayId: Int
     ) {
-        viewModelScope.launch {
-            if (dayId == 0) {
-                recipesForSunday.collect { recipes ->
-                    _listChosenMealsForSunday.value = recipes
+        viewModelScope.launch(Dispatchers.IO) {
+            when (dayId) {
+                0 -> {
+                    recipesForSunday.collect { recipes ->
+                        _listChosenMealsForSunday.value = recipes
+                    }
                 }
-            } else if (dayId == 1) {
-                recipesForMonday.collect { recipes ->
-                    _listChosenMealsForMonday.value = recipes
+                1 -> {
+                    recipesForMonday.collect { recipes ->
+                        _listChosenMealsForMonday.value = recipes
+                    }
                 }
-            } else if (dayId == 2) {
-                recipesForTuesday.collect { recipes ->
-                    _listChosenMealsForTuesday.value = recipes
+                2 -> {
+                    recipesForTuesday.collect { recipes ->
+                        _listChosenMealsForTuesday.value = recipes
+                    }
                 }
-            } else if (dayId == 3) {
-                recipesForWednesday.collect { recipes ->
-                    _listChosenMealsForWednesday.value = recipes
+                3 -> {
+                    recipesForWednesday.collect { recipes ->
+                        _listChosenMealsForWednesday.value = recipes
+                    }
                 }
-            } else if (dayId == 4) {
-                recipesForThursday.collect { recipes ->
-                    _listChosenMealsForThursday.value = recipes
+                4 -> {
+                    recipesForThursday.collect { recipes ->
+                        _listChosenMealsForThursday.value = recipes
+                    }
                 }
-            } else if (dayId == 5) {
-                recipesForFriday.collect { recipes ->
-                    _listChosenMealsForFriday.value = recipes
+                5 -> {
+                    recipesForFriday.collect { recipes ->
+                        _listChosenMealsForFriday.value = recipes
+                    }
                 }
-            } else if (dayId == 6) {
-                recipesForSaturday.collect { recipes ->
-                    _listChosenMealsForSaturday.value = recipes
+                6 -> {
+                    recipesForSaturday.collect { recipes ->
+                        _listChosenMealsForSaturday.value = recipes
+                    }
                 }
             }
         }

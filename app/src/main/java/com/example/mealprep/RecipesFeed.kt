@@ -1,5 +1,6 @@
 package com.example.mealprep
 
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -22,12 +24,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
+import kotlinx.coroutines.CoroutineScope
 import java.io.File
 
 
@@ -69,7 +74,7 @@ fun MenuDish(
     isMealPlanningOn: Boolean,
     viewModel: RecipeCreationViewModel,
     dayId: Int,
-    onPerformQuery: (Recipe) -> Unit
+    onPerformQuery: (Recipe) -> Unit,
 ) {
     val photoStrState by viewModel.photo.collectAsState()
 
@@ -77,7 +82,7 @@ fun MenuDish(
 
     val cookTimeString = viewModel.getCookTimeString(recipe.cook_time)
 
-   val recipeName = remember(recipe.recipe_id){recipe.name.addEmptyLines(2)}
+    val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
     Card(modifier = Modifier
         .padding(8.dp)
@@ -123,29 +128,17 @@ fun MenuDish(
                 horizontalAlignment = CenterHorizontally,
             ) {
                 if (bitmap != null) {
-                    bitmap?.asImageBitmap()?.let {
-                        val mediaStorageDir: File? = context.getExternalFilesDir(null)
-                        val fileName =
-                            photoStrState.substring(photoStrState.lastIndexOf('/') + 1)
-
-                        val dir = File(mediaStorageDir?.path)
-
-                        viewModel.saveImage(bitmap, dir, fileName)
-
-                        Converters().converterStringToBitmap(recipe.photo.toString())?.let { it1 ->
-                            Image(
-                                bitmap = it1.asImageBitmap(),
-                                contentDescription = "Image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(144.dp, 171.dp)
-                                    .clip(
-                                        RoundedCornerShape(16.dp)
-                                    )
-                                    .alpha(alpha)
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "Image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(144.dp, 171.dp)
+                            .clip(
+                                RoundedCornerShape(16.dp)
                             )
-                        }
-                    }
+                            .alpha(alpha)
+                    )
                 } else {
                     ShowDefaultImage(alpha)
                 }

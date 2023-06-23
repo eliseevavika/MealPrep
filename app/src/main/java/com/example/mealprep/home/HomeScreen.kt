@@ -34,12 +34,12 @@ fun HomeScreen(
                 scope, modalBottomSheetState
             )
         },
-//        bottomBar = { BottomNavigationBar(navController = navController) },
+        bottomBar = { BottomNavigationBar(navController = navController) },
         content = { padding ->
             Box(modifier = Modifier.padding(padding)) {
                 Column {
                     RecipesFeed(
-                        navController, {recipeList}, false, viewModel, -1
+                        navController, { recipeList }, false, viewModel, -1
                     )
                 }
             }

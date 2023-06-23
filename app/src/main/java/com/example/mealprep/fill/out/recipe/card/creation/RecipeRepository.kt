@@ -1,10 +1,15 @@
 package com.example.mealprep.fill.out.recipe.card.creation
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Groceries
 import com.example.mealprep.fill.out.recipe.card.Steps
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
 
 class RecipeRepository(private val recipeDao: RecipeDao) {
     private val cache: MutableMap<Int, Flow<List<Recipe>>> = mutableMapOf()
@@ -69,17 +74,14 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     val completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients()
 
-
     fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>> {
         // Check if the data is already cached
         val cachedData = cache[dayId]
         if (cachedData != null) {
             return cachedData
         }
-
         // Fetch the data from the database
         val newData = recipeDao.getRecipesForTheDay(dayId)
-
         // Cache the data for future use
         cache[dayId] = newData
 

@@ -70,7 +70,7 @@ class MainActivity : ComponentActivity() {
 
                 ModalBottomSheetLayout(
                     sheetContent = {
-                        BottomSheetContent({navController}, scope, modalBottomSheetState)
+                        BottomSheetContent({ navController }, scope, modalBottomSheetState)
                     },
                     Modifier.fillMaxWidth(),
                     sheetState = modalBottomSheetState,
@@ -78,31 +78,31 @@ class MainActivity : ComponentActivity() {
                     sheetBackgroundColor = Color.Blue,
                 ) {
                     Scaffold(
-                        bottomBar = {BottomNavigationBar(navController = {navController})},
+//                        bottomBar = {BottomNavigationBar(navController = {navController})},
                         content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
                                 NavHost(
                                     navController = navController, startDestination = Home.route
                                 ) {
                                     composable(Home.route) {
-                                        HomeScreen({navController},
+                                        HomeScreen({ navController },
                                             { scope },
                                             { modalBottomSheetState }) { viewModal }
                                     }
 
                                     composable(MealPrep.route) {
                                         MealPlanningScreen(
-                                            {navController}
+                                            { navController }
                                         ) { viewModal }
                                     }
 
                                     composable(Groceries.route) {
-                                        GroceriesScreen({navController}) { viewModal }
+                                        GroceriesScreen({ navController }) { viewModal }
 
                                     }
 
                                     composable(Settings.route) {
-                                        SettingsScreen({navController}) { viewModal }
+                                        SettingsScreen({ navController }) { viewModal }
                                     }
 
                                     composable(
@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
                                                 DishDetails.argDishId
                                             )
                                         ) { "Dish id is null" }
-                                        DishDetails(id, {navController}) { viewModal }
+                                        DishDetails(id, { navController }) { viewModal }
                                     }
 
                                     composable(
@@ -134,17 +134,17 @@ class MainActivity : ComponentActivity() {
                                         ) { "Dish id is null" }
 
                                         MealPrepForSpecificDay(
-                                            dayId, {navController}
+                                            dayId, { navController }
                                         ) { viewModal }
                                     }
 
                                     composable(GroceriesAddition.route) {
-                                        GroceriesAdditionScreen({navController}) { viewModal }
+                                        GroceriesAdditionScreen({ navController }) { viewModal }
                                     }
 
                                     composable(RecipeCreation.route) {
                                         RecipeCreationScreen(
-                                            {navController}, scope, modalBottomSheetState
+                                            { navController }, scope, modalBottomSheetState
                                         ) { viewModal }
                                     }
                                 }

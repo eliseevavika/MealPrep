@@ -24,13 +24,6 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
         NavigationItem.Settings,
     )
 
-    val itemsRouts = listOf(
-        NavigationItem.Home.route,
-        NavigationItem.MealPrep.route,
-        NavigationItem.Groceries.route,
-        NavigationItem.Settings.route,
-    )
-
     BottomNavigation(
         backgroundColor = Color.White, contentColor = Color.Black
     ) {
@@ -41,27 +34,22 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
             key(items) {
                 val selected = { currentRoute == item.route }
                 val color = { if (selected()) MealPrepColor.orange else Color.Black }
-                val isBottomNavRoute = itemsRouts.contains(currentRoute)
 
                 BottomNavigationItem(
                     icon = {
-                        if(isBottomNavRoute){
-                            Icon(
-                                painterResource(id = item.icon),
-                                contentDescription = item.title,
-                                tint = color()
-                            )
-                        }
+                        Icon(
+                            painterResource(id = item.icon),
+                            contentDescription = item.title,
+                            tint = color()
+                        )
                     },
                     label = {
                         Text(
                             text = item.title, color = color()
                         )
                     },
-                    enabled = isBottomNavRoute ,
                     selectedContentColor = MealPrepColor.orange,
                     unselectedContentColor = MealPrepColor.black,
-                    alwaysShowLabel = isBottomNavRoute,
                     selected = selected(),
                     onClick = {
                         navController().navigate(item.route) {
@@ -80,19 +68,4 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
         }
 
     }
-}
-
-
-@Composable
-fun ShowIconForNavBar(icon: () -> Int, title: () -> String, selected: Boolean, color: Color) {
-    Icon(
-        painterResource(id = icon()), contentDescription = title(), tint = color
-    )
-}
-
-@Composable
-fun ShowTextForNavBar(title: () -> String, selected: Boolean, color: Color) {
-    Text(
-        text = title(), color = color
-    )
 }

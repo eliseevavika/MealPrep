@@ -21,12 +21,15 @@ import com.example.mealprep.RecipesFeed
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import kotlinx.coroutines.CoroutineScope
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPrepForSpecificDay(
-    dayId: Int, navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel
+    dayId: Int,
+    navController: () -> NavHostController,
+    viewModel: () -> RecipeCreationViewModel
 ) {
     val dishes: List<Recipe> by viewModel().allRecipes.observeAsState(initial = listOf())
 
@@ -72,7 +75,7 @@ fun MealPrepForSpecificDay(
                         filteredDishes = mutableListOf()
                     }
                 })
-                RecipesFeed(navController, {filteredDishes}, true, viewModel, dayId)
+                RecipesFeed(navController, { filteredDishes }, true, viewModel, dayId)
             }
         }
     })

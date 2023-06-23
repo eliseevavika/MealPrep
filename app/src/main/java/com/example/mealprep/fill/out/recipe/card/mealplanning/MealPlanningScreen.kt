@@ -5,6 +5,8 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -74,7 +76,7 @@ fun MealPlanningScreen(
             topBar = {
                 TopAppBarMealPlanning()
             },
-//            bottomBar = { BottomNavigationBar(navController = navController) },
+            bottomBar = { BottomNavigationBar(navController = navController) },
 
             ) { padding ->
 
@@ -86,9 +88,8 @@ fun MealPlanningScreen(
                 ) {
                     days.forEach { day ->
                         key(day.id) {
-                            val recipesForDay =
-                                recipesByDay.getOrNull(day.id)?.collectAsState(initial = listOf())?.value
-
+                            val recipesForDay = recipesByDay.getOrNull(day.id)
+                                ?.collectAsState(initial = listOf())?.value
                             Row(
                                 modifier = Modifier
                                     .padding(
@@ -116,8 +117,7 @@ fun MealPlanningScreen(
                                     )
                                 }
                             }
-
-                            if (recipesForDay != null && recipesForDay.isNotEmpty()) {
+                            if (recipesForDay != null) {
                                 MealPlanRecipesByDay { recipesForDay }
                             }
                         }
@@ -132,19 +132,18 @@ fun MealPlanningScreen(
 fun BottomSheetContent(
     navController: () -> NavHostController, viewModel: () -> RecipeCreationViewModel, chosenDay: Day
 ) {
-    val rememberedDay = remember(chosenDay) { chosenDay }
-
     Column {
         BottomSheetListItem(icon = R.drawable.outline_edit_24,
-            title = "Add / Edit plan for ${rememberedDay.title}",
+            title = "Add / Edit plan for ${chosenDay.title}",
             onItemClick = {
-                viewModel().performQueryForChosenMealsFromDB(rememberedDay.id)
-                navController().navigate(MealPrepForSpecificDay.route + "/${rememberedDay.id}")
+                viewModel().performQueryForChosenMealsFromDB(chosenDay.id)
+                navController().navigate(MealPrepForSpecificDay.route + "/${chosenDay.id}")
             })
-        BottomSheetListItem(icon = R.drawable.outline_delete_24,
+        BottomSheetListItem(
+            icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
-                viewModel().deleteAllRecipesForDay(rememberedDay.id)
+                viewModel().deleteAllRecipesForDay(chosenDay.id)
             })
     }
 }
@@ -153,54 +152,50 @@ fun BottomSheetContent(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
-    val scrollState = rememberScrollState()
-    Row(
-        modifier = Modifier
-            .padding(start = 8.dp, bottom = 16.dp)
-            .horizontalScroll(scrollState),
+    LazyRow(
+        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.Start
     ) {
-        recipes().forEach { recipe ->
-            val recipeName = remember(recipe.recipe_id){recipe.name.addEmptyLines(2)}
-            key(recipe.recipe_id) {
-                val bitmap = recipe.photo?.let {
-                    Converters().converterStringToBitmap(it)
-                }
-                Card(modifier = Modifier
-                    .padding(8.dp)
-                    .wrapContentSize(), onClick = {}) {
-                    Row {
-                        Column(
-                            modifier = Modifier.size(74.dp, 108.dp),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.Start,
+        items(recipes()) { recipe ->
+            val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
-                            ) {
-                            if (bitmap != null) {
-                                Image(
-                                    bitmap = bitmap.asImageBitmap(),
-                                    contentDescription = "Image",
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(
-                                            74.dp, 74.dp
+            val bitmap = recipe.photo?.let {
+                Converters().converterStringToBitmap(it)
+            }
+            Card(modifier = Modifier
+                .padding(8.dp)
+                .wrapContentSize(), onClick = {}) {
+                Row {
+                    Column(
+                        modifier = Modifier.size(74.dp, 108.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start,
+
+                        ) {
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap.asImageBitmap(),
+                                contentDescription = "Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(
+                                        74.dp, 74.dp
+                                    )
+                                    .clip(
+                                        RoundedCornerShape(
+                                            16.dp
                                         )
-                                        .clip(
-                                            RoundedCornerShape(
-                                                16.dp
-                                            )
-                                        )
-                                )
-                            } else {
-                                ShowDefaultIconForRecipe()
-                            }
-                            Text(
-                                text = recipeName,
-                                maxLines = 2,
-                                fontFamily = fontFamilyForBodyB1,
-                                fontSize = 10.sp,
+                                    )
                             )
+                        } else {
+                            ShowDefaultIconForRecipe()
                         }
+                        Text(
+                            text = recipeName,
+                            maxLines = 2,
+                            fontFamily = fontFamilyForBodyB1,
+                            fontSize = 10.sp,
+                        )
                     }
                 }
             }
