@@ -86,16 +86,13 @@ fun MealPlanningScreen(
 
             ) { padding ->
 
-            Box(modifier = Modifier.padding(16.dp)) {
+            Box(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 35.dp)) {
                 Column(
                     modifier = Modifier
                         .background(Color.White)
                         .verticalScroll(scrollState)
                 ) {
                     days.forEach { day ->
-//                        key(day.id) {
-//                            val recipesForDay = recipesByDay.getOrNull(day.id)
-//                                ?.collectAsState(initial = listOf())?.value
                         Row(
                             modifier = Modifier
                                 .padding(
@@ -112,7 +109,7 @@ fun MealPlanningScreen(
                                     }
                                 })
                         ) {
-                            Row {
+                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)){
                                 //extracted composable to skip recomposition
                                 ShowIcon()
                                 Spacer(modifier = Modifier.width(width = 8.dp))
@@ -139,7 +136,6 @@ fun MealPlanningScreen(
                         } else if (recipesForSaturday.isNotEmpty() && day.id == 6) {
                             MealPlanRecipesByDay { recipesForSaturday }
                         }
-
                     }
                 }
             }
