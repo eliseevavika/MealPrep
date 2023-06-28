@@ -20,6 +20,7 @@
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#roadmap">Screenshots</a></li>
     <li><a href="#room-database">Room Database</a></li>
+    <li><a href="#optimization">Optimization</a></li>
   </ol>
 </details>
 
@@ -38,7 +39,7 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
 - [x] Created UI on Jetpack compose
 - [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/Database.kt">Link to Kotlin file</a>
-
+- [x] Improved the performance and efficiency of the UI by implementing Jetpack Compose's optimization techniques. [See details below](#optimization)
 - [ ] MVVM, Repository, Clean Architecture patterns
 
 ## Screenshots
@@ -60,3 +61,8 @@ Incorporating RoomDatabase into my project involved the following steps:
 * Creating the database class: I implemented a subclass of RoomDatabase that serves as the main access point to the database. This class is annotated with @Database and includes the entity classes and database version information.
 * Defining DAO (Data Access Object) interface: I created an interface that defines the database operations using annotations such as @Insert, @Update, @Delete, and @Query. This interface serves as a bridge between the application and the database, allowing for convenient data access and manipulation.
 * Accessing the database in the application: I utilized the RoomDatabase instance in my application's components, such as ViewModel or Repository class, to perform database operations asynchronously using coroutines or LiveData.
+
+## Optimization
+I improved the performance and efficiency of the UI by implementing Jetpack Compose's optimization techniques. By minimizing unnecessary recomposition, I ensured that only the relevant parts of the UI are updated when needed. This optimization significantly reduces the computational overhead, resulting in a more responsive and fluid user experience.
+* Example 1
+
