@@ -7,7 +7,7 @@
   <h3 align="center">SliceUp - meal planning app</h3>
 
   <p align="center">
-  Plan meals for the whole week. Save time, money and energy for someone or something you love.
+  Plan meals for the whole week. Save time, money, and energy for someone or something you love.
 
 </div>
 
@@ -19,6 +19,7 @@
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#roadmap">Screenshots</a></li>
+    <li><a href="#room-database">Room Database</a></li>
   </ol>
 </details>
 
@@ -36,7 +37,8 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created personas, a customer journey map  <a href="https://drive.google.com/file/d/1vrpAytPPcbJLOrA0djycPZ3BcT5bxnfE/view?usp=sharing">Link</a>
 - [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
 - [x] Created UI on Jetpack compose
-- [ ] I am learning about working with Data in Android
+- [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/Database.kt">Link to Kotlin file</a>
+
 - [ ] MVVM, Repository, Clean Architecture patterns
 
 ## Screenshots
@@ -45,3 +47,16 @@ The main idea is to simplify the whole process of planning your meals - from cre
 
 <img src="app/screenshots/4.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/5.png" alt= “” width="300" height="600">  
 
+
+## Room Database
+
+Integrated RoomDatabase to this project as a data persistence solution. RoomDatabase is an Android library that provides an abstraction layer over SQLite, allowing for efficient and convenient database operations. 
+By integrating RoomDatabase into my project, I was able to efficiently store, retrieve, and manage structured data, providing a robust and reliable data layer for my application.
+
+Incorporating RoomDatabase into my project involved the following steps:
+
+* Setting up the necessary dependencies: I added the Room library to my project's dependencies in the build.gradle file.
+* Defining the entity classes: I created data classes that represent the tables in my database. These classes are annotated with @Entity to define their structure and properties.
+* Creating the database class: I implemented a subclass of RoomDatabase that serves as the main access point to the database. This class is annotated with @Database and includes the entity classes and database version information.
+* Defining DAO (Data Access Object) interface: I created an interface that defines the database operations using annotations such as @Insert, @Update, @Delete, and @Query. This interface serves as a bridge between the application and the database, allowing for convenient data access and manipulation.
+* Accessing the database in the application: I utilized the RoomDatabase instance in my application's components, such as ViewModel or Repository class, to perform database operations asynchronously using coroutines or LiveData.
