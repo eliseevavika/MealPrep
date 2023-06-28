@@ -64,5 +64,23 @@ Incorporating RoomDatabase into my project involved the following steps:
 
 ## Optimization
 I improved the performance and efficiency of the UI by implementing Jetpack Compose's optimization techniques. By minimizing unnecessary recomposition, I ensured that only the relevant parts of the UI are updated when needed. This optimization significantly reduces the computational overhead, resulting in a more responsive and fluid user experience.
-* Example 1
 
+### Example 1
+
+- **Problem:**
+ 
+When I navigate to the "MealPrep" tab and select a specific day, such as Tuesday, a bottom sheet appears. From there, I have the option to add or edit my meal plan for that day. Once I'm in the meal plan interface, I can see a feed of all the available recipes and have the ability to select or unselect specific recipes.
+When I click on a recipe, the rest of the feed is recomposed as well. 
+
+- **How it should be:**
+
+Only the alpha value of the selected image should be recomposed, while the rest of the feed should remain unchanged. 
+
+-  **Solution:**
+
+In this code below, we pass a callback function onPerformQuery from the parent composable (RecipesFeed) to the MenuDish composable. When the Card is clicked, we invoke the onPerformQuery callback and pass the recipe as an argument.
+By using this callback mechanism, the recomposition will be limited to the specific MenuDish composable when the performQueryForChosenMeals function is called, instead of recomposing all the recipes in the LazyVerticalGrid.
+
+<img src="app/screenshots/optimization1.png" alt= “” width="300" height="400">  <img src="app/screenshots/optimization2.png" alt= “” width="300" height="400"> 
+
+<img src="app/screenshots/optimization3.png" alt= “” width="700" height="700">  <img src="app/screenshots/optimization4.png" alt= “” width="800" height="800"> 
