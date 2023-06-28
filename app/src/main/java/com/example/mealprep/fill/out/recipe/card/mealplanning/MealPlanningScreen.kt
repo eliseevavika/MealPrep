@@ -20,6 +20,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Day
@@ -37,11 +38,16 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
+    recipesForSunday: List<Recipe>,
+    recipesForMonday: List<Recipe>,
+    recipesForTuesday: List<Recipe>,
+    recipesForWednesday: List<Recipe>,
+    recipesForThursday: List<Recipe>,
+    recipesForFriday: List<Recipe>,
+    recipesForSaturday: List<Recipe>,
     navController: () -> NavHostController,
     viewModel: () -> RecipeCreationViewModel,
 ) {
-    val recipesByDay = remember(viewModel().recipesByDay) { viewModel().recipesByDay }
-
     val chosenDay by rememberUpdatedState(viewModel().chosenDay.collectAsState()).value
 
     val coroutineScope = rememberCoroutineScope()
@@ -87,40 +93,53 @@ fun MealPlanningScreen(
                         .verticalScroll(scrollState)
                 ) {
                     days.forEach { day ->
-                        key(day.id) {
-                            val recipesForDay = recipesByDay.getOrNull(day.id)
-                                ?.collectAsState(initial = listOf())?.value
-                            Row(
-                                modifier = Modifier
-                                    .padding(
-                                        start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
-                                    )
-                                    .clickable(onClick = {
-                                        coroutineScope.launch {
-                                            if (modalSheetState.isVisible) {
-                                                modalSheetState.hide()
-                                            } else {
-                                                viewModel().setChosenDay(day.id)
-                                                modalSheetState.show()
-                                            }
+//                        key(day.id) {
+//                            val recipesForDay = recipesByDay.getOrNull(day.id)
+//                                ?.collectAsState(initial = listOf())?.value
+                        Row(
+                            modifier = Modifier
+                                .padding(
+                                    start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
+                                )
+                                .clickable(onClick = {
+                                    coroutineScope.launch {
+                                        if (modalSheetState.isVisible) {
+                                            modalSheetState.hide()
+                                        } else {
+                                            viewModel().setChosenDay(day.id)
+                                            modalSheetState.show()
                                         }
-                                    })
-                            ) {
-                                Row {
-                                    //extracted composable to skip recomposition
-                                    ShowIcon()
-                                    Spacer(modifier = Modifier.width(width = 8.dp))
-                                    Text(
-                                        text = day.title,
-                                        fontFamily = fontFamilyForBodyB2,
-                                        fontSize = 16.sp
-                                    )
-                                }
-                            }
-                            if (recipesForDay != null) {
-                                MealPlanRecipesByDay { recipesForDay }
+                                    }
+                                })
+                        ) {
+                            Row {
+                                //extracted composable to skip recomposition
+                                ShowIcon()
+                                Spacer(modifier = Modifier.width(width = 8.dp))
+                                Text(
+                                    text = day.title,
+                                    fontFamily = fontFamilyForBodyB2,
+                                    fontSize = 16.sp
+                                )
                             }
                         }
+
+                        if (recipesForSunday.isNotEmpty() && day.id == 0) {
+                            MealPlanRecipesByDay { recipesForSunday }
+                        } else if (recipesForMonday.isNotEmpty() && day.id == 1) {
+                            MealPlanRecipesByDay { recipesForMonday }
+                        } else if (recipesForTuesday.isNotEmpty() && day.id == 2) {
+                            MealPlanRecipesByDay { recipesForTuesday }
+                        } else if (recipesForWednesday.isNotEmpty() && day.id == 3) {
+                            MealPlanRecipesByDay { recipesForWednesday }
+                        } else if (recipesForThursday.isNotEmpty() && day.id == 4) {
+                            MealPlanRecipesByDay { recipesForThursday }
+                        } else if (recipesForFriday.isNotEmpty() && day.id == 5) {
+                            MealPlanRecipesByDay { recipesForFriday }
+                        } else if (recipesForSaturday.isNotEmpty() && day.id == 6) {
+                            MealPlanRecipesByDay { recipesForSaturday }
+                        }
+
                     }
                 }
             }
@@ -159,8 +178,10 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
         items(recipes()) { recipe ->
             val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
-            val bitmap = recipe.photo?.let {
-                Converters().converterStringToBitmap(it)
+            val bitmap = remember(recipe.recipe_id) {
+                recipe.photo?.let {
+                    Converters().converterStringToBitmap(it)
+                }
             }
             Card(modifier = Modifier
                 .padding(8.dp)

@@ -10,7 +10,10 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -59,6 +62,37 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
+                val recipesForSunday by viewModal.recipesForSunday.collectAsState(listOf())
+
+                val recipesForMonday by
+                viewModal.recipesForMonday.collectAsState(
+                    listOf()
+                )
+
+                val recipesForTuesday by
+                viewModal.recipesForTuesday.collectAsState(
+                    listOf()
+                )
+
+                val recipesForWednesday by
+                viewModal.recipesForWednesday.collectAsState(
+                    listOf()
+                )
+
+                val recipesForThursday by
+                viewModal.recipesForThursday.collectAsState(
+                    listOf()
+                )
+
+                val recipesForFriday by
+                viewModal.recipesForFriday.collectAsState(
+                    listOf()
+                )
+
+                val recipesForSaturday by
+                viewModal.recipesForSaturday.collectAsState(
+                    listOf()
+                )
 
                 val modalBottomSheetState =
                     rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -91,9 +125,14 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(MealPrep.route) {
-                                        MealPlanningScreen(
-                                            { navController }
-                                        ) { viewModal }
+                                        MealPlanningScreen(recipesForSunday,
+                                            recipesForMonday,
+                                            recipesForTuesday,
+                                            recipesForWednesday,
+                                            recipesForThursday,
+                                            recipesForFriday,
+                                            recipesForSaturday,
+                                            { navController }) { viewModal }
                                     }
 
                                     composable(Groceries.route) {
@@ -134,8 +173,8 @@ class MainActivity : ComponentActivity() {
                                         ) { "Dish id is null" }
 
                                         MealPrepForSpecificDay(
-                                            dayId, { navController }
-                                        ) { viewModal }
+                                            dayId,
+                                            { navController }) { viewModal }
                                     }
 
                                     composable(GroceriesAddition.route) {

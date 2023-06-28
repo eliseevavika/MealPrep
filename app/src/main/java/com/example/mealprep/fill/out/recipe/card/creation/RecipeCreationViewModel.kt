@@ -44,8 +44,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 
     var completedIngredients: LiveData<List<Ingredient>>
 
-    var recipesByDay: List<Flow<List<Recipe>>>
-
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
@@ -60,16 +58,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
         recipesForThursday = recipeRepository.recipesForThursday
         recipesForFriday = recipeRepository.recipesForFriday
         recipesForSaturday = recipeRepository.recipesForSaturday
-
-        recipesByDay = listOf(
-            recipesForSunday,
-            recipesForMonday,
-            recipesForTuesday,
-            recipesForWednesday,
-            recipesForThursday,
-            recipesForFriday,
-            recipesForSaturday
-        )
 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
         completedIngredients = recipeRepository.completedIngredients
