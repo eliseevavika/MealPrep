@@ -66,7 +66,7 @@ fun RecipesFeed(
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MenuDish(
     navController: (() -> NavHostController),
@@ -76,10 +76,6 @@ fun MenuDish(
     dayId: Int,
     onPerformQuery: (Recipe) -> Unit,
 ) {
-    val photoStrState by viewModel.photo.collectAsState()
-
-    val context = LocalContext.current
-
     val cookTimeString = viewModel.getCookTimeString(recipe.cook_time)
 
     val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
@@ -88,7 +84,7 @@ fun MenuDish(
         .padding(8.dp)
         .wrapContentSize(), onClick = {
         if (!isMealPlanningOn) {
-            navController()?.navigate(DishDetails.route + "/${recipe.recipe_id}")
+            navController().navigate(DishDetails.route + "/${recipe.recipe_id}")
         } else {
             onPerformQuery(recipe)
         }
