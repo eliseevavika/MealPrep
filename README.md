@@ -84,3 +84,23 @@ By using this callback mechanism, the recomposition will be limited to the speci
 <img src="app/screenshots/optimization1.png" alt= “” width="300" height="400">  <img src="app/screenshots/optimization2.png" alt= “” width="300" height="400"> 
 
 <img src="app/screenshots/optimization3.png" alt= “” width="700" height="700">  <img src="app/screenshots/optimization4.png" alt= “” width="800" height="800"> 
+
+
+### Example 2
+
+- **Problem:**
+
+When clicking on a specific day, the bottom sheet appears. Each time the bottom sheet is shown, the icon (for the row representing the day of the week) is recomposed unnecessarily.
+
+- **How it should be:**
+
+The icon should remain unaffected and not be recomposed when the bottom sheet is displayed.
+
+-  **Solution:**
+
+To avoid unnecessary recomposition of the icon, I have extracted it into a separate Composable function. By doing so, only the relevant parts of the code will be recomposed when needed.
+
+<img src="app/screenshots/oprimization5.png" alt= “” width="400" height="600">  <img src="app/screenshots/optimization6.png" alt= “” width="600" height="300"> 
+
+<img src="app/screenshots/optimization7.png" alt= “” width="600" height="150"> 
+
