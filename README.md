@@ -81,9 +81,9 @@ Only the alpha value of the selected image should be recomposed, while the rest 
 In this code below, we pass a callback function onPerformQuery from the parent composable (RecipesFeed) to the MenuDish composable. When the Card is clicked, we invoke the onPerformQuery callback and pass the recipe as an argument.
 By using this callback mechanism, the recomposition will be limited to the specific MenuDish composable when the performQueryForChosenMeals function is called, instead of recomposing all the recipes in the LazyVerticalGrid.
 
-<img src="app/screenshots/optimization1.png" alt= “” width="300" height="400">  <img src="app/screenshots/optimization2.png" alt= “” width="300" height="400"> 
+<img src="app/screenshots/optimization1.png" alt= “” width="300">  <img src="app/screenshots/optimization2.png" alt= “” width="300"> 
 
-<img src="app/screenshots/optimization3.png" alt= “” width="700" height="700">  <img src="app/screenshots/optimization4.png" alt= “” width="800" height="800"> 
+<img src="app/screenshots/optimization3.png" alt= “” width="700">  <img src="app/screenshots/optimization4.png" alt= “” width="800"> 
 
 
 ### Example 2
@@ -100,7 +100,7 @@ The icon should remain unaffected and not be recomposed when the bottom sheet is
 
 To avoid unnecessary recomposition of the icon, I have extracted it into a separate Composable function. By doing so, only the relevant parts of the code will be recomposed when needed.
 
-<img src="app/screenshots/oprimization5.png" alt= “” width="400" height="600">  <img src="app/screenshots/optimization6.png" alt= “” width="600" height="300"> 
+<img src="app/screenshots/oprimization5.png" alt= “” width="400">  <img src="app/screenshots/optimization6.png" alt= “” width="600"> 
 
-<img src="app/screenshots/optimization7.png" alt= “” width="600" height="150"> 
+<img src="app/screenshots/optimization7.png" alt= “” width="600"> 
 
