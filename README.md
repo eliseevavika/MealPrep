@@ -83,7 +83,7 @@ By using this callback mechanism, the recomposition will be limited to the speci
 
 <img src="app/screenshots/optimization1.png" alt= “” width="300">  <img src="app/screenshots/optimization2.png" alt= “” width="300"> 
 
-<img src="app/screenshots/optimization3.png" alt= “” width="700">  <img src="app/screenshots/optimization4.png" alt= “” width="800"> 
+<img src="app/screenshots/optimization3.png" alt= “” width="700">  <img src="app/screenshots/optimization4.png" alt= “” width="700"> 
 
 
 ### Example 2
