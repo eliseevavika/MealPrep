@@ -1,9 +1,8 @@
 package com.example.mealprep.fill.out.recipe.card
 
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import android.provider.MediaStore
+import android.os.Environment
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,40 +16,62 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.example.mealprep.Converters
+import coil.ImageLoader
+import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.request.SuccessResult
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.meaprep.R
+import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RequestContentPermission(viewModel: () -> RecipeCreationViewModel) {
     val photoStrState = viewModel().photo.collectAsState()
 
-    val imageUri = viewModel().uri.collectAsState()
+    val imageUri by viewModel().uri.collectAsState()
 
     val context = LocalContext.current
+
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         viewModel().setImageUri(uri)
     }
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUri)
+            .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
+            .build()
+    )
+
+
     Box {
-        if (imageUri.value != null) {
+        if (imageUri != null) {
             ConstraintLayout {
                 val (photo, remove, edit) = createRefs()
-                val bitmap = Converters().converterStringToBitmap(photoStrState.value)
-
-                bitmap?.let {
+                val imageRequest = ImageRequest.Builder(context)
+                    .data(photoStrState.value)
+                    .build()
+                if (painter.state is AsyncImagePainter.State.Loading) {
+                    CircularProgressIndicator()
+                } else {
                     Image(
-                        bitmap = bitmap.asImageBitmap(),
+                        painter = painter,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -64,64 +85,71 @@ fun RequestContentPermission(viewModel: () -> RecipeCreationViewModel) {
                             },
                         contentScale = ContentScale.Crop
                     )
-                    IconButton(modifier = Modifier
-                        .constrainAs(remove) {
-                            bottom.linkTo(photo.bottom, margin = 16.dp)
-                        }
-                        .padding(16.dp)
-                        .drawBehind {
-                            drawCircle(
-                                color = MealPrepColor.white,
-                                radius = this.size.maxDimension / 2.0f
-                            )
-                        }, onClick = {
-                        viewModel().setImageUri(null)
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.outline_delete_24),
-                            contentDescription = "Delete photo",
-                            tint = MealPrepColor.orange
-                        )
+                }
+
+                IconButton(modifier = Modifier
+                    .constrainAs(remove) {
+                        bottom.linkTo(photo.bottom, margin = 16.dp)
                     }
-                    IconButton(modifier = Modifier
-                        .constrainAs(edit) {
-                            end.linkTo(photo.end)
-                            bottom.linkTo(photo.bottom, margin = 16.dp)
-                        }
-                        .padding(16.dp)
-                        .drawBehind {
-                            drawCircle(
-                                color = MealPrepColor.white,
-                                radius = this.size.maxDimension / 2.0f
-                            )
-                        }, onClick = {
-                        launcher.launch("image/*")
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.outline_edit_24),
-                            contentDescription = "Edit photo",
-                            tint = MealPrepColor.orange
+                    .padding(16.dp)
+                    .drawBehind {
+                        drawCircle(
+                            color = MealPrepColor.white,
+                            radius = this.size.maxDimension / 2.0f
                         )
+                    }, onClick = {
+                    viewModel().setImageUri(null)
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outline_delete_24),
+                        contentDescription = "Delete photo",
+                        tint = MealPrepColor.orange
+                    )
+                }
+                IconButton(modifier = Modifier
+                    .constrainAs(edit) {
+                        end.linkTo(photo.end)
+                        bottom.linkTo(photo.bottom, margin = 16.dp)
                     }
+                    .padding(16.dp)
+                    .drawBehind {
+                        drawCircle(
+                            color = MealPrepColor.white,
+                            radius = this.size.maxDimension / 2.0f
+                        )
+                    }, onClick = {
+                    launcher.launch("image/*")
+                }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outline_edit_24),
+                        contentDescription = "Edit photo",
+                        tint = MealPrepColor.orange
+                    )
                 }
             }
         } else {
             ShowNoImage(launcher)
         }
 
-        imageUri.value?.let {
-            if (Build.VERSION.SDK_INT < 28) {
-                val bitmapValue = MediaStore.Images.Media.getBitmap(context.contentResolver, it)
-                viewModel().setPhoto(Converters().convertBitmapToString(bitmapValue!!))
+        imageUri?.let {
+            val inputStream = context.contentResolver.openInputStream(it)
+            val imageData = inputStream?.readBytes()
+            inputStream?.close()
 
-            } else {
-                val source = ImageDecoder.createSource(context.contentResolver, it)
-                val bitmapValue = ImageDecoder.decodeBitmap(source)
-                viewModel().setPhoto(Converters().convertBitmapToString(bitmapValue))
-            }
+            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            val imageFile = File.createTempFile("image_", ".jpg", storageDir)
+
+            val outputStream = FileOutputStream(imageFile)
+            outputStream.write(imageData)
+            outputStream.close()
+
+            val imagePath = imageFile.absolutePath
+            viewModel().setPhoto(imagePath)
+
         }
     }
 }
+//}
 
 @Composable
 private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
@@ -144,3 +172,4 @@ private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
         }
     }
 }
+

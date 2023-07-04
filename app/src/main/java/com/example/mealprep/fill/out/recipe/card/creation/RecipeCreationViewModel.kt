@@ -1,7 +1,6 @@
 package com.example.mealprep.fill.out.recipe.card.creation
 
 import android.app.Application
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -287,32 +286,6 @@ class RecipeCreationViewModel(application: Application) : AndroidViewModel(appli
 //        }
 //        return true
 //    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun saveImage(image: Bitmap, storageDir: File, imageFileName: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            var successDirCreated = false
-            if (!storageDir.exists()) {
-                successDirCreated = storageDir.mkdir()
-            }
-            if (successDirCreated) {
-                val imageFile = File(storageDir, imageFileName)
-                val savedImagePath: String = imageFile.getAbsolutePath()
-                try {
-                    val resized = Bitmap.createScaledBitmap(
-                        image, (image.width * 0.8).toInt(), (image.height * 0.8).toInt(), true
-                    )
-                    val fOut: OutputStream = FileOutputStream(imageFile)
-                    resized.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
-                    _photo.value = Converters().convertBitmapToString(resized)
-                    fOut.close()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else {
-            }
-        }
-    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered(): Boolean {

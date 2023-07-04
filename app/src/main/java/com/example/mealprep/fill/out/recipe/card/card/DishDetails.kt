@@ -19,13 +19,16 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.example.mealprep.Converters
 import com.example.mealprep.fill.out.recipe.card.TabScreenForRecipeCard
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
@@ -88,8 +91,14 @@ fun DishDetails(
 fun UpperPart(viewModel: () -> RecipeCreationViewModel) {
     val recipe = viewModel().returnedRecipe.observeAsState().value
 
-    val bitmap = recipe?.photo?.let { Converters().converterStringToBitmap(it) }
+    val imagePathFromDatabase = recipe?.photo
 
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imagePathFromDatabase)
+            .size(Size.ORIGINAL)
+            .build()
+    )
     val cookTimeString = remember(recipe){
         viewModel().getCookTimeString(recipe?.cook_time)
     }
@@ -100,9 +109,9 @@ fun UpperPart(viewModel: () -> RecipeCreationViewModel) {
             .background(MealPrepColor.grey_100)
             .height(300.dp)
     ) {
-        if (bitmap != null) {
+        if (imagePathFromDatabase != null) {
             Image(
-                bitmap = bitmap.asImageBitmap(),
+                painter = painter,
                 contentDescription = "Dish image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

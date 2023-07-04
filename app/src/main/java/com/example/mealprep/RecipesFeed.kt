@@ -1,6 +1,5 @@
 package com.example.mealprep
 
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
@@ -16,14 +15,14 @@ import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -34,6 +33,7 @@ import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 import com.example.meaprep.R
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
+import java.nio.file.Files.size
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -80,6 +80,14 @@ fun MenuDish(
 
     val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
+    val imagePathFromDatabase = recipe.photo
+
+    val painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imagePathFromDatabase)
+            .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
+            .build()
+    )
     Card(modifier = Modifier
         .padding(8.dp)
         .wrapContentSize(), onClick = {
@@ -115,17 +123,15 @@ fun MenuDish(
             }
         }
 
-        val bitmap = recipe.photo?.let { Converters().converterStringToBitmap(it) }
-
         Row {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                if (bitmap != null) {
+                if(imagePathFromDatabase != null){
                     Image(
-                        bitmap = bitmap.asImageBitmap(),
+                        painter = painter,
                         contentDescription = "Image",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -135,9 +141,10 @@ fun MenuDish(
                             )
                             .alpha(alpha)
                     )
-                } else {
+                }else{
                     ShowDefaultImage(alpha)
                 }
+
                 Text(
                     text = recipeName,
                     maxLines = 2,

@@ -1,8 +1,6 @@
 package com.example.mealprep
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.os.Build
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
@@ -111,7 +109,6 @@ interface RecipeDao {
         }
         insertIngredients(listIngredients)
         insertSteps(listSteps)
-
     }
 
 
@@ -248,26 +245,7 @@ class Converters {
         return date?.time
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    @TypeConverter
-    fun convertBitmapToString(bitmap: Bitmap): String {
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        val byteArray = outputStream.toByteArray()
-        return Base64.getEncoder().encodeToString(byteArray)
-    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    @TypeConverter
-    fun converterStringToBitmap(str: String): Bitmap? {
-        return try {
-            val encodeByte = Base64.getDecoder().decode(str)
-            BitmapFactory.decodeByteArray(encodeByte, 0, encodeByte.size)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
 }
 
 

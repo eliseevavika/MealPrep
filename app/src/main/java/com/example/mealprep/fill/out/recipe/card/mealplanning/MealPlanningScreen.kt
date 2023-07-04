@@ -14,14 +14,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.Day
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
@@ -174,11 +177,14 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
         items(recipes()) { recipe ->
             val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
-            val bitmap = remember(recipe.recipe_id) {
-                recipe.photo?.let {
-                    Converters().converterStringToBitmap(it)
-                }
-            }
+            val imagePathFromDatabase = recipe.photo
+
+            val painter = rememberAsyncImagePainter(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imagePathFromDatabase)
+                    .size(Size.ORIGINAL) // Set the target size to load the image at.
+                    .build()
+            )
             Card(modifier = Modifier
                 .padding(8.dp)
                 .wrapContentSize(), onClick = {}) {
@@ -189,9 +195,9 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
                         horizontalAlignment = Alignment.Start,
 
                         ) {
-                        if (bitmap != null) {
+                        if (imagePathFromDatabase != null) {
                             Image(
-                                bitmap = bitmap.asImageBitmap(),
+                                painter = painter,
                                 contentDescription = "Image",
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
