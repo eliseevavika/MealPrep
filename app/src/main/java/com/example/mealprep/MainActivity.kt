@@ -13,7 +13,6 @@ import androidx.compose.material.*
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -25,13 +24,15 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
+import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
-import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationViewModel
+import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
+import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
 import kotlinx.coroutines.launch
 import java.lang.reflect.Field
@@ -39,7 +40,7 @@ import java.lang.reflect.Field
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var viewModal: RecipeCreationViewModel
+    lateinit var viewModal: RecipeViewModel
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterialApi::class)
@@ -58,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
                 viewModal = ViewModelProvider(
                     this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-                ).get(RecipeCreationViewModel::class.java)
+                ).get(RecipeViewModel::class.java)
 
                 val navController = rememberNavController()
 
