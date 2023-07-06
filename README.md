@@ -20,7 +20,9 @@
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#roadmap">Screenshots</a></li>
     <li><a href="#room-database">Room Database</a></li>
-    <li><a href="#optimization">Optimization</a></li>
+    <li><a href="#room-database">Optimization</a></li>
+    <li><a href="#mvvm">MVVM pattern</a></li>
+
   </ol>
 </details>
 
@@ -39,8 +41,9 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
 - [x] Created UI on Jetpack compose
 - [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/Database.kt">Link to Kotlin file</a>
-- [x] Project Optimization and Benchmark Metrics [See details below](#optimization)
-- [ ] MVVM, Repository, Clean Architecture patterns
+- [x] Project optimization and Benchmark Metrics [See details below](#otimization)
+- [x] MVVM pattern [See details below](#mvvm)
+- [ ] Implementation of authorization and authentication
 
 ## Screenshots
 
@@ -61,6 +64,8 @@ Incorporating RoomDatabase into my project involved the following steps:
 * Creating the database class: I implemented a subclass of RoomDatabase that serves as the main access point to the database. This class is annotated with @Database and includes the entity classes and database version information.
 * Defining DAO (Data Access Object) interface: I created an interface that defines the database operations using annotations such as @Insert, @Update, @Delete, and @Query. This interface serves as a bridge between the application and the database, allowing for convenient data access and manipulation.
 * Accessing the database in the application: I utilized the RoomDatabase instance in my application's components, such as ViewModel or Repository class, to perform database operations asynchronously using coroutines or LiveData.
+
+## Otimization
 
 ## Compose Optimization
 
@@ -115,7 +120,10 @@ One of the key optimizations I focused on was reducing the startup time of the a
 ### Metric
 By conducting benchmark measurements, I tracked the progress of my optimizations and gained insights into the performance improvements. The timeToInitialDisplayMs metric, which measures the time it takes for the initial content to be displayed to the user, improved from 315.9 milliseconds to 221.9 milliseconds. These results demonstrate the positive impact of the optimizations I implemented.
 
-## Project Structure and MVVM
+<img src="app/screenshots/benchmark1.png" alt= “” width="1500"> 
+<img src="app/screenshots/benchmark2.png" alt= “” width="1000"> 
+
+## MVVM
 
 In addition to performance optimizations, I also organized the project structure following the MVVM (Model-View-ViewModel) architectural pattern. I created additional folders and separated files according to their responsibilities, which improved code organization and maintainability. This architectural approach allowed for better separation of concerns and facilitated the development and testing processes.
 
