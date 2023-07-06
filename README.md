@@ -40,7 +40,7 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created personas, a customer journey map  <a href="https://drive.google.com/file/d/1vrpAytPPcbJLOrA0djycPZ3BcT5bxnfE/view?usp=sharing">Link</a>
 - [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
 - [x] Created UI on Jetpack compose
-- [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/Database.kt">Link to Kotlin file</a>
+- [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/data/Database.kt">Link to Kotlin file</a>
 - [x] Project optimization and Benchmark Metrics [See details below](#otimization)
 - [x] MVVM pattern [See details below](#mvvm)
 - [ ] Implementation of authorization and authentication
