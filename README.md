@@ -62,16 +62,6 @@ Incorporating RoomDatabase into my project involved the following steps:
 * Defining DAO (Data Access Object) interface: I created an interface that defines the database operations using annotations such as @Insert, @Update, @Delete, and @Query. This interface serves as a bridge between the application and the database, allowing for convenient data access and manipulation.
 * Accessing the database in the application: I utilized the RoomDatabase instance in my application's components, such as ViewModel or Repository class, to perform database operations asynchronously using coroutines or LiveData.
 
-## Benchmark Results
-In order to improve the performance and user experience of my app, I implemented several optimizations and conducted benchmark measurements using the AndroidJUnit4 framework. 
-
-### Startup Time Optimization
-
-One of the key optimizations I focused on was reducing the startup time of the app. By benchmark results, I was able to measure the startup duration. Through careful analysis and optimization techniques, I was able to significantly improve the startup time from 32 seconds to 17 seconds.
-
-### Metric
-By conducting benchmark measurements, I tracked the progress of my optimizations and gained insights into the performance improvements. The timeToInitialDisplayMs metric, which measures the time it takes for the initial content to be displayed to the user, improved from 315.9 milliseconds to 221.9 milliseconds. These results demonstrate the positive impact of the optimizations I implemented.
-
 ## Compose Optimization
 
 To enhance the efficiency and responsiveness of my app's user interface, I made optimizations specifically targeting Jetpack Compose. By minimizing unnecessary recomposition, I ensured that only the relevant parts of the UI are updated when needed. This optimization significantly reduces the computational overhead, resulting in a more responsive and fluid user experience.
@@ -115,8 +105,17 @@ To avoid unnecessary recomposition of the icon, I have extracted it into a separ
 
 <img src="app/screenshots/optimization7.png" alt= “” width="600"> 
 
+## Benchmark Results
+In order to improve the performance and user experience of my app, I implemented several optimizations and conducted benchmark measurements using the AndroidJUnit4 framework. 
 
-### Project Structure and MVVM
+### Startup Time Optimization
+
+One of the key optimizations I focused on was reducing the startup time of the app. By benchmark results, I was able to measure the startup duration. Through careful analysis and optimization techniques, I was able to significantly improve the startup time from 32 seconds to 17 seconds.
+
+### Metric
+By conducting benchmark measurements, I tracked the progress of my optimizations and gained insights into the performance improvements. The timeToInitialDisplayMs metric, which measures the time it takes for the initial content to be displayed to the user, improved from 315.9 milliseconds to 221.9 milliseconds. These results demonstrate the positive impact of the optimizations I implemented.
+
+## Project Structure and MVVM
 
 In addition to performance optimizations, I also organized the project structure following the MVVM (Model-View-ViewModel) architectural pattern. I created additional folders and separated files according to their responsibilities, which improved code organization and maintainability. This architectural approach allowed for better separation of concerns and facilitated the development and testing processes.
 
