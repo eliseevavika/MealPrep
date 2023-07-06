@@ -129,7 +129,11 @@ In addition to performance optimizations, I also organized the project structure
 
 
 
-## APACHE LICENSE, VERSION 2.0¶
+
+
+### APACHE LICENSE, VERSION 2.0¶
+
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 Copyright 2023 Viktoriia Sidorova
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,4 +147,5 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
 
