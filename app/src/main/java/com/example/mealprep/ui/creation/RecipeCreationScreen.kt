@@ -16,12 +16,9 @@ import kotlinx.coroutines.CoroutineScope
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun RecipeCreationScreen(
     navController: () -> NavHostController,
-    scope: CoroutineScope,
-    modalBottomSheetState: ModalBottomSheetState,
     viewModal: () -> RecipeViewModel,
 ) {
     val focusRequester = remember { FocusRequester() }

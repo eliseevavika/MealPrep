@@ -216,7 +216,6 @@ fun setUpInstructions(
                 )
             )
         }
-
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {

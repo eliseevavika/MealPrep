@@ -59,7 +59,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         completedIngredients = recipeRepository.completedIngredients
     }
 
-
     private val _title = MutableStateFlow("")
     val title = _title.asStateFlow()
 
@@ -596,7 +595,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun setChosenDay(dayId: Int) {
         _chosenDay.value = dayId
     }
-
 
     fun deleteAllRecipesForDay(dayId: Int) {
         viewModelScope.launch(Dispatchers.IO) {

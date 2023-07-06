@@ -65,6 +65,5 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
                 )
             }
         }
-
     }
 }

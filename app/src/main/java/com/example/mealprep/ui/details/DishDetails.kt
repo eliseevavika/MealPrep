@@ -127,7 +127,6 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                     .height(250.dp)
             )
         }
-
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9F)
@@ -173,7 +172,7 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
                                 text = if (recipe?.cook_time == null) "0 min" else {
-                                    "$cookTimeString"
+                                    cookTimeString
                                 }, fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
                             )
                         }

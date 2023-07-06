@@ -1,7 +1,6 @@
 package com.example.mealprep
 
 import android.content.Context
-import androidx.annotation.NonNull
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -13,12 +12,12 @@ import java.util.*
 
 @Entity(tableName = "user")
 data class UserRoom(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Int, val email: String, val password: String
+    @PrimaryKey(autoGenerate = true) val id: Int, val email: String, val password: String
 )
 
 @Entity(tableName = "recipe")
 data class Recipe(
-    @PrimaryKey(autoGenerate = true) @NonNull val recipe_id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val recipe_id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
     val photo: String?,
@@ -40,7 +39,7 @@ data class Recipe(
     )]
 )
 data class Ingredient(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
     var name: String,
     var completed: Boolean = false,
     val recipe_id: Long?
@@ -54,7 +53,7 @@ data class RecipeWithMealPlan(
 
 @Entity(tableName = "step")
 data class Step(
-    @PrimaryKey(autoGenerate = true) @NonNull val id: Int = 0,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val description: String,
     val recipe_id: Long
 )

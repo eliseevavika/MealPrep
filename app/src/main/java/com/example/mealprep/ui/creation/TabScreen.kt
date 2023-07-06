@@ -39,7 +39,7 @@ fun TabScreen(
         ) {
             tabs.forEachIndexed { index, title ->
                 key(index) {
-                    var withForTab = if (index != 1) 94.5.dp else 120.dp
+                    val withForTab = if (index != 1) 94.5.dp else 120.dp
                     Tab(
                         text = {
                             Text(
@@ -62,7 +62,6 @@ fun TabScreen(
                                     )
                             )
                         },
-
                         selected = tabIndex == index,
                         onClick = {
                             tabIndex = index

@@ -182,7 +182,6 @@ fun setUpRow(
             viewModel().setNameIngredients(item, input)
             focusManager.clearFocus()
         }
-
         Row(
             modifier = Modifier
                 .fillMaxHeight()
@@ -220,7 +219,6 @@ fun setUpRow(
                 )
             )
         }
-
         Row(modifier = Modifier.weight(0.5f)) {
             IconButton(
                 onClick = {

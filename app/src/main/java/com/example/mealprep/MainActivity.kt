@@ -113,7 +113,6 @@ class MainActivity : ComponentActivity() {
                     sheetBackgroundColor = Color.Blue,
                 ) {
                     Scaffold(
-//                        bottomBar = {BottomNavigationBar(navController = {navController})},
                         content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
                                 NavHost(
@@ -184,7 +183,7 @@ class MainActivity : ComponentActivity() {
 
                                     composable(RecipeCreation.route) {
                                         RecipeCreationScreen(
-                                            { navController }, scope, modalBottomSheetState
+                                            { navController },
                                         ) { viewModal }
                                     }
                                 }

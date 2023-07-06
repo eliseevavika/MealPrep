@@ -50,36 +50,33 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     val allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes()
 
-    val recipesForSunday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(0)
+    val recipesForSunday: Flow<List<Recipe>> = getRecipesForTheDay(0)
 
-    val recipesForMonday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(1)
+    val recipesForMonday: Flow<List<Recipe>> = getRecipesForTheDay(1)
 
-    val recipesForTuesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(2)
+    val recipesForTuesday: Flow<List<Recipe>> = getRecipesForTheDay(2)
 
-    val recipesForWednesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(3)
+    val recipesForWednesday: Flow<List<Recipe>> = getRecipesForTheDay(3)
 
-    val recipesForThursday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(4)
+    val recipesForThursday: Flow<List<Recipe>> = getRecipesForTheDay(4)
 
-    val recipesForFriday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(5)
+    val recipesForFriday: Flow<List<Recipe>> = getRecipesForTheDay(5)
 
-    val recipesForSaturday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(6)
+    val recipesForSaturday: Flow<List<Recipe>> = getRecipesForTheDay(6)
 
     val ingredientsFromMealPlans: LiveData<List<Ingredient>> =
         recipeDao.getAllIngredientsFromMealPlansNotCompleted()
 
     val completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients()
 
-//    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>> {
-//        // Check if the data is already cached
-//        val cachedData = cache[dayId]
-//        if (cachedData != null) {
-//            return cachedData
-//        }
-//        // Fetch the data from the database
-//        val newData = recipeDao.getRecipesForTheDay(dayId)
-//        // Cache the data for future use
-//        cache[dayId] = newData
-//
-//        return newData
-//    }
+    private fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>> {
+        val cachedData = cache[dayId]
+        if (cachedData != null) {
+            return cachedData
+        }
+        val newData = recipeDao.getRecipesForTheDay(dayId)
+        cache[dayId] = newData
+
+        return newData
+    }
 }

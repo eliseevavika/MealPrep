@@ -62,7 +62,7 @@ fun BottomSheetContent(
             title = "Create new recipe",
             onItemClick = {
                 scope.launch { modalBottomSheetState.hide() }
-                navController()?.navigate(RecipeCreation.route)
+                navController().navigate(RecipeCreation.route)
             },
         )
         BottomSheetListItem(

@@ -113,7 +113,6 @@ fun MealPlanningScreen(
                                 })
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)){
-                                //extracted composable to skip recomposition
                                 ShowIcon()
                                 Spacer(modifier = Modifier.width(width = 8.dp))
                                 Text(
@@ -182,7 +181,7 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
             val painter = rememberAsyncImagePainter(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(imagePathFromDatabase)
-                    .size(Size.ORIGINAL) // Set the target size to load the image at.
+                    .size(Size.ORIGINAL)
                     .build()
             )
             Card(modifier = Modifier

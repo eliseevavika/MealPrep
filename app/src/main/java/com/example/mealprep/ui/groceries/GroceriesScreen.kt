@@ -123,7 +123,6 @@ fun GroceriesScreen(
                                         }
                                     }
                                 }
-
                             }
                         }
                         if (expand) {

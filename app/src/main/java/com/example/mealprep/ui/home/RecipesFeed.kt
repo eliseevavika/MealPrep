@@ -80,7 +80,7 @@ fun MenuDish(
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imagePathFromDatabase)
-            .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
+            .size(coil.size.Size.ORIGINAL)
             .build()
     )
     Card(modifier = Modifier

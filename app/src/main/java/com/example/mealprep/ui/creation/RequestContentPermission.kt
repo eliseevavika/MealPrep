@@ -39,7 +39,6 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
 
     val context = LocalContext.current
 
-
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -51,7 +50,6 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
             .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
             .build()
     )
-
 
     Box {
         if (imageUri != null) {
@@ -79,7 +77,6 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
                         contentScale = ContentScale.Crop
                     )
                 }
-
                 IconButton(modifier = Modifier
                     .constrainAs(remove) {
                         bottom.linkTo(photo.bottom, margin = 16.dp)
@@ -142,7 +139,6 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
         }
     }
 }
-//}
 
 @Composable
 private fun ShowNoImage(launcher: ManagedActivityResultLauncher<String, Uri?>) {
