@@ -25,6 +25,9 @@ import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.*
+import com.example.mealprep.authentication.ForgotPasswordScreen
+import com.example.mealprep.authentication.LoginScreen
+import com.example.mealprep.authentication.LoginScreenViewModel
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
@@ -34,18 +37,25 @@ import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecifi
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import java.lang.reflect.Field
 
 
 class MainActivity : ComponentActivity() {
 
-    lateinit var viewModal: RecipeViewModel
+    lateinit var viewModel: RecipeViewModel
+    lateinit var authViewModel: LoginScreenViewModel
+    private lateinit var auth: FirebaseAuth
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = Firebase.auth
+
         setContent {
             MealPrepTheme {
                 try {
@@ -57,41 +67,45 @@ class MainActivity : ComponentActivity() {
                     e.printStackTrace()
                 }
 
-                viewModal = ViewModelProvider(
+                viewModel = ViewModelProvider(
                     this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 ).get(RecipeViewModel::class.java)
 
+                authViewModel = ViewModelProvider(
+                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+                ).get(LoginScreenViewModel::class.java)
+
                 val navController = rememberNavController()
 
-                val recipesForSunday by viewModal.recipesForSunday.collectAsState(listOf())
+                val recipesForSunday by viewModel.recipesForSunday.collectAsState(listOf())
 
                 val recipesForMonday by
-                viewModal.recipesForMonday.collectAsState(
+                viewModel.recipesForMonday.collectAsState(
                     listOf()
                 )
 
                 val recipesForTuesday by
-                viewModal.recipesForTuesday.collectAsState(
+                viewModel.recipesForTuesday.collectAsState(
                     listOf()
                 )
 
                 val recipesForWednesday by
-                viewModal.recipesForWednesday.collectAsState(
+                viewModel.recipesForWednesday.collectAsState(
                     listOf()
                 )
 
                 val recipesForThursday by
-                viewModal.recipesForThursday.collectAsState(
+                viewModel.recipesForThursday.collectAsState(
                     listOf()
                 )
 
                 val recipesForFriday by
-                viewModal.recipesForFriday.collectAsState(
+                viewModel.recipesForFriday.collectAsState(
                     listOf()
                 )
 
                 val recipesForSaturday by
-                viewModal.recipesForSaturday.collectAsState(
+                viewModel.recipesForSaturday.collectAsState(
                     listOf()
                 )
 
@@ -116,12 +130,21 @@ class MainActivity : ComponentActivity() {
                         content = { padding ->
                             Box(modifier = Modifier.padding(padding)) {
                                 NavHost(
-                                    navController = navController, startDestination = Home.route
+                                    navController = navController,
+                                    startDestination = if (authViewModel.isUserAuthenticated.value) Home.route else LoginScreen.route
                                 ) {
+                                    composable(LoginScreen.route) {
+                                        LoginScreen(authViewModel, navController)
+                                    }
+
+                                    composable(ForgotPasswordScreen.route) {
+                                        ForgotPasswordScreen(authViewModel)
+                                    }
+
                                     composable(Home.route) {
                                         HomeScreen({ navController },
                                             { scope },
-                                            { modalBottomSheetState }) { viewModal }
+                                            { modalBottomSheetState }) { viewModel }
                                     }
 
                                     composable(MealPrep.route) {
@@ -132,16 +155,16 @@ class MainActivity : ComponentActivity() {
                                             recipesForThursday,
                                             recipesForFriday,
                                             recipesForSaturday,
-                                            { navController }) { viewModal }
+                                            { navController }) { viewModel }
                                     }
 
                                     composable(Groceries.route) {
-                                        GroceriesScreen({ navController }) { viewModal }
+                                        GroceriesScreen({ navController }) { viewModel }
 
                                     }
 
                                     composable(Settings.route) {
-                                        SettingsScreen({ navController }) { viewModal }
+                                        SettingsScreen({ navController }) { viewModel }
                                     }
 
                                     composable(
@@ -155,7 +178,7 @@ class MainActivity : ComponentActivity() {
                                                 DishDetails.argDishId
                                             )
                                         ) { "Dish id is null" }
-                                        DishDetails(id, { navController }) { viewModal }
+                                        DishDetails(id, { navController }) { viewModel }
                                     }
 
                                     composable(
@@ -174,17 +197,17 @@ class MainActivity : ComponentActivity() {
 
                                         MealPrepForSpecificDay(
                                             dayId,
-                                            { navController }) { viewModal }
+                                            { navController }) { viewModel }
                                     }
 
                                     composable(GroceriesAddition.route) {
-                                        GroceriesAdditionScreen({ navController }) { viewModal }
+                                        GroceriesAdditionScreen({ navController }) { viewModel }
                                     }
 
                                     composable(RecipeCreation.route) {
                                         RecipeCreationScreen(
                                             { navController },
-                                        ) { viewModal }
+                                        ) { viewModel }
                                     }
                                 }
 

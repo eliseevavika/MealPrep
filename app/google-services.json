@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "876694761799",
+    "project_id": "sliceup-bbbb7",
+    "storage_bucket": "sliceup-bbbb7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876694761799:android:dbea496800a7cdb2349c62",
+        "android_client_info": {
+          "package_name": "com.example.meaprep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "876694761799-1fp87b8p4qie73v5b1cukt9vc8siatl7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.meaprep",
+            "certificate_hash": "98c40c5fc1f565852aa16ebf4965ae8e2760432b"
+          }
+        },
+        {
+          "client_id": "876694761799-qsdked37mj4id8hoh1b1j4f3ggv8na04.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXZKpU-S_5oqN52Di3z0HOf0ofvkfMiNs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "876694761799-qsdked37mj4id8hoh1b1j4f3ggv8na04.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

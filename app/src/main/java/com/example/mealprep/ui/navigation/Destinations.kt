@@ -9,6 +9,14 @@ object Home : Destinations {
     override val route = "home"
 }
 
+object LoginScreen : Destinations {
+    override val route = "login"
+}
+
+object ForgotPasswordScreen : Destinations {
+    override val route = "forgotpasswordscreen"
+}
+
 object MealPrep : Destinations {
     override val route = "mealprep"
 }
