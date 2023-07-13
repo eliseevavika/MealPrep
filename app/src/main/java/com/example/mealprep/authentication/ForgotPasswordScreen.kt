@@ -1,23 +1,24 @@
 package com.example.mealprep.authentication
 
-import android.widget.Toast
+import android.app.AlertDialog
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.example.mealprep.BackIcon
+import com.example.mealprep.ui.theme.MealPrepColor
 
 @Composable
 fun ForgotPasswordScreen(
-    viewModel: LoginScreenViewModel
-//    navigateBack: () -> Unit
+    viewModel: LoginScreenViewModel,
+    navigateBack: () -> Unit
 ) {
     val context = LocalContext.current
 
     Scaffold(
         topBar = {
             ForgotPasswordTopBar(
-//                navigateBack = navigateBack
+                navigateBack = navigateBack
             )
         },
         content = { padding ->
@@ -25,19 +26,23 @@ fun ForgotPasswordScreen(
                 padding = padding,
                 sendPasswordResetEmail = { email ->
                     viewModel.sendPasswordResetEmail(email, onEmailSentMessage = {
-                        Toast.makeText(
-                            context,
-                            "You will receive an email shortly. Please follow the instructions to reset your password.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        AlertDialog.Builder(context)
+                            .setMessage("You will receive an email shortly. Please follow the instructions to reset your password.")
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                                navigateBack()
+                            }
+                            .show()
                     }, onError =
                     {
-                        Toast.makeText(
-                            context,
-                            "Failed to send password reset email.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    })
+                        AlertDialog.Builder(context)
+                            .setMessage(it)
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    }
+                    )
                 }
             )
         }
@@ -46,18 +51,17 @@ fun ForgotPasswordScreen(
 
 @Composable
 fun ForgotPasswordTopBar(
-//    navigateBack: () -> Unit
+    navigateBack: () -> Unit
 ) {
     TopAppBar(
         title = {
-            Text(
-                text = "Forgot password screen"
-            )
         },
+        backgroundColor = MealPrepColor.transparent,
+        contentColor = MealPrepColor.black,
         navigationIcon = {
-//            BackIcon(
-//                navigateBack = navigateBack
-//            )
+            BackIcon(
+                navigateBack = navigateBack
+            )
         }
     )
 }

@@ -28,6 +28,7 @@ import com.example.mealprep.*
 import com.example.mealprep.authentication.ForgotPasswordScreen
 import com.example.mealprep.authentication.LoginScreen
 import com.example.mealprep.authentication.LoginScreenViewModel
+import com.example.mealprep.authentication.SignUpScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
@@ -138,7 +139,13 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(ForgotPasswordScreen.route) {
-                                        ForgotPasswordScreen(authViewModel)
+                                        ForgotPasswordScreen(authViewModel) {
+                                            navController.popBackStack()
+                                        }
+                                    }
+
+                                    composable(SignUpScreen.route) {
+                                        SignUpScreen(authViewModel, auth) { navController.popBackStack() }
                                     }
 
                                     composable(Home.route) {

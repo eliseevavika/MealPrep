@@ -1,9 +1,7 @@
 package com.example.mealprep.authentication
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,8 +10,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.ui.theme.fontFamilyForBodyB1
+import com.example.mealprep.ui.theme.fontFamilyForBodyB2
 
 @Composable
 fun ForgotPasswordContent(
@@ -34,32 +36,58 @@ fun ForgotPasswordContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding),
-        verticalArrangement = Arrangement.Center,
+            .padding(top = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Text(
+            text = "RECOVER PASSWORD", fontFamily = fontFamilyForBodyB1,
+            fontSize = 20.sp, textAlign = TextAlign.Start
+        )
 
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
+        Text(
+            text = "We will send you an email with instructions to recover it.",
+            fontFamily = fontFamilyForBodyB2,
+            fontSize = 14.sp
+        )
+
+        Spacer(modifier = Modifier.padding(3.dp))
+
+        TextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp),
             value = email,
             label = {
                 Text(text = "Email")
             },
             onValueChange = {
                 email = it
-            }
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = MealPrepColor.transparent,
+                cursorColor = MealPrepColor.black,
+                focusedIndicatorColor = MealPrepColor.black,
+                unfocusedIndicatorColor = MealPrepColor.black,
+                focusedLabelColor = MealPrepColor.grey_800,
+                unfocusedLabelColor = MealPrepColor.grey_800
+            ),
         )
 
-        Spacer(modifier = Modifier.padding(18.dp))
+        Spacer(modifier = Modifier.padding(3.dp))
+
         Button(
+            modifier = Modifier
+                .fillMaxWidth(0.9F)
+                .height(50.dp),
+            enabled = email.text.isNotEmpty(),
+            content = {
+                Text(text = "RECOVER PASSWORD", color = MealPrepColor.white)
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.orange),
             onClick = {
                 sendPasswordResetEmail(email.text.trim())
             }
-        ) {
-            Text(
-                text = "Reset password",
-                fontSize = 15.sp
-            )
-        }
+        )
     }
 }

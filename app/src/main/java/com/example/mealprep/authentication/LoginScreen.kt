@@ -3,24 +3,33 @@ package com.example.mealprep.authentication
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.mealprep.ui.theme.MealPrepColor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
@@ -36,6 +45,10 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
 
     val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.loadingState.collectAsState()
+
+    var passwordIsVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     // Equivalent of onActivityResult
     val launcher =
@@ -90,8 +103,18 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                 verticalArrangement = Arrangement.spacedBy(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = {
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MealPrepColor.transparent),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = MealPrepColor.transparent,
+                            cursorColor = MealPrepColor.black,
+                            focusedIndicatorColor = MealPrepColor.black,
+                            unfocusedIndicatorColor = MealPrepColor.black,
+                            focusedLabelColor = MealPrepColor.grey_800,
+                            unfocusedLabelColor = MealPrepColor.grey_800
+                        ),
                         value = userEmail,
                         label = {
                             Text(text = "Email")
@@ -101,17 +124,57 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                         }
                     )
 
-                    OutlinedTextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        visualTransformation = PasswordVisualTransformation(),
+                    val focusRequester = FocusRequester()
+
+                    TextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MealPrepColor.transparent)
+                            .focusRequester(focusRequester),
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = MealPrepColor.transparent,
+                            cursorColor = MealPrepColor.black,
+                            focusedIndicatorColor = MealPrepColor.black,
+                            unfocusedIndicatorColor = MealPrepColor.black,
+                            focusedLabelColor = MealPrepColor.grey_800,
+                            unfocusedLabelColor = MealPrepColor.grey_800
+                        ),
+                        singleLine = true,
                         value = userPassword,
                         label = {
                             Text(text = "Password")
                         },
                         onValueChange = {
                             userPassword = it
+                        },
+                        visualTransformation = if (passwordIsVisible) {
+                            VisualTransformation.None
+                        } else {
+                            PasswordVisualTransformation()
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password
+                        ),
+                        trailingIcon = {
+                            val icon = if (passwordIsVisible) {
+                                Icons.Filled.Visibility
+                            } else {
+                                Icons.Filled.VisibilityOff
+                            }
+                            IconButton(
+                                onClick = {
+                                    passwordIsVisible = !passwordIsVisible
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = icon,
+                                    contentDescription = null
+                                )
+                            }
                         }
                     )
+
+                    Spacer(modifier = Modifier.padding(3.dp))
 
                     Button(
                         modifier = Modifier
@@ -119,12 +182,22 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                             .height(50.dp),
                         enabled = userEmail.isNotEmpty() && userPassword.isNotEmpty(),
                         content = {
-                            Text(text = "LOG IN")
+                            Text(text = "LOG IN", color = MealPrepColor.white)
                         },
+                        colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.orange),
                         onClick = {
                             viewModel.signInWithEmailAndPassword(
                                 userEmail.trim(),
-                                userPassword.trim()
+                                userPassword.trim(),
+                                onError = {
+                                    android.app.AlertDialog.Builder(context)
+                                        .setMessage(it)
+                                        .setPositiveButton("OK") { dialog, _ ->
+                                            // Handle button click
+                                            dialog.dismiss()
+                                        }
+                                        .show()
+                                }
                             )
                         }
                     )
@@ -132,7 +205,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                     ClickableText(
                         modifier = Modifier.fillMaxWidth(),
                         style = MaterialTheme.typography.caption,
-
                         text = AnnotatedString("Forgot your password?"),
                         onClick = {
                             navController.navigate(com.example.mealprep.ui.navigation.ForgotPasswordScreen.route)
@@ -190,15 +262,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                         }
                     )
 
-                    when (state.status) {
-                        LoadingState.Status.SUCCESS -> {
-                            Text(text = "Success")
-                        }
-                        LoadingState.Status.FAILED -> {
-                            Text(text = state.msg ?: "Error")
-                        }
-                        else -> {}
-                    }
                     Spacer(modifier = Modifier.padding(vertical = 18.dp))
 
                     Text(
@@ -214,7 +277,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                             .fillMaxWidth()
                             .height(50.dp),
                         onClick = {
-
+                            navController.navigate(com.example.mealprep.ui.navigation.SignUpScreen.route)
                         },
                         content = {
                             Row(
@@ -222,7 +285,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically,
                                 content = {
-
                                     Text(
                                         color = MaterialTheme.colors.onSurface,
                                         text = "REGISTER"
