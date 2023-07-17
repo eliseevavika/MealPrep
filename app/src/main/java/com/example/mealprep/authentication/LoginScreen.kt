@@ -12,8 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MailOutline
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ExitToApp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,12 +32,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
 
 @Composable
 fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostController) {
-
     var userEmail by remember { mutableStateOf("") }
     var userPassword by remember { mutableStateOf("") }
 
@@ -71,24 +66,8 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                     backgroundColor = Color.White,
                     elevation = 1.dp,
                     title = {
-                        Text(text = "Login")
+                        Text(text = "Login", textAlign = TextAlign.Center)
                     },
-                    navigationIcon = {
-                        IconButton(onClick = { /*TODO*/ }) {
-                            Icon(
-                                imageVector = Icons.Rounded.ArrowBack,
-                                contentDescription = null,
-                            )
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { Firebase.auth.signOut() }) {
-                            Icon(
-                                imageVector = Icons.Rounded.ExitToApp,
-                                contentDescription = null,
-                            )
-                        }
-                    }
                 )
                 if (state.status == LoadingState.Status.RUNNING) {
                     LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
@@ -218,8 +197,6 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                         style = MaterialTheme.typography.caption,
                         text = "Login with:"
                     )
-
-                    val context = LocalContext.current
 
                     OutlinedButton(
                         border = ButtonDefaults.outlinedBorder.copy(width = 1.dp),

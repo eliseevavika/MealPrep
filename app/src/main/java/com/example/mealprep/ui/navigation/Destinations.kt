@@ -21,6 +21,10 @@ object SignUpScreen : Destinations {
     override val route = "signupscreen"
 }
 
+object VerifyEmailScreen : Destinations {
+    override val route = "verifyemailscreen"
+}
+
 object MealPrep : Destinations {
     override val route = "mealprep"
 }

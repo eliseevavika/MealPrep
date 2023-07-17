@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -25,19 +26,16 @@ import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.*
-import com.example.mealprep.authentication.ForgotPasswordScreen
-import com.example.mealprep.authentication.LoginScreen
-import com.example.mealprep.authentication.LoginScreenViewModel
-import com.example.mealprep.authentication.SignUpScreen
+import com.example.mealprep.authentication.*
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
-import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
+import com.example.mealprep.viewmodel.RecipeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -117,7 +115,6 @@ class MainActivity : ComponentActivity() {
                 BackHandler(modalBottomSheetState.isVisible) {
                     scope.launch { modalBottomSheetState.hide() }
                 }
-
                 ModalBottomSheetLayout(
                     sheetContent = {
                         BottomSheetContent({ navController }, scope, modalBottomSheetState)
@@ -132,7 +129,9 @@ class MainActivity : ComponentActivity() {
                             Box(modifier = Modifier.padding(padding)) {
                                 NavHost(
                                     navController = navController,
-                                    startDestination = if (authViewModel.isUserAuthenticated.value) Home.route else LoginScreen.route
+                                    startDestination = getStartDestination(
+                                        authViewModel
+                                    )
                                 ) {
                                     composable(LoginScreen.route) {
                                         LoginScreen(authViewModel, navController)
@@ -145,7 +144,16 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(SignUpScreen.route) {
-                                        SignUpScreen(authViewModel, auth) { navController.popBackStack() }
+                                        SignUpScreen(
+                                            authViewModel,
+                                            auth
+                                        ) { navController.popBackStack() }
+                                    }
+                                    composable(VerifyEmailScreen.route) {
+                                        VerifyEmailScreen(
+                                            authViewModel,
+                                            auth
+                                        ) { navController.navigate(Home.route) }
                                     }
 
                                     composable(Home.route) {
@@ -224,6 +232,24 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun getStartDestination(
+    authViewModel: LoginScreenViewModel
+): String {
+    val isUserSignedOut = authViewModel.getAuthState().collectAsState().value
+    val isUserVerified = authViewModel.isEmailVerified
+
+    if (isUserSignedOut) {
+        return LoginScreen.route
+    } else {
+        if (isUserVerified) {
+            return Home.route
+        } else {
+            return VerifyEmailScreen.route
         }
     }
 }

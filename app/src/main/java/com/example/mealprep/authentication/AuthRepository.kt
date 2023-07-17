@@ -1,26 +1,49 @@
 package com.example.mealprep.authentication
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 
-class AuthRepository {
-    suspend fun signUpWithEmailAndPassword(email: String, password: String): SignUpResult {
+class AuthRepository(private val auth: FirebaseAuth) {
+    val currentUser get() = auth.currentUser
+
+    suspend fun signUpWithEmailAndPassword(email: String, password: String): Result<Unit> {
         return try {
-            FirebaseAuth.getInstance().createUserWithEmailAndPassword(email, password).await()
-            SignUpResult.Success(Unit)
+            auth.createUserWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
         } catch (e: Exception) {
-            SignUpResult.Error(e)
+            Result.failure(e)
         }
     }
 
-    suspend fun sendEmailVerification(): Boolean {
+    suspend fun sendEmailVerification() =
         try {
-            Firebase.auth.currentUser?.sendEmailVerification()?.await()
-            return true
+            auth.currentUser?.sendEmailVerification()?.await()
+            Result.success(Unit)
         } catch (e: Exception) {
-            return false
+            Result.failure(e)
+        }
+
+    suspend fun reloadFirebaseUser(): Response<Boolean> {
+        return try {
+            auth.currentUser?.reload()?.await()
+            Response.Success(true)
+        } catch (e: Exception) {
+            Response.Failure(e)
         }
     }
+
+    fun getAuthState(viewModelScope: CoroutineScope) = callbackFlow {
+        val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser == null)
+        }
+        auth.addAuthStateListener(authStateListener)
+        awaitClose {
+            auth.removeAuthStateListener(authStateListener)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), auth.currentUser == null)
 }

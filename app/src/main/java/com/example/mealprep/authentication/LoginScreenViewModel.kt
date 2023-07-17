@@ -1,6 +1,5 @@
 package com.example.mealprep.authentication
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,15 +19,29 @@ class LoginScreenViewModel : ViewModel() {
     private val authRepository: AuthRepository
 
     val loadingState = MutableStateFlow(LoadingState.IDLE)
-    val isUserAuthenticated: MutableState<Boolean> = mutableStateOf(false)
-    private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-        checkUserAuthentication()
-    }
+    var isUserAuthenticated: StateFlow<Boolean> = MutableStateFlow(false)
+
+    var reloadUserResponse by mutableStateOf<Response<Boolean>>(Response.Success(false))
+        private set
 
     init {
-        FirebaseAuth.getInstance().addAuthStateListener(authStateListener)
-        authRepository = AuthRepository()
+        val auth = FirebaseAuth.getInstance()
+        authRepository = AuthRepository(auth)
+        isUserAuthenticated = getAuthState()
     }
+
+    fun getAuthState(): StateFlow<Boolean> = authRepository.getAuthState(viewModelScope)
+
+    fun reloadUser() = viewModelScope.launch {
+        try {
+            reloadUserResponse = Response.Loading
+            reloadUserResponse = authRepository.reloadFirebaseUser()
+        } catch (e: Exception) {
+            Result.failure<Exception>(e)
+        }
+    }
+
+    val isEmailVerified get() = authRepository.currentUser?.isEmailVerified ?: false
 
     fun signInWithEmailAndPassword(email: String, password: String, onError: (String) -> Unit) =
         viewModelScope.launch {
@@ -56,22 +69,31 @@ class LoginScreenViewModel : ViewModel() {
 
     val signUpResult: StateFlow<SignUpResult> = _signUpResult.asStateFlow()
 
-    fun signUp(email: String, password: String) {
+    private val _signUpResultForVerification = MutableStateFlow<SignUpResult>(SignUpResult.Initial)
+
+    fun signUp(
+        email: String,
+        password: String,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
         viewModelScope.launch {
-            _signUpResult.value = SignUpResult.Loading
-            val result = authRepository.signUpWithEmailAndPassword(email, password)
-            _signUpResult.value = result
+            var result = authRepository.signUpWithEmailAndPassword(email, password)
+            if (result.isSuccess) {
+                onSuccess("An email has been sent to your address. Please check your inbox to verify your account.")
+            } else if (result.isFailure) {
+                val errorMessage = when (result.exceptionOrNull()) {
+                    is FirebaseAuthUserCollisionException -> "The email address is already in use by another account."
+                    is FirebaseAuthInvalidCredentialsException -> "Invalid email or password format."
+                    else -> "An error occurred during sign-up. Please try again later."
+                }
+                onError(errorMessage)
+            }
         }
     }
 
     fun sendEmailVerification() = viewModelScope.launch {
-        sendEmailVerificationResponse = authRepository.sendEmailVerification()
-    }
-
-
-    fun checkUserAuthentication() {
-        val currentUser = FirebaseAuth.getInstance().currentUser
-        isUserAuthenticated.value = currentUser != null
+        sendEmailVerificationResponse = authRepository.sendEmailVerification().isSuccess
     }
 
     fun sendPasswordResetEmail(

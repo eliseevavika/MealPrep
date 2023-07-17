@@ -1,7 +1,5 @@
 package com.example.mealprep.authentication
 
-import android.widget.Toast.LENGTH_LONG
-import android.widget.Toast.makeText
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -47,12 +45,8 @@ fun SignUpScreen(
         },
         content = { padding ->
             SignUpContent(
+                viewModel,
                 padding = padding,
-                signUp = { email, password ->
-                    viewModel.signUp(
-                        email, password
-                    )
-                },
                 navigateBack = navigateBack
             )
         }
@@ -63,24 +57,20 @@ fun SignUpScreen(
         sendEmailVerification = {
             viewModel.sendEmailVerification()
         },
-        showVerifyEmailMessage = {
-            makeText(context, "VERIFY EMAIL MESSAGE", LENGTH_LONG).show()
-        },
         errorMessage = { error ->
-            makeText(context, error, LENGTH_LONG).show()
-        }
-    )
-
-//    SendEmailVerification(viewModel)
-    viewModel.sendEmailVerificationResponse
-
+            android.app.AlertDialog.Builder(context)
+                .setMessage(error)
+                .setPositiveButton("OK") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        })
 }
 
 @Composable
 fun SignUp(
     viewModel: LoginScreenViewModel,
-    sendEmailVerification: () -> Unit,
-    showVerifyEmailMessage: () -> Unit,
+    sendEmailVerification: (String) -> Unit,
     errorMessage: (String) -> Unit
 ) {
     val signUpResponse = viewModel.signUpResult.collectAsState().value
@@ -91,8 +81,7 @@ fun SignUp(
         is SignUpResult.Loading -> {
         }
         is SignUpResult.Success -> {
-            sendEmailVerification()
-            showVerifyEmailMessage()
+            sendEmailVerification("An email has been sent to your address. Please check your inbox to verify your account.")
         }
         is SignUpResult.Error -> {
             val exception = signUpResponse.exception
@@ -105,8 +94,8 @@ fun SignUp(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SignUpContent(
+    viewModel: LoginScreenViewModel,
     padding: PaddingValues,
-    signUp: (email: String, password: String) -> Unit,
     navigateBack: () -> Unit
 ) {
     var email by rememberSaveable(
@@ -129,6 +118,8 @@ fun SignUpContent(
             )
         }
     )
+    val context = LocalContext.current
+
     val keyboard = LocalSoftwareKeyboardController.current
 
     Column(
@@ -170,7 +161,26 @@ fun SignUpContent(
             colors = ButtonDefaults.buttonColors(backgroundColor = MealPrepColor.orange),
             onClick = {
                 keyboard?.hide()
-                signUp(email.text, password.text)
+                viewModel.signUp(
+                    email.text, password.text,
+                    onSuccess = {
+                       viewModel.sendEmailVerification()
+                        android.app.AlertDialog.Builder(context)
+                            .setMessage(it)
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+
+                    },
+                    onError = {
+                        android.app.AlertDialog.Builder(context)
+                            .setMessage(it)
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }
+                            .show()
+                    })
             }
         )
         Spacer(modifier = Modifier.padding(18.dp))
