@@ -4,16 +4,9 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
-import com.example.mealprep.data.model.Groceries
-import com.example.mealprep.data.model.Steps
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
-
-@Entity(tableName = "user")
-data class UserRoom(
-    @PrimaryKey(autoGenerate = true) val id: Int, val email: String, val password: String
-)
 
 @Entity(tableName = "recipe")
 data class Recipe(
@@ -24,7 +17,7 @@ data class Recipe(
     @ColumnInfo(name = "cook_time") val cook_time: Int?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
-    @ColumnInfo(name = "user_id") val user_id: Int = 1,
+    @ColumnInfo(name = "user_uid") val user_uid: String,
     @ColumnInfo(name = "category") val category: String?,
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
@@ -42,7 +35,8 @@ data class Ingredient(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     var name: String,
     var completed: Boolean = false,
-    val recipe_id: Long?
+    val recipe_id: Long?,
+    @ColumnInfo(name = "user_uid") val user_uid: String,
 )
 
 @Entity(tableName = "recipewithmealplan", primaryKeys = ["recipe_id", "mealplan_id"])
@@ -57,12 +51,6 @@ data class Step(
     val description: String,
     val recipe_id: Long
 )
-
-@Dao
-interface UserDao {
-    @Query("SELECT * FROM User")
-    fun getAll(): LiveData<List<UserRoom>>
-}
 
 @Dao
 interface RecipeDao {
@@ -80,7 +68,10 @@ interface RecipeDao {
 
     @Transaction
     suspend fun insertRecipeIngredientAndStepTransaction(
-        recipe: Recipe, ingredients: List<Groceries>?, steps: List<Steps>?
+        recipe: Recipe,
+        ingredients: List<com.example.mealprep.data.model.Groceries>?,
+        steps: List<com.example.mealprep.data.model.Steps>?,
+        currentUserUID: String
     ) {
         // Anything inside this method runs in a single transaction.
         val listIngredients = mutableListOf<Ingredient>()
@@ -91,7 +82,7 @@ interface RecipeDao {
 
         ingredients?.forEach { ingredient ->
             val item = Ingredient(
-                name = ingredient.name, completed = false, recipe_id = recipeId
+                name = ingredient.name, completed = false, recipe_id = recipeId, user_uid = currentUserUID
             )
             listIngredients.add(item)
         }
@@ -106,12 +97,11 @@ interface RecipeDao {
         insertSteps(listSteps)
     }
 
-
     @Delete
     suspend fun delete(recipe: Recipe)
 
-    @Query("SELECT * FROM Recipe")
-    fun getAllRecipes(): LiveData<List<Recipe>>
+    @Query("SELECT * FROM Recipe WHERE user_uid = :uid")
+    fun getAllRecipes(uid: String): LiveData<List<Recipe>>
 
     @Query("SELECT * FROM Recipe WHERE recipe_id = :id")
     fun getRecipeById(id: Long): Recipe
@@ -147,16 +137,16 @@ interface RecipeDao {
     }
 
     @Transaction
-    @Query("SELECT Recipe.*  FROM Recipe JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id WHERE recipewithmealplan.mealplan_id = :dayId")
-    fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>>
+    @Query("SELECT Recipe.*  FROM Recipe JOIN recipewithmealplan ON Recipe.recipe_id = recipewithmealplan.recipe_id WHERE recipewithmealplan.mealplan_id = :dayId AND Recipe.user_uid = :currentUserUID")
+    fun getRecipesForTheDay(dayId: Int, currentUserUID: String?): Flow<List<Recipe>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id WHERE NOT Ingredient.completed UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed")
-    fun getAllIngredientsFromMealPlansNotCompleted(): LiveData<List<Ingredient>>
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND user_uid = :currentUserUID")
+    fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id WHERE Ingredient.completed UNION SELECT * FROM Ingredient WHERE completed")
-    fun getAllCompletedIngredients(): LiveData<List<Ingredient>>
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID")
+    fun getAllCompletedIngredients(currentUserUID: String): LiveData<List<Ingredient>>
 
     @Transaction
     @Update
@@ -196,7 +186,7 @@ interface RecipeWithMealPlanDao {
 }
 
 @Database(
-    entities = [UserRoom::class, Recipe::class, Ingredient::class, Step::class, RecipeWithMealPlan::class],
+    entities = [Recipe::class, Ingredient::class, Step::class, RecipeWithMealPlan::class],
     version = 3,
     exportSchema = false
 )
@@ -239,8 +229,6 @@ class Converters {
     fun fromDate(date: Date?): Long? {
         return date?.time
     }
-
-
 }
 
 

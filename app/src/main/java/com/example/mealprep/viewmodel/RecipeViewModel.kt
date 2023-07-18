@@ -10,6 +10,8 @@ import com.example.mealprep.*
 import com.example.mealprep.data.RecipeRepository
 import com.example.mealprep.data.model.Groceries
 import com.example.mealprep.data.model.Steps
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -19,10 +21,11 @@ import java.util.*
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
 
     private val recipeRepository: RecipeRepository
+    private val currentUserUID: String
 
-    var allRecipes: LiveData<List<Recipe>> = MutableLiveData(listOf())
+    var allRecipes: LiveData<List<Recipe>>
 
-    val recipesForSunday: Flow<List<Recipe>>
+    var recipesForSunday: Flow<List<Recipe>>
     var recipesForMonday: Flow<List<Recipe>>
     var recipesForTuesday: Flow<List<Recipe>>
     var recipesForWednesday: Flow<List<Recipe>>
@@ -44,6 +47,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
         recipeRepository = RecipeRepository(recipeDao)
+        currentUserUID = recipeRepository.currentUserUID
 
         allRecipes = recipeRepository.allRecipes
 
@@ -115,6 +119,30 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     val listExtraGroceries: MutableLiveData<List<Ingredient>?>
         get() = _listExtraGroceries
 
+    fun refreshDataHomeForCurrentUser() {
+        recipeRepository.refreshDataForHome()
+        allRecipes = recipeRepository.allRecipes
+    }
+
+    fun refreshDataMealPrepForCurrentUser() {
+        recipeRepository.refreshDataForMealPrep()
+
+        recipesForSunday = recipeRepository.recipesForSunday
+        recipesForMonday = recipeRepository.recipesForMonday
+        recipesForTuesday = recipeRepository.recipesForTuesday
+        recipesForWednesday = recipeRepository.recipesForWednesday
+        recipesForThursday = recipeRepository.recipesForThursday
+        recipesForFriday = recipeRepository.recipesForFriday
+        recipesForSaturday = recipeRepository.recipesForSaturday
+    }
+
+    fun refreshDataGroceriesForCurrentUser() {
+        recipeRepository.refreshDataForGroceries()
+
+        ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+        completedIngredients = recipeRepository.completedIngredients
+    }
+
     fun performQueryIngredients(
         ingredientName: String
     ) {
@@ -170,7 +198,10 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     ) {
         if (ingredientName.isNotEmpty()) {
             val ingredient = Ingredient(
-                name = ingredientName, completed = false, recipe_id = null
+                name = ingredientName,
+                completed = false,
+                recipe_id = null,
+                user_uid = currentUserUID
             )
             _listExtraGroceries.value =
                 _listExtraGroceries.value?.plus(ingredient) ?: listOf(ingredient)
@@ -299,11 +330,16 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             cook_time = _cook_time.value,
             serves = if (_serves.value == "") 0 else _serves.value.toInt(),
             source = _source.value,
-            user_id = 1,
+            user_uid = getUserUid(),
             category = _category.value,
             creation_date = Calendar.getInstance().time
         )
         addRecipe(recipe)
+    }
+
+    fun getUserUid(): String {
+        val user = Firebase.auth.currentUser
+        return user?.uid ?: "0"
     }
 
     fun addNewMealPlan() {
@@ -329,7 +365,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
         recipeRepository.insertRecipeIngredientAndStepTransaction(
-            recipe, _listIngredients.value, _listSteps.value
+            recipe, _listIngredients.value, _listSteps.value, currentUserUID
         )
         emptyLiveData()
     }

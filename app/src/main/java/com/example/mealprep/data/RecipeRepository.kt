@@ -4,16 +4,25 @@ import androidx.lifecycle.LiveData
 import com.example.mealprep.*
 import com.example.mealprep.data.model.Groceries
 import com.example.mealprep.data.model.Steps
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 
 class RecipeRepository(private val recipeDao: RecipeDao) {
-    private val cache: MutableMap<Int, Flow<List<Recipe>>> = mutableMapOf()
+    var currentUserUID: String = Firebase.auth.currentUser?.uid.toString()
+
     suspend fun insertRecipeIngredientAndStepTransaction(
         recipe: Recipe,
         listIngredients: List<Groceries>?,
-        listSteps: List<Steps>?
+        listSteps: List<Steps>?,
+        currentUserUID: String
     ) {
-        recipeDao.insertRecipeIngredientAndStepTransaction(recipe, listIngredients, listSteps)
+        recipeDao.insertRecipeIngredientAndStepTransaction(
+            recipe,
+            listIngredients,
+            listSteps,
+            currentUserUID
+        )
     }
 
     fun getRecipeById(id: Long): Recipe {
@@ -48,35 +57,58 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         recipeDao.insertIngredient(ingredient)
     }
 
-    val allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes()
+    var allRecipes: LiveData<List<Recipe>> = recipeDao.getAllRecipes(currentUserUID)
 
-    val recipesForSunday: Flow<List<Recipe>> = getRecipesForTheDay(0)
+    var recipesForSunday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(0, currentUserUID)
 
-    val recipesForMonday: Flow<List<Recipe>> = getRecipesForTheDay(1)
+    var recipesForMonday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(1, currentUserUID)
 
-    val recipesForTuesday: Flow<List<Recipe>> = getRecipesForTheDay(2)
+    var recipesForTuesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(2, currentUserUID)
 
-    val recipesForWednesday: Flow<List<Recipe>> = getRecipesForTheDay(3)
+    var recipesForWednesday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(3, currentUserUID)
 
-    val recipesForThursday: Flow<List<Recipe>> = getRecipesForTheDay(4)
+    var recipesForThursday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(4, currentUserUID)
 
-    val recipesForFriday: Flow<List<Recipe>> = getRecipesForTheDay(5)
+    var recipesForFriday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(5, currentUserUID)
 
-    val recipesForSaturday: Flow<List<Recipe>> = getRecipesForTheDay(6)
+    var recipesForSaturday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(6, currentUserUID)
 
-    val ingredientsFromMealPlans: LiveData<List<Ingredient>> =
-        recipeDao.getAllIngredientsFromMealPlansNotCompleted()
+    var ingredientsFromMealPlans: LiveData<List<Ingredient>> =
+        recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
-    val completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients()
+    var completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients(
+        currentUserUID
+    )
 
-    private fun getRecipesForTheDay(dayId: Int): Flow<List<Recipe>> {
-        val cachedData = cache[dayId]
-        if (cachedData != null) {
-            return cachedData
-        }
-        val newData = recipeDao.getRecipesForTheDay(dayId)
-        cache[dayId] = newData
+    fun refreshDataForHome() {
+        currentUserUID = Firebase.auth.currentUser?.uid.toString()
+        allRecipes = recipeDao.getAllRecipes(currentUserUID)
+    }
 
-        return newData
+    fun refreshDataForMealPrep() {
+        currentUserUID = Firebase.auth.currentUser?.uid.toString()
+
+        recipesForSunday = recipeDao.getRecipesForTheDay(0, currentUserUID)
+
+        recipesForMonday = recipeDao.getRecipesForTheDay(1, currentUserUID)
+
+        recipesForTuesday = recipeDao.getRecipesForTheDay(2, currentUserUID)
+
+        recipesForWednesday = recipeDao.getRecipesForTheDay(3, currentUserUID)
+
+        recipesForThursday = recipeDao.getRecipesForTheDay(4, currentUserUID)
+
+        recipesForFriday = recipeDao.getRecipesForTheDay(5, currentUserUID)
+
+        recipesForSaturday = recipeDao.getRecipesForTheDay(6, currentUserUID)
+    }
+
+    fun refreshDataForGroceries() {
+        currentUserUID = Firebase.auth.currentUser?.uid.toString()
+
+        ingredientsFromMealPlans =
+            recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
+
+        completedIngredients = recipeDao.getAllCompletedIngredients(currentUserUID)
     }
 }

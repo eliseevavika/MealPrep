@@ -70,43 +70,13 @@ class MainActivity : ComponentActivity() {
                     this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 ).get(RecipeViewModel::class.java)
 
+
                 authViewModel = ViewModelProvider(
                     this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 ).get(LoginScreenViewModel::class.java)
 
                 val navController = rememberNavController()
 
-                val recipesForSunday by viewModel.recipesForSunday.collectAsState(listOf())
-
-                val recipesForMonday by
-                viewModel.recipesForMonday.collectAsState(
-                    listOf()
-                )
-
-                val recipesForTuesday by
-                viewModel.recipesForTuesday.collectAsState(
-                    listOf()
-                )
-
-                val recipesForWednesday by
-                viewModel.recipesForWednesday.collectAsState(
-                    listOf()
-                )
-
-                val recipesForThursday by
-                viewModel.recipesForThursday.collectAsState(
-                    listOf()
-                )
-
-                val recipesForFriday by
-                viewModel.recipesForFriday.collectAsState(
-                    listOf()
-                )
-
-                val recipesForSaturday by
-                viewModel.recipesForSaturday.collectAsState(
-                    listOf()
-                )
 
                 val modalBottomSheetState =
                     rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -130,6 +100,7 @@ class MainActivity : ComponentActivity() {
                                 NavHost(
                                     navController = navController,
                                     startDestination = getStartDestination(
+                                        viewModel,
                                         authViewModel
                                     )
                                 ) {
@@ -163,17 +134,13 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(MealPrep.route) {
-                                        MealPlanningScreen(recipesForSunday,
-                                            recipesForMonday,
-                                            recipesForTuesday,
-                                            recipesForWednesday,
-                                            recipesForThursday,
-                                            recipesForFriday,
-                                            recipesForSaturday,
+                                        viewModel.refreshDataMealPrepForCurrentUser()
+                                        MealPlanningScreen(
                                             { navController }) { viewModel }
                                     }
 
                                     composable(Groceries.route) {
+                                        viewModel.refreshDataGroceriesForCurrentUser()
                                         GroceriesScreen({ navController }) { viewModel }
 
                                     }
@@ -238,6 +205,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun getStartDestination(
+    viewModel: RecipeViewModel,
     authViewModel: LoginScreenViewModel
 ): String {
     val isUserSignedOut = authViewModel.getAuthState().collectAsState().value
@@ -247,6 +215,7 @@ private fun getStartDestination(
         return LoginScreen.route
     } else {
         if (isUserVerified) {
+            viewModel.refreshDataHomeForCurrentUser()
             return Home.route
         } else {
             return VerifyEmailScreen.route

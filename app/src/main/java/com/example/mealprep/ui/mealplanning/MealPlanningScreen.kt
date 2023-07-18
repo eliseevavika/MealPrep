@@ -41,17 +41,41 @@ import kotlinx.coroutines.launch
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanningScreen(
-    recipesForSunday: List<Recipe>,
-    recipesForMonday: List<Recipe>,
-    recipesForTuesday: List<Recipe>,
-    recipesForWednesday: List<Recipe>,
-    recipesForThursday: List<Recipe>,
-    recipesForFriday: List<Recipe>,
-    recipesForSaturday: List<Recipe>,
     navController: () -> NavHostController,
     viewModel: () -> RecipeViewModel,
 ) {
     val chosenDay by rememberUpdatedState(viewModel().chosenDay.collectAsState()).value
+    val recipesForSunday by viewModel().recipesForSunday.collectAsState(listOf())
+
+    val recipesForMonday by
+    viewModel().recipesForMonday.collectAsState(
+        listOf()
+    )
+
+    val recipesForTuesday by
+    viewModel().recipesForTuesday.collectAsState(
+        listOf()
+    )
+
+    val recipesForWednesday by
+    viewModel().recipesForWednesday.collectAsState(
+        listOf()
+    )
+
+    val recipesForThursday by
+    viewModel().recipesForThursday.collectAsState(
+        listOf()
+    )
+
+    val recipesForFriday by
+    viewModel().recipesForFriday.collectAsState(
+        listOf()
+    )
+
+    val recipesForSaturday by
+    viewModel().recipesForSaturday.collectAsState(
+        listOf()
+    )
 
     val coroutineScope = rememberCoroutineScope()
     val modalSheetState = rememberModalBottomSheetState(
@@ -89,7 +113,14 @@ fun MealPlanningScreen(
 
             ) { padding ->
 
-            Box(modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 35.dp)) {
+            Box(
+                modifier = Modifier.padding(
+                    top = 16.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 35.dp
+                )
+            ) {
                 Column(
                     modifier = Modifier
                         .background(Color.White)
@@ -112,7 +143,10 @@ fun MealPlanningScreen(
                                     }
                                 })
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 8.dp)){
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            ) {
                                 ShowIcon()
                                 Spacer(modifier = Modifier.width(width = 8.dp))
                                 Text(
