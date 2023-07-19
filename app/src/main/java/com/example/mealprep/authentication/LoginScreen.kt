@@ -66,7 +66,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                     backgroundColor = Color.White,
                     elevation = 1.dp,
                     title = {
-                        Text(text = "Login", textAlign = TextAlign.Center)
+                        Text(text = "Login", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
                     },
                 )
                 if (state.status == LoadingState.Status.RUNNING) {
