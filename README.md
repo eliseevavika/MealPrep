@@ -22,6 +22,7 @@
     <li><a href="#room-database">Room Database</a></li>
     <li><a href="#room-database">Optimization</a></li>
     <li><a href="#mvvm">MVVM pattern</a></li>
+     <li><a href="#authentication">Firebase Authentication</a></li>
 
   </ol>
 </details>
@@ -43,7 +44,8 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/data/Database.kt">Link to Kotlin file</a>
 - [x] Project optimization and Benchmark Metrics [See details below](#otimization)
 - [x] MVVM pattern [See details below](#mvvm)
-- [ ] Implementation of authorization and authentication
+- [x] Implemented User authentication system (Firebase Authentication): login password authorization, password reset, sign-in with Google account, and sign-up functionality [See details below](#authentication)
+- [ ] Export data if the user is going to use another device
 
 ## Screenshots
 
@@ -127,6 +129,18 @@ By conducting benchmark measurements, I tracked the progress of my optimizations
 
 In addition to performance optimizations, I also organized the project structure following the MVVM (Model-View-ViewModel) architectural pattern. I created additional folders and separated files according to their responsibilities, which improved code organization and maintainability. This architectural approach allowed for better separation of concerns and facilitated the development and testing processes.
 
+## Authentication
+In my app, I implemented a comprehensive user authentication system that includes login password authorization, password reset, sign-in with Google account, and sign-up functionality. This was achieved using Firebase Authentication, a powerful and secure authentication service provided by Firebase.
+
+With login password authorization, users can securely log into their accounts using their registered email and password. In case users forget their password, the app also offers a password reset feature, allowing them to easily regain access to their accounts.
+
+To enhance the sign-in experience and provide users with more options, I integrated Google Sign-In functionality. This enables users to sign in to the app using their Google accounts, eliminating the need to create a new account.
+
+For new users, the app provides a seamless sign-up process, allowing them to create an account with their email and password. This functionality is securely managed by Firebase Authentication, ensuring that user data remains protected.
+
+By leveraging the power and reliability of Firebase Authentication, I created a robust and user-friendly authentication system that enhances the security and convenience of the app. Users can confidently access the app's features and services, knowing that their accounts are well-protected.
+
+Overall, the integration of Firebase Authentication and the implementation of various authentication features have greatly improved the user experience and security of my app's login and sign-up functionalities.
 
 
 
