@@ -130,6 +130,7 @@ By conducting benchmark measurements, I tracked the progress of my optimizations
 In addition to performance optimizations, I also organized the project structure following the MVVM (Model-View-ViewModel) architectural pattern. I created additional folders and separated files according to their responsibilities, which improved code organization and maintainability. This architectural approach allowed for better separation of concerns and facilitated the development and testing processes.
 
 ## Authentication
+
 In my app, I implemented a comprehensive user authentication system that includes login password authorization, password reset, sign-in with Google account, and sign-up functionality. This was achieved using Firebase Authentication, a powerful and secure authentication service provided by Firebase.
 
 With login password authorization, users can securely log into their accounts using their registered email and password. In case users forget their password, the app also offers a password reset feature, allowing them to easily regain access to their accounts.
