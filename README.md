@@ -142,6 +142,7 @@ By leveraging the power and reliability of Firebase Authentication, I created a 
 
 Overall, the integration of Firebase Authentication and the implementation of various authentication features have greatly improved the user experience and security of my app's login and sign-up functionalities.
 
+<img src="app/screenshots/loginscreen.png" alt= “” width="300">
 
 
 
