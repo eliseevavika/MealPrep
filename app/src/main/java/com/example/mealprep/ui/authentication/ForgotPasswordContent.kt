@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*

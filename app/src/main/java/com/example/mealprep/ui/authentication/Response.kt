@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 sealed class Response<out T> {
     object Loading: Response<Nothing>()

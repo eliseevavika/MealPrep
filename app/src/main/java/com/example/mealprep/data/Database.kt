@@ -148,6 +148,18 @@ interface RecipeDao {
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID")
     fun getAllCompletedIngredients(currentUserUID: String): LiveData<List<Ingredient>>
 
+    @Query("DELETE FROM Recipe")
+    suspend fun clearRecipes()
+
+    @Query("DELETE FROM Ingredient")
+    suspend fun clearIngredients()
+
+    @Query("DELETE FROM recipewithmealplan")
+    suspend fun clearRecipeWithMealPlan()
+
+    @Query("DELETE FROM Step")
+    suspend fun clearSteps()
+
     @Transaction
     @Update
     suspend fun updateIngredient(ingredient: Ingredient)
@@ -169,6 +181,29 @@ interface RecipeDao {
             updateIngredient(ingredient)
         }
     }
+
+    @Query("SELECT * FROM Ingredient WHERE user_uid = :uid")
+    fun getAllIngredients(uid: String) : List<Ingredient>
+
+    @Query("SELECT * FROM recipewithmealplan")
+    fun getAllRecipesWithMealPlans(): List<RecipeWithMealPlan>
+
+    @Query("SELECT * FROM step")
+    fun getAllSteps(): List<Step>
+
+    @Insert
+    suspend fun insertAllRecipes(recipeData: List<Recipe>)
+
+    @Insert
+    suspend fun insertAllIngredients(ingredientData: List<Ingredient>)
+
+    @Insert
+    suspend fun insertAllRecipeWithMealplanData(recipewithmealplanData: List<RecipeWithMealPlan>)
+
+    @Insert
+    suspend fun insertAllSteps(stepData: List<Step>)
+
+
 }
 
 @Dao
@@ -208,9 +243,10 @@ abstract class AppDatabase : RoomDatabase() {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext, AppDatabase::class.java, "app_database"
-                ).fallbackToDestructiveMigration()
-                    //TODO (fallbackToDestructiveMigration)
-                    // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
+                )
+                    .fallbackToDestructiveMigration()
+//                    //TODO (fallbackToDestructiveMigration)
+//                    // If you don’t want to provide migrations and you specifically want your database to be cleared when you upgrade the version, call fallbackToDestructiveMigration
                     .build()
                 INSTANCE = instance
                 instance

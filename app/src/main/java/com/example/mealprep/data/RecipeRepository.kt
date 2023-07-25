@@ -111,4 +111,39 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
         completedIngredients = recipeDao.getAllCompletedIngredients(currentUserUID)
     }
+
+    fun getAllIngredients(uid: String): List<Ingredient> {
+        return recipeDao.getAllIngredients(uid)
+    }
+
+    fun getAllRecipesWithMealPlans(): List<RecipeWithMealPlan> {
+        return recipeDao.getAllRecipesWithMealPlans()
+    }
+
+    fun getAllSteps(): List<Step> {
+        return recipeDao.getAllSteps()
+    }
+
+    suspend fun clearDatabase() {
+        recipeDao.clearRecipes()
+        recipeDao.clearIngredients()
+        recipeDao.clearRecipeWithMealPlan()
+        recipeDao.clearSteps()
+    }
+
+    suspend fun insertAllRecipes(recipeData: List<Recipe>) {
+        recipeDao.insertAllRecipes(recipeData)
+    }
+
+    suspend fun insertAllIngredients(ingredientData: List<Ingredient>) {
+        recipeDao.insertAllIngredients(ingredientData)
+    }
+
+    suspend fun insertAllRecipeWithMealplanData(recipewithmealplanData: List<RecipeWithMealPlan>) {
+        recipeDao.insertAllRecipeWithMealplanData(recipewithmealplanData)
+    }
+
+    suspend fun insertAllSteps(stepData: List<Step>) {
+        recipeDao.insertAllSteps(stepData)
+    }
 }

@@ -26,13 +26,13 @@ import androidx.navigation.navArgument
 import com.example.littlelemon.DishDetails
 import com.example.littlelemon.HomeScreen
 import com.example.mealprep.*
-import com.example.mealprep.authentication.*
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
+import com.example.mealprep.ui.authentication.*
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
 import com.example.mealprep.viewmodel.RecipeViewModel

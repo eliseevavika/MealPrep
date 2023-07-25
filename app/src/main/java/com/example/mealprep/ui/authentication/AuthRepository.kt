@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope

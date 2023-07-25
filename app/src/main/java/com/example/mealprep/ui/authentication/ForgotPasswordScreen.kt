@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 import android.app.AlertDialog
 import androidx.compose.material.Scaffold

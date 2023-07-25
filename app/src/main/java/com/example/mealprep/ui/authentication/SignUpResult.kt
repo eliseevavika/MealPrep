@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 sealed class SignUpResult {
     object Initial : SignUpResult()

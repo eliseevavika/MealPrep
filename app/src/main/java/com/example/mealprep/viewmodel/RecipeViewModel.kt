@@ -10,16 +10,23 @@ import com.example.mealprep.*
 import com.example.mealprep.data.RecipeRepository
 import com.example.mealprep.data.model.Groceries
 import com.example.mealprep.data.model.Steps
+import com.example.mealprep.ui.settings.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
+import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
 import java.util.*
 
 
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
-
     private val recipeRepository: RecipeRepository
     private val currentUserUID: String
 
@@ -172,6 +179,85 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 grocery.name = undatedItem.name
             }
         }
+    }
+
+    fun importDataFromFile(inputStream: InputStream?, showError: (String) -> Unit) {
+        inputStream?.let {
+            try {
+                val jsonContent = it.bufferedReader().use { reader -> reader.readText() }
+                val array = JsonParser.parseString(jsonContent).asJsonArray
+                val gson = Gson()
+                val typeRecipe = object : TypeToken<List<Recipe>>() {}.type
+                val typeIngredient = object : TypeToken<List<Ingredient>>() {}.type
+                val typeRecipeWithMealPlan = object : TypeToken<List<RecipeWithMealPlan>>() {}.type
+                val typeStep = object : TypeToken<List<Step>>() {}.type
+
+                val allRecipes: List<Recipe> = gson.fromJson(array[0], typeRecipe)
+                val allIngredients: List<Ingredient> = gson.fromJson(array[1], typeIngredient)
+                val allRecipesWithMealPlan: List<RecipeWithMealPlan> =
+                    gson.fromJson(array[2], typeRecipeWithMealPlan)
+                val allSteps: List<Step> = gson.fromJson(array[3], typeStep)
+
+                saveDataToDatabase(allRecipes, allIngredients, allRecipesWithMealPlan, allSteps)
+            } catch (e: IOException) {
+                showError("Error, file cannot be uploaded")
+            }
+        }
+
+    }
+
+    fun saveDataToDatabase(
+        allRecipes: List<Recipe>,
+        allIngredients: List<Ingredient>,
+        allRecipesWithMealPlan: List<RecipeWithMealPlan>,
+        allSteps: List<Step>
+    ) {
+        viewModelScope.launch {
+            recipeRepository.clearDatabase()
+            if (allRecipes.isNotEmpty()) {
+                recipeRepository.insertAllRecipes(allRecipes)
+            }
+            if (allIngredients.isNotEmpty()) {
+                recipeRepository.insertAllIngredients(allIngredients)
+            }
+            if (allRecipesWithMealPlan.isNotEmpty()) {
+                recipeRepository.insertAllRecipeWithMealplanData(allRecipesWithMealPlan)
+            }
+            if (allSteps.isNotEmpty()) {
+                recipeRepository.insertAllSteps(allSteps)
+            }
+        }
+    }
+
+    fun import(file: File): String? {
+        return try {
+            val jsonContent = file.readText()
+            jsonContent
+        } catch (e: IOException) {
+            null
+        }
+    }
+
+    suspend fun export(): String? {
+        return withContext(Dispatchers.IO) {
+            val recipes: List<Recipe> = allRecipes.value.orEmpty()
+
+            val ingredients: List<Ingredient> = recipeRepository.getAllIngredients(getUserUid())
+
+            val recipesWithMealPlans: List<RecipeWithMealPlan> =
+                recipeRepository.getAllRecipesWithMealPlans()
+
+            val steps: List<Step> = recipeRepository.getAllSteps()
+
+            val allDataLists = listOf(
+                recipes, ingredients, recipesWithMealPlans, steps
+            )
+            val gson = Gson()
+            val json = gson.toJson(allDataLists)
+
+            json
+        }
+
     }
 
     private var _listSteps = MutableLiveData<List<Steps>>()
@@ -365,7 +451,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
         recipeRepository.insertRecipeIngredientAndStepTransaction(
-            recipe, _listIngredients.value, _listSteps.value, currentUserUID
+            recipe, _listIngredients.value, _listSteps.value, getUserUid()
         )
         emptyLiveData()
     }

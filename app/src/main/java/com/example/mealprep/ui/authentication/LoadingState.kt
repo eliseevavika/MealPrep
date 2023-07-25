@@ -1,4 +1,4 @@
-package com.example.mealprep.authentication
+package com.example.mealprep.ui.authentication
 
 data class LoadingState private constructor(val status: Status, val msg: String? = null) {
     companion object {
