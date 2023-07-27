@@ -21,11 +21,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.core.content.FileProvider.getUriForFile
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
+import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.meaprep.R
 import java.io.File
 import java.io.FileOutputStream
@@ -33,8 +34,6 @@ import java.io.FileOutputStream
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
-    val photoStrState = viewModel().photo.collectAsState()
-
     val imageUri by viewModel().uri.collectAsState()
 
     val context = LocalContext.current
@@ -47,7 +46,7 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUri)
-            .size(coil.size.Size.ORIGINAL) // Set the target size to load the image at.
+            .size(coil.size.Size.ORIGINAL)
             .build()
     )
 
@@ -55,9 +54,7 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
         if (imageUri != null) {
             ConstraintLayout {
                 val (photo, remove, edit) = createRefs()
-                val imageRequest = ImageRequest.Builder(context)
-                    .data(photoStrState.value)
-                    .build()
+
                 if (painter.state is AsyncImagePainter.State.Loading) {
                     CircularProgressIndicator()
                 } else {
@@ -133,9 +130,8 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
             outputStream.write(imageData)
             outputStream.close()
 
-            val imagePath = imageFile.absolutePath
-            viewModel().setPhoto(imagePath)
-
+            val contentUri: Uri = getUriForFile(context, "com.example.meaprep.fileprovider", imageFile)
+            viewModel().setPhoto(contentUri.toString())
         }
     }
 }

@@ -5,14 +5,15 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
+import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.data.RecipeRepository
 import com.example.mealprep.data.model.Groceries
 import com.example.mealprep.data.model.Steps
-import com.example.mealprep.ui.settings.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
@@ -198,12 +199,18 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     gson.fromJson(array[2], typeRecipeWithMealPlan)
                 val allSteps: List<Step> = gson.fromJson(array[3], typeStep)
 
+                allRecipes.forEach { recipe ->
+                    recipe.user_uid = getUserUid()
+                }
+
+                allIngredients.forEach { ingredient ->
+                    ingredient.user_uid = getUserUid()
+                }
                 saveDataToDatabase(allRecipes, allIngredients, allRecipesWithMealPlan, allSteps)
             } catch (e: IOException) {
                 showError("Error, file cannot be uploaded")
             }
         }
-
     }
 
     fun saveDataToDatabase(
@@ -257,7 +264,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
             json
         }
-
     }
 
     private var _listSteps = MutableLiveData<List<Steps>>()
@@ -420,7 +426,25 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             category = _category.value,
             creation_date = Calendar.getInstance().time
         )
-        addRecipe(recipe)
+
+        addRecipe(recipe) { recipeId ->
+            val storage = FirebaseStorage.getInstance()
+            val storageRef = storage.reference.child("gs://slice up-bbbb7.appspot.com")
+            val imageFileUri: Uri = _photo.value.toUri()
+            val fileName = imageFileUri.pathSegments.last()
+
+            storageRef.child(fileName).putFile(imageFileUri)
+                .addOnSuccessListener { taskSnapshot ->
+                    taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
+                        viewModelScope.launch(Dispatchers.IO) {
+                            recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    (exception.message.toString())
+                }
+        }
     }
 
     fun getUserUid(): String {
@@ -449,11 +473,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         addMealPlan(_chosenDay.value)
     }
 
-    fun addRecipe(recipe: Recipe) = viewModelScope.launch(Dispatchers.IO) {
-        recipeRepository.insertRecipeIngredientAndStepTransaction(
-            recipe, _listIngredients.value, _listSteps.value, getUserUid()
-        )
-        emptyLiveData()
+    fun addRecipe(recipe: Recipe, callback: (Long) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            var recipeId = recipeRepository.insertRecipeIngredientAndStepTransaction(
+                recipe, _listIngredients.value, _listSteps.value, getUserUid()
+            )
+            callback(recipeId)
+            emptyLiveData()
+        }
     }
 
     fun addMealPlan(dayId: Int) = viewModelScope.launch(Dispatchers.IO) {

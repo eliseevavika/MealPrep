@@ -35,7 +35,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.meaprep.provider"
+            android:authorities="com.example.meaprep.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">
         <meta-data
@@ -43,5 +43,4 @@
             android:resource="@xml/file_paths" />
     </provider>
     </application>
-
 </manifest>

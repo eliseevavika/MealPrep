@@ -79,7 +79,7 @@ fun SettingsScreen(
 
                         val uri = FileProvider.getUriForFile(
                             context,
-                            context.applicationContext.packageName + ".provider",
+                            context.applicationContext.packageName + ".fileprovider",
                             file
                         )
                         val sendIntent = Intent(Intent.ACTION_SEND).apply {

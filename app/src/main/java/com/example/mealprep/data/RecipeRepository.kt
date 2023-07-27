@@ -1,5 +1,6 @@
 package com.example.mealprep.data
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.example.mealprep.*
 import com.example.mealprep.data.model.Groceries
@@ -16,14 +17,12 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         listIngredients: List<Groceries>?,
         listSteps: List<Steps>?,
         currentUserUID: String
-    ) {
-        recipeDao.insertRecipeIngredientAndStepTransaction(
-            recipe,
-            listIngredients,
-            listSteps,
-            currentUserUID
-        )
-    }
+    ): Long = recipeDao.insertRecipeIngredientAndStepTransaction(
+        recipe,
+        listIngredients,
+        listSteps,
+        currentUserUID
+    )
 
     fun getRecipeById(id: Long): Recipe {
         return recipeDao.getRecipeById(id)
@@ -145,5 +144,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     suspend fun insertAllSteps(stepData: List<Step>) {
         recipeDao.insertAllSteps(stepData)
+    }
+
+    suspend fun updateRecipeImageFromFirebase(recipeId: Long, downloadUrl: Uri) {
+        recipeDao.updateRecipePhoto(recipeId, downloadUrl.toString())
     }
 }

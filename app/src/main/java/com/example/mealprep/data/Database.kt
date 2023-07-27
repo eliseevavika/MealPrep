@@ -1,9 +1,11 @@
 package com.example.mealprep
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
+import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
@@ -13,11 +15,11 @@ data class Recipe(
     @PrimaryKey(autoGenerate = true) val recipe_id: Long = 0,
     @ColumnInfo(name = "name") val name: String,
     @ColumnInfo(name = "description") val description: String?,
-    val photo: String?,
+    var photo: String?,
     @ColumnInfo(name = "cook_time") val cook_time: Int?,
     @ColumnInfo(name = "serves") val serves: Int?,
     @ColumnInfo(name = "source") val source: String?,
-    @ColumnInfo(name = "user_uid") val user_uid: String,
+    @ColumnInfo(name = "user_uid") var user_uid: String,
     @ColumnInfo(name = "category") val category: String?,
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
@@ -36,7 +38,7 @@ data class Ingredient(
     var name: String,
     var completed: Boolean = false,
     val recipe_id: Long?,
-    @ColumnInfo(name = "user_uid") val user_uid: String,
+    @ColumnInfo(name = "user_uid") var user_uid: String,
 )
 
 @Entity(tableName = "recipewithmealplan", primaryKeys = ["recipe_id", "mealplan_id"])
@@ -72,7 +74,7 @@ interface RecipeDao {
         ingredients: List<com.example.mealprep.data.model.Groceries>?,
         steps: List<com.example.mealprep.data.model.Steps>?,
         currentUserUID: String
-    ) {
+    ): Long {
         // Anything inside this method runs in a single transaction.
         val listIngredients = mutableListOf<Ingredient>()
 
@@ -95,6 +97,7 @@ interface RecipeDao {
         }
         insertIngredients(listIngredients)
         insertSteps(listSteps)
+        return recipeId
     }
 
     @Delete
@@ -203,7 +206,8 @@ interface RecipeDao {
     @Insert
     suspend fun insertAllSteps(stepData: List<Step>)
 
-
+    @Query("UPDATE Recipe SET photo = :newPhoto WHERE recipe_id = :recipeId")
+    suspend fun updateRecipePhoto(recipeId: Long, newPhoto: String)
 }
 
 @Dao

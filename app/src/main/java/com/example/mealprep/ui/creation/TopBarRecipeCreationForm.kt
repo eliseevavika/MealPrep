@@ -12,6 +12,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -34,7 +35,7 @@ fun TopBarRecipeCreationForm(
 ) {
     val chosenTabIndex by viewModel().chosenTabIndex.collectAsState()
     var showDialog by rememberSaveable { mutableStateOf(false) }
-
+    var context = LocalContext.current
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
