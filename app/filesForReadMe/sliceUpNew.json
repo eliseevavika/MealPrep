@@ -1,0 +1,208 @@
+[
+  [
+    {
+      "category": "Main dishes",
+      "cook_time": 45,
+      "creation_date": "Jul 28, 2023 14:11:27",
+      "description": "Roasted Carrot Ginger Soup",
+      "name": "Roasted Carrot Ginger Soup",
+      "photo": "https://firebasestorage.googleapis.com/v0/b/sliceup-bbbb7.appspot.com/o/gs%3A%2Fslice%20up-bbbb7.appspot.com%2Fimage_459751640911912717.jpg?alt=media&token=c4517268-8cc5-42b2-acab-9bd68179155c",
+      "recipe_id": 1,
+      "serves": 4,
+      "source": "https://victoriasidorova.wordpress.com/2019/04/18/roasted-carrot-ginger-soup/",
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "category": "Pastry",
+      "cook_time": 35,
+      "creation_date": "Jul 28, 2023 14:14:59",
+      "description": "Apple galette",
+      "name": "Apple galette",
+      "photo": "https://firebasestorage.googleapis.com/v0/b/sliceup-bbbb7.appspot.com/o/gs%3A%2Fslice%20up-bbbb7.appspot.com%2Fimage_6317560728838992777.jpg?alt=media&token=bd26d788-d45b-45f0-8f4b-fd0e7f968489",
+      "recipe_id": 2,
+      "serves": 6,
+      "source": "https://victoriasidorova.wordpress.com/2019/05/20/apple-galette/",
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "category": "Main dishes",
+      "cook_time": 20,
+      "creation_date": "Jul 28, 2023 14:18:36",
+      "description": "The Meatball Hot Dog",
+      "name": "The Meatball Hot Dog",
+      "photo": "https://firebasestorage.googleapis.com/v0/b/sliceup-bbbb7.appspot.com/o/gs%3A%2Fslice%20up-bbbb7.appspot.com%2Fimage_401780458571955554.jpg?alt=media&token=79b4f552-31d3-49f9-b14a-57c094908242",
+      "recipe_id": 3,
+      "serves": 4,
+      "source": "https://victoriasidorova.wordpress.com/2019/01/03/the-meatball-hot-dog/",
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    }
+  ],
+  [
+    {
+      "completed": false,
+      "id": 1,
+      "name": "Roughly 1 lb carrots, washed, dried and cut into 1/2 inch coins",
+      "recipe_id": 1,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 2,
+      "name": "1 tablespoon olive oil",
+      "recipe_id": 1,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 3,
+      "name": "6 cloves garlic",
+      "recipe_id": 1,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 4,
+      "name": "1/2 large white onion, cut into quarters and separated",
+      "recipe_id": 1,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 5,
+      "name": "250 g oat flour",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 6,
+      "name": "200 g applesauce (apples and water)",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 7,
+      "name": "2 small apples (sliced)",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 8,
+      "name": "cloves",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 9,
+      "name": "ginger ground",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 10,
+      "name": "4 dates, pitted pureed",
+      "recipe_id": 2,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": true,
+      "id": 11,
+      "name": "4 Hot Dog buns",
+      "recipe_id": 3,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": true,
+      "id": 12,
+      "name": "Marinara Sauce",
+      "recipe_id": 3,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 13,
+      "name": "12 to 16 large meatballs fully cooked and warmed",
+      "recipe_id": 3,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 14,
+      "name": "1 cup shredded mozzarella cheese",
+      "recipe_id": 3,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    },
+    {
+      "completed": false,
+      "id": 15,
+      "name": "arugula",
+      "recipe_id": 3,
+      "user_uid": "NcXhxc3LIHaoeQdJrrZ9BstkkTf1"
+    }
+  ],
+  [
+    {
+      "mealplan_id": 0,
+      "recipe_id": 1
+    },
+    {
+      "mealplan_id": 1,
+      "recipe_id": 2
+    },
+    {
+      "mealplan_id": 1,
+      "recipe_id": 3
+    }
+  ],
+  [
+    {
+      "description": "Preheat oven to 425 degrees F/218 degrees C.",
+      "id": 1,
+      "recipe_id": 1
+    },
+    {
+      "description": "On a large sheet pan prepared with a silicone mat, parchment or foil, add the carrots and the onions. Drizzle the olive oil over the vegetables and the garam masala. Season with a grinding of fresh sea salt and ground black pepper. Rub the seasonings and oil into the vegetables and spread out. Add the garlic in with the vegetables at this point.",
+      "id": 2,
+      "recipe_id": 1
+    },
+    {
+      "description": "Roast for 30 to 35 minutes, turning halfway, until veggies are roasted and carrots are fork tender.",
+      "id": 3,
+      "recipe_id": 1
+    },
+    {
+      "description": "Preheat the oven to 350° F.",
+      "id": 4,
+      "recipe_id": 2
+    },
+    {
+      "description": "Mix the oat flour with ginger, cinnamon, nutmeg, and cloves.",
+      "id": 5,
+      "recipe_id": 2
+    },
+    {
+      "description": "Add dates, apple sauce, and olive oil to the flour. Knead the dough.",
+      "id": 6,
+      "recipe_id": 2
+    },
+    {
+      "description": "Preheat your oven to 400°F.",
+      "id": 7,
+      "recipe_id": 3
+    },
+    {
+      "description": "Add a couple tablespoons of sauce to both sides of each bun and top with 3 meatballs and 1/4 cup of mozzarella. Bake for an additional 2 to 3 minutes, until cheese is melted.",
+      "id": 8,
+      "recipe_id": 3
+    },
+    {
+      "description": "Mix arugula with lemon juice. Add them to each sandwich.",
+      "id": 9,
+      "recipe_id": 3
+    }
+  ]
+]

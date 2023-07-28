@@ -20,7 +20,7 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
         NavigationItem.Home,
         NavigationItem.MealPrep,
         NavigationItem.Groceries,
-        NavigationItem.Settings,
+        NavigationItem.Account,
     )
 
     BottomNavigation(

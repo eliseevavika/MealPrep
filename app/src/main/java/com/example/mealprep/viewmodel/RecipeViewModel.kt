@@ -452,6 +452,10 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         return user?.uid ?: "0"
     }
 
+    fun getUserEmail(): String {
+        return Firebase.auth.currentUser?.email.toString()
+    }
+
     fun addNewMealPlan() {
         if (_chosenDay.value == 0) {
             _listChosenMeals.value = _listChosenMealsForSunday.value

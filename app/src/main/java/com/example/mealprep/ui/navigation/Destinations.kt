@@ -33,8 +33,8 @@ object Groceries : Destinations {
     override val route = "groceries"
 }
 
-object Settings : Destinations {
-    override val route = "settings"
+object Account : Destinations {
+    override val route = "account"
 }
 
 object DishDetails : Destinations {

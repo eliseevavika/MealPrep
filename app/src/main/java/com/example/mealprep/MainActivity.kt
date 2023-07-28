@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +30,7 @@ import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
 import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
-import com.example.mealprep.fill.out.recipe.card.settings.SettingsScreen
+import com.example.mealprep.fill.out.recipe.card.settings.AccountScreen
 import com.example.mealprep.ui.authentication.*
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
@@ -145,8 +144,8 @@ class MainActivity : ComponentActivity() {
 
                                     }
 
-                                    composable(Settings.route) {
-                                        SettingsScreen({ navController }) { viewModel }
+                                    composable(Account.route) {
+                                        AccountScreen({ navController }) { viewModel }
                                     }
 
                                     composable(

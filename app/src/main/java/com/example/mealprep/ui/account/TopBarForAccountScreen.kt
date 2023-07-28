@@ -21,6 +21,6 @@ fun TopBarForSettingsScreen() {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Settings", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
+        Text(text = "Account", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
     }
 }
