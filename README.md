@@ -170,19 +170,19 @@ The data import functionality complements data export by enabling users to impor
 ## Images
 ## Firebase Storage
 
-**Problem1:**
+**Problem 1:**
 
 Previously, in SliceUp, I was saving recipe images to the FileProvider, which caused issues when users changed phones and tried to import their data. The images were not available on the new phone, leading to a subpar user experience.
 
-**Solution1:**
+**Solution 1:**
 
 To address this problem, I decided to introduce functionality to save images to Firebase Storage. When a user creates a new recipe with a photo, I save the image to Firebase Storage and obtain the download URL.
 
-**Problem2:**
+**Problem 2:**
 
 After implementing the solution of saving images to Firebase Storage, a new issue emerged. When a user creates a recipe with an image and presses the "Save Recipe" button, there is a noticeable delay of up to 7 seconds before the newly created recipe appears on the screen. This delay is caused by the process of saving the image to Firebase Storage and waiting for the downloaded URL.
 
-**Solution2:**
+**Solution 2:**
 
 To optimize the user experience and eliminate the delay, I devised a new approach. Now, when a user creates a recipe with an image, I first save the image to the FileProvider, and the path to the image is saved in the local Room database. This ensures that the user can see the newly created recipe right away without any waiting.
 
