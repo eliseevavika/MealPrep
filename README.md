@@ -18,12 +18,13 @@
       <a href="#about-the-project">About The Project</a>
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#roadmap">Screenshots</a></li>
+    <li><a href="#screenshots">Screenshots</a></li>
     <li><a href="#room-database">Room Database</a></li>
-    <li><a href="#room-database">Optimization</a></li>
+    <li><a href="#optimization">Optimization</a></li>
     <li><a href="#mvvm">MVVM pattern</a></li>
      <li><a href="#authentication">Firebase Authentication</a></li>
-
+     <li><a href="#export-import">Data export and import</a></li>
+     <li><a href="#images">Saving images to Firebase Storage</a></li>
   </ol>
 </details>
 
@@ -42,10 +43,12 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Created the UX prototype - <a href="https://www.figma.com/file/CCxIlRWLMe1mUQ1WplVj29/MealPrep_current?node-id=1-632">Link to Figma</a>
 - [x] Created UI on Jetpack compose
 - [x] Integrated RoomDatabase to this project as a data persistence solution - <a href="https://github.com/eliseevavika/MealPrep/blob/main/app/src/main/java/com/example/mealprep/data/Database.kt">Link to Kotlin file</a>
-- [x] Project optimization and Benchmark Metrics [See details below](#otimization)
+- [x] Project optimization and Benchmark Metrics [See details below](#optimization)
 - [x] MVVM pattern [See details below](#mvvm)
 - [x] Implemented User authentication system (Firebase Authentication): login password authorization, password reset, sign-in with Google account, and sign-up functionality [See details below](#authentication)
-- [ ] Export data if the user is going to use another device
+- [x] Implemented data export and import, which allow users to seamlessly transfer their data between devices [See details below](#export-import)
+- [x] Implemented functionality to save images to Firebase Storage [See details below](#images)
+
 
 ## Screenshots
 
@@ -67,7 +70,7 @@ Incorporating RoomDatabase into my project involved the following steps:
 * Defining DAO (Data Access Object) interface: I created an interface that defines the database operations using annotations such as @Insert, @Update, @Delete, and @Query. This interface serves as a bridge between the application and the database, allowing for convenient data access and manipulation.
 * Accessing the database in the application: I utilized the RoomDatabase instance in my application's components, such as ViewModel or Repository class, to perform database operations asynchronously using coroutines or LiveData.
 
-## Otimization
+## Optimization
 
 ## Compose Optimization
 
@@ -86,7 +89,7 @@ Only the alpha value of the selected image should be recomposed, while the rest 
 
 -  **Solution:**
 
-In this code below, we pass a callback function onPerformQuery from the parent composable (RecipesFeed) to the MenuDish composable. When the Card is clicked, we invoke the onPerformQuery callback and pass the recipe as an argument.
+In this code below, I pass a callback function onPerformQuery from the parent composable (RecipesFeed) to the MenuDish composable. When the Card is clicked, I invoke the onPerformQuery callback and pass the recipe as an argument.
 By using this callback mechanism, the recomposition will be limited to the specific MenuDish composable when the performQueryForChosenMeals function is called, instead of recomposing all the recipes in the LazyVerticalGrid.
 
 <img src="app/screenshots/optimization1.png" alt= “” width="300">  <img src="app/screenshots/optimization2.png" alt= “” width="300"> 
@@ -145,6 +148,45 @@ Overall, the integration of Firebase Authentication and the implementation of va
 
 <img src="app/screenshots/loginscreen.png" alt= “” width="300">
 
+## Export Import
+**Problem:**
+
+In SliceUp, I encountered an issue with the local Room database, which serves as the primary storage for all user data in the app. When a user decided to download the app on a new phone or switch devices, there was no data available in their account.
+
+**Solution:**
+
+To address this problem, I implemented two essential functionalities: data export and import. These features enable users to seamlessly transfer their data between devices.
+
+**Data Export:**
+
+I implemented the data export functionality, which allows users to create a JSON file containing all their recipes, ingredients, meal plans, and steps. This file is saved locally on the device and can be shared with other apps.
+
+**Data Import:**
+
+The data import functionality complements data export by enabling users to import their previously exported JSON file. Once the file is selected, all the data it contains is parsed and inserted into the local Room database on the new device. As a result, users can have all their data restored in the app on the new phone, ensuring a seamless continuation of their SliceUp experience.
+
+<img src="app/screenshots/accountscreen.png" alt= “” width="300">
+
+## Images
+## Firebase Storage
+
+**Problem1:**
+
+Previously, in SliceUp, I was saving recipe images to the FileProvider, which caused issues when users changed phones and tried to import their data. The images were not available on the new phone, leading to a subpar user experience.
+
+**Solution1:**
+
+To address this problem, I decided to introduce functionality to save images to Firebase Storage. When a user creates a new recipe with a photo, I save the image to Firebase Storage and obtain the download URL.
+
+**Problem2:**
+
+After implementing the solution of saving images to Firebase Storage, a new issue emerged. When a user creates a recipe with an image and presses the "Save Recipe" button, there is a noticeable delay of up to 7 seconds before the newly created recipe appears on the screen. This delay is caused by the process of saving the image to Firebase Storage and waiting for the downloaded URL.
+
+**Solution2:**
+
+To optimize the user experience and eliminate the delay, I devised a new approach. Now, when a user creates a recipe with an image, I first save the image to the FileProvider, and the path to the image is saved in the local Room database. This ensures that the user can see the newly created recipe right away without any waiting.
+
+In the background, I asynchronously save the image to Firebase Storage and obtain the downloaded URL. Once the URL is available, I update the photo field of the corresponding recipe in the local Room database. This seamless and asynchronous process guarantees that the images are properly linked to the recipes, and users can enjoy a smooth and uninterrupted experience when creating and viewing recipes.
 
 
 ### APACHE LICENSE, VERSION 2.0¶
