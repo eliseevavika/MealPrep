@@ -48,6 +48,7 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Implemented User authentication system (Firebase Authentication): login password authorization, password reset, sign-in with Google account, and sign-up functionality [See details below](#authentication)
 - [x] Implemented data export and import, which allow users to seamlessly transfer their data between devices [See details below](#export-import)
 - [x] Implemented functionality to save images to Firebase Storage [See details below](#images)
+- [ ] Manual and Automated Testing 
 
 
 ## Screenshots
