@@ -83,7 +83,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = {
                     TextField(
@@ -193,7 +193,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                             navController.navigate(com.example.mealprep.ui.navigation.ForgotPasswordScreen.route)
                         })
 
-                    Spacer(modifier = Modifier.padding(vertical = 18.dp))
+                    Spacer(modifier = Modifier.padding(vertical = 7.dp))
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -243,7 +243,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                         }
                     )
 
-                    Spacer(modifier = Modifier.padding(vertical = 18.dp))
+                    Spacer(modifier = Modifier.padding(vertical = 7.dp))
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -275,7 +275,7 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                         }
                     )
 
-                    Spacer(modifier = Modifier.padding(vertical = 9.dp))
+                    Spacer(modifier = Modifier.padding(vertical = 7.dp))
 
                     Text(
                         modifier = Modifier.fillMaxWidth(),
