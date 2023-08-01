@@ -66,7 +66,11 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                     backgroundColor = Color.White,
                     elevation = 1.dp,
                     title = {
-                        Text(text = "Login", textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                        Text(
+                            text = "Login",
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     },
                 )
                 if (state.status == LoadingState.Status.RUNNING) {
@@ -265,6 +269,47 @@ fun LoginScreen(viewModel: LoginScreenViewModel, navController: NavHostControlle
                                     Text(
                                         color = MaterialTheme.colors.onSurface,
                                         text = "REGISTER"
+                                    )
+                                }
+                            )
+                        }
+                    )
+
+                    Spacer(modifier = Modifier.padding(vertical = 9.dp))
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption,
+                        text = "Do you want to skip authentication?"
+                    )
+
+                    OutlinedButton(
+                        border = ButtonDefaults.outlinedBorder.copy(width = 1.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        onClick = {
+                            viewModel.signAsAGuest(onSuccess = {
+                                navController.navigate(com.example.mealprep.ui.navigation.Home.route)
+                            }, onError = { error ->
+                                android.app.AlertDialog.Builder(context)
+                                    .setMessage(error)
+                                    .setPositiveButton("OK") { dialog, _ ->
+                                        dialog.dismiss()
+                                    }
+                                    .show()
+                            })
+                        },
+                        content = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically,
+                                content = {
+                                    Text(
+                                        color = MaterialTheme.colors.onSurface,
+                                        text = "Continue as a guest"
                                     )
                                 }
                             )

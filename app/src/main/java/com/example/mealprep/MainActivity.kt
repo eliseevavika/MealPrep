@@ -99,8 +99,7 @@ class MainActivity : ComponentActivity() {
                                 NavHost(
                                     navController = navController,
                                     startDestination = getStartDestination(
-                                        viewModel,
-                                        authViewModel
+                                        viewModel, authViewModel
                                     )
                                 ) {
                                     composable(LoginScreen.route) {
@@ -115,14 +114,12 @@ class MainActivity : ComponentActivity() {
 
                                     composable(SignUpScreen.route) {
                                         SignUpScreen(
-                                            authViewModel,
-                                            auth
+                                            authViewModel, auth
                                         ) { navController.popBackStack() }
                                     }
                                     composable(VerifyEmailScreen.route) {
                                         VerifyEmailScreen(
-                                            authViewModel,
-                                            auth
+                                            authViewModel, auth
                                         ) { navController.navigate(Home.route) }
                                     }
 
@@ -134,8 +131,7 @@ class MainActivity : ComponentActivity() {
 
                                     composable(MealPrep.route) {
                                         viewModel.refreshDataMealPrepForCurrentUser()
-                                        MealPlanningScreen(
-                                            { navController }) { viewModel }
+                                        MealPlanningScreen({ navController }) { viewModel }
                                     }
 
                                     composable(Groceries.route) {
@@ -176,8 +172,7 @@ class MainActivity : ComponentActivity() {
                                             )
                                         ) { "Dish id is null" }
 
-                                        MealPrepForSpecificDay(
-                                            dayId,
+                                        MealPrepForSpecificDay(dayId,
                                             { navController }) { viewModel }
                                     }
 
@@ -204,16 +199,16 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun getStartDestination(
-    viewModel: RecipeViewModel,
-    authViewModel: LoginScreenViewModel
+    viewModel: RecipeViewModel, authViewModel: LoginScreenViewModel
 ): String {
     val isUserSignedOut = authViewModel.getAuthState().collectAsState().value
     val isUserVerified = authViewModel.isEmailVerified
+    val isUserAnonymous = authViewModel.isUserAnonymous
 
     if (isUserSignedOut) {
         return LoginScreen.route
     } else {
-        if (isUserVerified) {
+        if (isUserAnonymous || isUserVerified) {
             viewModel.refreshDataHomeForCurrentUser()
             return Home.route
         } else {

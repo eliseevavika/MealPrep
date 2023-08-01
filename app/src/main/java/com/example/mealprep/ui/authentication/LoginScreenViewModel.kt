@@ -43,6 +43,8 @@ class LoginScreenViewModel : ViewModel() {
 
     val isEmailVerified get() = authRepository.currentUser?.isEmailVerified ?: false
 
+    val isUserAnonymous get() = authRepository.currentUser?.isAnonymous ?: false
+
     fun signInWithEmailAndPassword(email: String, password: String, onError: (String) -> Unit) =
         viewModelScope.launch {
             try {
@@ -68,8 +70,6 @@ class LoginScreenViewModel : ViewModel() {
     private val _signUpResult = MutableStateFlow<SignUpResult>(SignUpResult.Initial)
 
     val signUpResult: StateFlow<SignUpResult> = _signUpResult.asStateFlow()
-
-    private val _signUpResultForVerification = MutableStateFlow<SignUpResult>(SignUpResult.Initial)
 
     fun signUp(
         email: String,
@@ -126,5 +126,16 @@ class LoginScreenViewModel : ViewModel() {
             else -> "An error occurred during sign-up. Please try again later."
         }
         return errorMessage
+    }
+
+    fun signAsAGuest(onSuccess: () -> Unit, onError: (String?) -> Unit) {
+        FirebaseAuth.getInstance().signInAnonymously()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    onSuccess()
+                } else {
+                    onError(task.exception?.message)
+                }
+            }
     }
 }
