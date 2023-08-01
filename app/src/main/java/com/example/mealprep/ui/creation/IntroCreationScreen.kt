@@ -42,7 +42,6 @@ fun IntroCreationScreen(viewModel: () -> RecipeViewModel, focusRequester: FocusR
 
     val isValidUrl = viewModel().isValidUrl.collectAsState()
 
-
     fun validateTitle(text: String) {
         viewModel().setIsErrorTitle(text.isEmpty() || text.matches(patternForTitle))
     }
@@ -254,6 +253,7 @@ fun IntroCreationScreen(viewModel: () -> RecipeViewModel, focusRequester: FocusR
             val listCategory = listOf("Main dishes", "Pastry", "Others")
 
             CategoryDropdownMenu(
+                modifier = Modifier.focusRequester(focusRequester),
                 placeholder = "Select a category",
                 items = listCategory,
                 selectedIndex = listCategory.indexOf(category),
@@ -270,6 +270,7 @@ fun IntroCreationScreen(viewModel: () -> RecipeViewModel, focusRequester: FocusR
             val listServes = listOf("1", "2", "4", "6", "8")
 
             CategoryDropdownMenu(
+                modifier = Modifier.focusRequester(focusRequester),
                 placeholder = "Select number of servings",
                 items = listServes,
                 selectedIndex = listServes.indexOf(serves),

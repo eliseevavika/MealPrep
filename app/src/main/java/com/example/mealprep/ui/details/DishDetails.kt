@@ -108,7 +108,7 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
             .background(MealPrepColor.grey_100)
             .height(300.dp)
     ) {
-        if (imagePathFromDatabase != null) {
+        if (imagePathFromDatabase != "") {
             Image(
                 painter = painter,
                 contentDescription = "Dish image",

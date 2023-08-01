@@ -112,7 +112,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     val chosenTabIndex = _chosenTabIndex.asStateFlow()
 
     private var _listIngredients = MutableLiveData<List<Groceries>>()
-    private var _last_id: Int = -1
 
     val listIngredients: LiveData<List<Groceries>>
         get() = _listIngredients
@@ -154,14 +153,20 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun performQueryIngredients(
         ingredientName: String
     ) {
-        val id = _last_id + 1
-        _last_id = id
-
         if (ingredientName.isNotEmpty()) {
-            val item = Groceries(id, ingredientName)
-
-            _listIngredients.value = _listIngredients.value?.plus(item) ?: listOf(item)
+            val list = parseStringByNewLine(ingredientName)
+            if (list.isNotEmpty()) {
+                list.forEach { ingredient ->
+                    val id = UUID.randomUUID().toString()
+                    val item = Groceries(id, ingredient)
+                    _listIngredients.value = _listIngredients.value?.plus(item) ?: listOf(item)
+                }
+            }
         }
+    }
+
+    fun parseStringByNewLine(input: String): List<String> {
+        return input.split("\n").map { it.trim() }
     }
 
     fun removeElementIngredients(
@@ -173,11 +178,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun setNameIngredients(
         item: Groceries, input: String
     ) {
-        val undatedItem = Groceries(item.id, input)
+        val updatedItem = Groceries(item.id, input)
 
         _listIngredients.value?.forEach { grocery ->
             if (grocery.id == item.id) {
-                grocery.name = undatedItem.name
+                grocery.name = updatedItem.name
             }
         }
     }
@@ -267,21 +272,21 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private var _listSteps = MutableLiveData<List<Steps>>()
-    private var _last__id_steps: Int = -1
-
     val listSteps: LiveData<List<Steps>>
         get() = _listSteps
 
     fun performQuerySteps(
-        ingredientName: String
+        stepName: String
     ) {
-        val id = _last__id_steps + 1
-        _last__id_steps = id
-        val number = 1
-        if (ingredientName.isNotEmpty()) {
-            val item = Steps(id, number, ingredientName)
-
-            _listSteps.value = _listSteps.value?.plus(item) ?: listOf(item)
+        if (stepName.isNotEmpty()) {
+            val list = parseStringByNewLine(stepName)
+            if (list.isNotEmpty()) {
+                list.forEach { step ->
+                    val id = UUID.randomUUID().toString()
+                    val item = Steps(id, step)
+                    _listSteps.value = _listSteps.value?.plus(item) ?: listOf(item)
+                }
+            }
         }
     }
 
@@ -334,7 +339,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun setNameSteps(
         item: Steps, input: String
     ) {
-        val undatedItem = Steps(item.id, 1, input)
+        val undatedItem = Steps(item.id, input)
 
         _listSteps.value?.forEach { grocery ->
             if (grocery.id == item.id) {
@@ -392,19 +397,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         _photo.value = str
 
     }
-//    fun verifyPermissions(): Boolean? {
-//
-//        // This will return the current Status
-//        val permissionExternalMemory =
-//            ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//        if (permissionExternalMemory != PackageManager.PERMISSION_GRANTED) {
-//            val STORAGE_PERMISSIONS = arrayOf<String>(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//            // If permission not granted then ask for permission real time.
-//            ActivityCompat.requestPermissions(this, STORAGE_PERMISSIONS, 1)
-//            return false
-//        }
-//        return true
-//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun isRquiredDataEntered(): Boolean {
@@ -431,19 +423,22 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference.child("gs://slice up-bbbb7.appspot.com")
             val imageFileUri: Uri = _photo.value.toUri()
-            val fileName = imageFileUri.pathSegments.last()
 
-            storageRef.child(fileName).putFile(imageFileUri)
-                .addOnSuccessListener { taskSnapshot ->
-                    taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
-                        viewModelScope.launch(Dispatchers.IO) {
-                            recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+            if (imageFileUri.pathSegments.size != 0) {
+                val fileName = imageFileUri.pathSegments.last()
+
+                storageRef.child(fileName).putFile(imageFileUri)
+                    .addOnSuccessListener { taskSnapshot ->
+                        taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
+                            viewModelScope.launch(Dispatchers.IO) {
+                                recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+                            }
                         }
                     }
-                }
-                .addOnFailureListener { exception ->
-                    (exception.message.toString())
-                }
+                    .addOnFailureListener { exception ->
+                        (exception.message.toString())
+                    }
+            }
         }
     }
 
@@ -527,8 +522,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         _cook_time.postValue(0)
         _description.value = ""
         _hours.value = 0
-        _last__id_steps = 0
-        _last_id = 0
         _uri.value = null
         _minutes.value = 0
         _serves.value = ""

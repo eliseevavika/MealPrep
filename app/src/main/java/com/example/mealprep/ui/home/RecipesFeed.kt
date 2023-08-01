@@ -126,7 +126,7 @@ fun MenuDish(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                if(imagePathFromDatabase != null){
+                if(imagePathFromDatabase != ""){
                     Image(
                         painter = painter,
                         contentDescription = "Image",
