@@ -9,8 +9,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.data.RecipeRepository
-import com.example.mealprep.data.model.Groceries
-import com.example.mealprep.data.model.Steps
+import com.example.mealprep.data.model.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -21,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
@@ -149,7 +149,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
         completedIngredients = recipeRepository.completedIngredients
     }
-
     fun performQueryIngredients(
         ingredientName: String
     ) {
@@ -298,6 +297,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 name = ingredientName,
                 completed = false,
                 recipe_id = null,
+                aisle = 0,
+                short_name = ingredientName,
                 user_uid = currentUserUID
             )
             _listExtraGroceries.value =
@@ -419,7 +420,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             creation_date = Calendar.getInstance().time
         )
 
-        addRecipe(recipe) { recipeId ->
+        addRecipe(recipe, updateImageFromFirebase = { recipeId ->
             val storage = FirebaseStorage.getInstance()
             val storageRef = storage.reference.child("gs://slice up-bbbb7.appspot.com")
             val imageFileUri: Uri = _photo.value.toUri()
@@ -439,7 +440,24 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                         (exception.message.toString())
                     }
             }
-        }
+        }, updateAisleForAllGroceries = { recipeId ->
+            viewModelScope.launch(Dispatchers.IO) {
+                val listOfIngredients = recipeRepository.getListOfIngredients(recipeId)
+                listOfIngredients.forEach { ingredient ->
+                    val name = ingredient.name
+
+                    val ingredientAisleInfo = findAisleForGrocery(name)
+                    val aisleNumber = ingredientAisleInfo.aisle.value
+                    val ingredientShortName = ingredientAisleInfo.shortName
+                    recipeRepository.updateAisleForAllGroceries(
+                        ingredient.id,
+                        aisleNumber,
+                        ingredientShortName
+                    )
+                }
+
+            }
+        })
     }
 
     fun getUserUid(): String {
@@ -472,12 +490,17 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         addMealPlan(_chosenDay.value)
     }
 
-    fun addRecipe(recipe: Recipe, callback: (Long) -> Unit) {
+    fun addRecipe(
+        recipe: Recipe,
+        updateImageFromFirebase: (Long) -> Unit,
+        updateAisleForAllGroceries: (Long) -> Unit
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             var recipeId = recipeRepository.insertRecipeIngredientAndStepTransaction(
                 recipe, _listIngredients.value, _listSteps.value, getUserUid()
             )
-            callback(recipeId)
+            updateImageFromFirebase(recipeId)
+            updateAisleForAllGroceries(recipeId)
             emptyLiveData()
         }
     }
@@ -746,5 +769,29 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
         }
+    }
+
+    fun findAisleForGrocery(input: String): IngredientAisleInfo {
+        val words = input.split("\\s".toRegex())
+        val result = mutableListOf<String>()
+
+        for (word in words) {
+            val lowercaseWord = word.lowercase()
+            val commaParts = lowercaseWord.split(",".toRegex())
+            result.addAll(commaParts)
+
+            result.forEach { part ->
+                for ((ingredient, aisle) in sortedFamiliarIngredients) {
+                    val similarity = 1.0 - StringUtils.getLevenshteinDistance(ingredient, part)
+                        .toDouble() / Math.max(ingredient.length, part.length)
+
+                    if (similarity >= 0.8) {
+                        return IngredientAisleInfo(aisle, ingredient)
+                    }
+                }
+            }
+            result.clear()
+        }
+        return IngredientAisleInfo(Aisle.OTHERS, input)
     }
 }

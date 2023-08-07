@@ -65,6 +65,10 @@ fun GroceriesScreen(
                 val listGroceries =
                     viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value
 
+                val sortedListGroceries =
+                    listGroceries.sortedBy { it.aisle }.groupBy { it.short_name }
+                        .flatMap { (_, groupedList) -> groupedList.sortedBy { it.name } }
+
                 Column(
                     Modifier.wrapContentHeight()
                 ) {
@@ -77,64 +81,62 @@ fun GroceriesScreen(
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        if (listGroceries.isNotEmpty()) {
-                            listGroceries.forEach { item ->
-                                key(item.id) {
-                                    Column(
+                        if (sortedListGroceries.isNotEmpty()) {
+                            sortedListGroceries.forEach { item ->
+                                Column(
+                                    modifier = Modifier
+                                        .background(Color.White),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    setUpLines(item, viewModel, false, completedIngredients)
+                                }
+                                if (sortedListGroceries.last() == item) {
+                                    Row(
                                         modifier = Modifier
-                                            .background(Color.White),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
+                                            .fillMaxWidth()
+                                            .padding(
+                                                top = 20.dp,
+                                                start = 8.dp,
+                                                end = 8.dp,
+                                                bottom = 8.dp
+                                            ),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        setUpLines(item, viewModel, false, completedIngredients)
-                                    }
-                                    if (listGroceries.last() == item) {
-                                        Row(
+                                        Text(
+                                            text = "Completed",
+                                            color = MealPrepColor.orange,
+                                            fontSize = 20.sp,
+                                            textAlign = TextAlign.Start,
+                                            fontWeight = FontWeight.Normal,
                                             modifier = Modifier
-                                                .fillMaxWidth()
-                                                .padding(
-                                                    top = 20.dp,
-                                                    start = 8.dp,
-                                                    end = 8.dp,
-                                                    bottom = 8.dp
-                                                ),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Text(
-                                                text = "Completed",
-                                                color = MealPrepColor.orange,
-                                                fontSize = 20.sp,
-                                                textAlign = TextAlign.Start,
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier
-                                                    .padding(start = 8.dp)
+                                                .padding(start = 8.dp)
+                                        )
+                                        IconButton(
+                                            modifier = Modifier.rotate(if (expand) 180F else 0F),
+                                            onClick = {
+                                                expand = !expand
+                                            }) {
+                                            Icon(
+                                                imageVector = Icons.Default.KeyboardArrowDown,
+                                                tint = MealPrepColor.orange,
+                                                contentDescription = "Drop Down Arrow"
                                             )
-                                            IconButton(
-                                                modifier = Modifier.rotate(if (expand) 180F else 0F),
-                                                onClick = {
-                                                    expand = !expand
-                                                }) {
-                                                Icon(
-                                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                                    tint = MealPrepColor.orange,
-                                                    contentDescription = "Drop Down Arrow"
-                                                )
-                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                        if (expand) {
-                            if (!completedIngredients.isNullOrEmpty()) {
-                                completedIngredients.forEach { item ->
-                                    key(item.id) {
-                                        Column(
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
+                    }
+                    if (expand) {
+                        if (!completedIngredients.isNullOrEmpty()) {
+                            completedIngredients.forEach { item ->
+                                key(item.id) {
+                                    Column(
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
                                             setUpLines(item, viewModel, true, completedIngredients)
-                                        }
                                     }
                                 }
                             }

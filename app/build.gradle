@@ -105,4 +105,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation "androidx.compose.material:material-icons-extended:$compose_ui_version"
     implementation 'com.google.code.gson:gson:2.8.9'
+    implementation  'org.apache.commons:commons-lang3:3.0'
 }

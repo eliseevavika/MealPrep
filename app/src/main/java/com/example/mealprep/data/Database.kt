@@ -1,11 +1,9 @@
 package com.example.mealprep
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.room.ForeignKey.Companion.CASCADE
-import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.flow.Flow
 import java.util.*
 
@@ -38,6 +36,8 @@ data class Ingredient(
     var name: String,
     var completed: Boolean = false,
     val recipe_id: Long?,
+    val aisle: Int,
+    val short_name: String,
     @ColumnInfo(name = "user_uid") var user_uid: String,
 )
 
@@ -84,7 +84,7 @@ interface RecipeDao {
 
         ingredients?.forEach { ingredient ->
             val item = Ingredient(
-                name = ingredient.name, completed = false, recipe_id = recipeId, user_uid = currentUserUID
+                name = ingredient.name, completed = false, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
             )
             listIngredients.add(item)
         }
@@ -208,6 +208,13 @@ interface RecipeDao {
 
     @Query("UPDATE Recipe SET photo = :newPhoto WHERE recipe_id = :recipeId")
     suspend fun updateRecipePhoto(recipeId: Long, newPhoto: String)
+
+    @Query("UPDATE Ingredient SET aisle = :aisleNumber, short_name = :ingredientShortName WHERE id = :ingredientId")
+    fun updateAisleForAllGroceries(
+        ingredientId: Long,
+        aisleNumber: Int,
+        ingredientShortName: String
+    )
 }
 
 @Dao

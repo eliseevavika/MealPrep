@@ -149,4 +149,12 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     suspend fun updateRecipeImageFromFirebase(recipeId: Long, downloadUrl: Uri) {
         recipeDao.updateRecipePhoto(recipeId, downloadUrl.toString())
     }
+
+    fun updateAisleForAllGroceries(
+        ingredientId: Long,
+        aisleNumber: Int,
+        ingredientShortName: String
+    ) {
+        recipeDao.updateAisleForAllGroceries(ingredientId, aisleNumber, ingredientShortName)
+    }
 }

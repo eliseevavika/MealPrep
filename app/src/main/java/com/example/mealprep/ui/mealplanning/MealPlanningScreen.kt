@@ -228,7 +228,7 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
                         horizontalAlignment = Alignment.Start,
 
                         ) {
-                        if (imagePathFromDatabase != null) {
+                        if (imagePathFromDatabase != "") {
                             Image(
                                 painter = painter,
                                 contentDescription = "Image",
