@@ -1,9 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -63,12 +61,9 @@ fun GroceriesScreen(
                 ), verticalArrangement = Arrangement.Top
             ) {
                 val listGroceries =
-                    viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value
-
-                val sortedListGroceries =
-                    listGroceries.sortedBy { it.aisle }.groupBy { it.short_name }
+                    viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
+                        .groupBy { it.short_name }
                         .flatMap { (_, groupedList) -> groupedList.sortedBy { it.name } }
-
                 Column(
                     Modifier.wrapContentHeight()
                 ) {
@@ -81,17 +76,22 @@ fun GroceriesScreen(
                             .weight(1f)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        if (sortedListGroceries.isNotEmpty()) {
-                            sortedListGroceries.forEach { item ->
+                        if (listGroceries.isNotEmpty()) {
+                            listGroceries.forEach { item ->
                                 Column(
                                     modifier = Modifier
                                         .background(Color.White),
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    setUpLines(item, viewModel, false, completedIngredients)
+                                    setUpLines(
+                                        item,
+                                        viewModel,
+                                        false,
+                                        completedIngredients
+                                    )
                                 }
-                                if (sortedListGroceries.last() == item) {
+                                if (listGroceries.last() == item) {
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -127,16 +127,22 @@ fun GroceriesScreen(
                                 }
                             }
                         }
-                    }
-                    if (expand) {
-                        if (!completedIngredients.isNullOrEmpty()) {
-                            completedIngredients.forEach { item ->
-                                key(item.id) {
-                                    Column(
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                            setUpLines(item, viewModel, true, completedIngredients)
+                        if (expand) {
+                            if (!completedIngredients.isNullOrEmpty()) {
+                                completedIngredients.forEach { item ->
+                                    key(item.id) {
+                                        Column(
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            setUpLines(
+                                                item,
+                                                viewModel,
+                                                true,
+                                                completedIngredients
+
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -160,9 +166,9 @@ fun setUpLines(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 30.dp),
-
-        ) {
+            .background(Color.White)
+            .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 30.dp)
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxHeight()
@@ -177,11 +183,11 @@ fun setUpLines(
                 ),
                 onClick = {
                     viewModel().performQueryForGroceries(item)
-                },
+                }
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
-                text = item.name,
+                text = item.name.substringBeforeLast(","),
                 fontFamily = fontFamilyForBodyB2,
                 style = if (isCompleted) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle(
                     textDecoration = TextDecoration.None

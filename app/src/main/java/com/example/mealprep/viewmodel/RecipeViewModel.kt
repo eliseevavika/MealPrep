@@ -149,6 +149,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
         completedIngredients = recipeRepository.completedIngredients
     }
+
     fun performQueryIngredients(
         ingredientName: String
     ) {
@@ -293,12 +294,16 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         ingredientName: String
     ) {
         if (ingredientName.isNotEmpty()) {
+            val ingredientAisleInfo = findAisleForGrocery(ingredientName)
+            val aisleNumber = ingredientAisleInfo.aisle.value
+            val ingredientShortName = ingredientAisleInfo.shortName
+
             val ingredient = Ingredient(
                 name = ingredientName,
                 completed = false,
                 recipe_id = null,
-                aisle = 0,
-                short_name = ingredientName,
+                aisle = aisleNumber,
+                short_name = ingredientShortName,
                 user_uid = currentUserUID
             )
             _listExtraGroceries.value =
