@@ -790,7 +790,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     val similarity = 1.0 - StringUtils.getLevenshteinDistance(ingredient, part)
                         .toDouble() / Math.max(ingredient.length, part.length)
 
-                    if (similarity >= 0.8) {
+                    if (similarity >= 0.83) {
                         return IngredientAisleInfo(aisle, ingredient)
                     }
                 }

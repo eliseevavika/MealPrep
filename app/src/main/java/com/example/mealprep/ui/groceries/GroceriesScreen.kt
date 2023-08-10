@@ -62,8 +62,8 @@ fun GroceriesScreen(
             ) {
                 val listGroceries =
                     viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
-                        .groupBy { it.short_name }
-                        .flatMap { (_, groupedList) -> groupedList.sortedBy { it.name } }
+                        .groupBy { it.aisle }
+                        .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
                 Column(
                     Modifier.wrapContentHeight()
                 ) {
