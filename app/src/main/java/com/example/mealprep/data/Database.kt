@@ -35,6 +35,7 @@ data class Ingredient(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     var name: String,
     var completed: Boolean = false,
+    var completion_date: Date?,
     val recipe_id: Long?,
     val aisle: Int,
     val short_name: String,
@@ -84,7 +85,7 @@ interface RecipeDao {
 
         ingredients?.forEach { ingredient ->
             val item = Ingredient(
-                name = ingredient.name, completed = false, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
+                name = ingredient.name, completed = false, completion_date = null, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
             )
             listIngredients.add(item)
         }
@@ -148,8 +149,8 @@ interface RecipeDao {
     fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID")
-    fun getAllCompletedIngredients(currentUserUID: String): LiveData<List<Ingredient>>
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID  AND completion_date > :oneWeekAgo UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID AND completion_date > :oneWeekAgo")
+    fun getAllCompletedIngredients(currentUserUID: String, oneWeekAgo: Date): LiveData<List<Ingredient>>
 
     @Query("DELETE FROM Recipe")
     suspend fun clearRecipes()
@@ -172,6 +173,7 @@ interface RecipeDao {
         val ingredient = getIngredientById(ingredient.id)
         if (ingredient != null) {
             ingredient.completed = true
+            ingredient.completion_date = Calendar.getInstance().time
             updateIngredient(ingredient)
         }
     }
@@ -181,6 +183,7 @@ interface RecipeDao {
         val ingredient = getIngredientById(ingredient.id)
         if (ingredient != null) {
             ingredient.completed = false
+            ingredient.completion_date = null
             updateIngredient(ingredient)
         }
     }

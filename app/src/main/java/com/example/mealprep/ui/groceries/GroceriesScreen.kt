@@ -69,7 +69,7 @@ fun GroceriesScreen(
                 ) {
                     var expand by remember { mutableStateOf(false) }
                     val completedIngredients =
-                        viewModel().completedIngredients.observeAsState().value
+                        viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
 
                     Column(
                         Modifier
@@ -91,44 +91,42 @@ fun GroceriesScreen(
                                         completedIngredients
                                     )
                                 }
-                                if (listGroceries.last() == item) {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(
-                                                top = 20.dp,
-                                                start = 8.dp,
-                                                end = 8.dp,
-                                                bottom = 8.dp
-                                            ),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "Completed",
-                                            color = MealPrepColor.orange,
-                                            fontSize = 20.sp,
-                                            textAlign = TextAlign.Start,
-                                            fontWeight = FontWeight.Normal,
-                                            modifier = Modifier
-                                                .padding(start = 8.dp)
-                                        )
-                                        IconButton(
-                                            modifier = Modifier.rotate(if (expand) 180F else 0F),
-                                            onClick = {
-                                                expand = !expand
-                                            }) {
-                                            Icon(
-                                                imageVector = Icons.Default.KeyboardArrowDown,
-                                                tint = MealPrepColor.orange,
-                                                contentDescription = "Drop Down Arrow"
-                                            )
-                                        }
-                                    }
-                                }
+                            }
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = 20.dp,
+                                    start = 8.dp,
+                                    end = 8.dp,
+                                    bottom = 8.dp
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Completed",
+                                color = MealPrepColor.orange,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Start,
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier
+                                    .padding(start = 8.dp)
+                            )
+                            IconButton(
+                                modifier = Modifier.rotate(if (expand) 180F else 0F),
+                                onClick = {
+                                    expand = !expand
+                                }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    tint = MealPrepColor.orange,
+                                    contentDescription = "Drop Down Arrow"
+                                )
                             }
                         }
                         if (expand) {
-                            if (!completedIngredients.isNullOrEmpty()) {
+                            if (completedIngredients.isNotEmpty()) {
                                 completedIngredients.forEach { item ->
                                     key(item.id) {
                                         Column(
@@ -140,7 +138,6 @@ fun GroceriesScreen(
                                                 viewModel,
                                                 true,
                                                 completedIngredients
-
                                             )
                                         }
                                     }

@@ -8,6 +8,7 @@ import com.example.mealprep.data.model.Steps
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
+import java.util.*
 
 class RecipeRepository(private val recipeDao: RecipeDao) {
     var currentUserUID: String = Firebase.auth.currentUser?.uid.toString()
@@ -75,9 +76,17 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     var ingredientsFromMealPlans: LiveData<List<Ingredient>> =
         recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
+    var oneWeekAgo = getOneWeekBefore()
+
     var completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients(
-        currentUserUID
+        currentUserUID, oneWeekAgo
     )
+
+    fun getOneWeekBefore(): Date {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.WEEK_OF_YEAR, -1)
+        return calendar.time
+    }
 
     fun refreshDataForHome() {
         currentUserUID = Firebase.auth.currentUser?.uid.toString()
@@ -108,7 +117,12 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         ingredientsFromMealPlans =
             recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
-        completedIngredients = recipeDao.getAllCompletedIngredients(currentUserUID)
+        var oneWeekAgo = getOneWeekBefore()
+
+        completedIngredients = recipeDao.getAllCompletedIngredients(
+            currentUserUID,
+            oneWeekAgo
+        )
     }
 
     fun getAllIngredients(uid: String): List<Ingredient> {

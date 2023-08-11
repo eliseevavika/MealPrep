@@ -29,7 +29,6 @@ import java.util.*
 
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
     private val recipeRepository: RecipeRepository
-    private val currentUserUID: String
 
     var allRecipes: LiveData<List<Recipe>>
 
@@ -55,7 +54,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
         recipeRepository = RecipeRepository(recipeDao)
-        currentUserUID = recipeRepository.currentUserUID
 
         allRecipes = recipeRepository.allRecipes
 
@@ -293,6 +291,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun performQueryForExtraGroceries(
         ingredientName: String
     ) {
+        val currentUserUID: String = Firebase.auth.currentUser?.uid.toString()
+
         if (ingredientName.isNotEmpty()) {
             val ingredientAisleInfo = findAisleForGrocery(ingredientName)
             val aisleNumber = ingredientAisleInfo.aisle.value
@@ -301,6 +301,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             val ingredient = Ingredient(
                 name = ingredientName,
                 completed = false,
+                completion_date = null,
                 recipe_id = null,
                 aisle = aisleNumber,
                 short_name = ingredientShortName,
