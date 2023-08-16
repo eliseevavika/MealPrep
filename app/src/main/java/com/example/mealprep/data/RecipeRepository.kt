@@ -76,6 +76,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     var ingredientsFromMealPlans: LiveData<List<Ingredient>> =
         recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
+    var listGroceriesForAnotherStore: LiveData<List<Ingredient>> =
+        recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)
+
     var oneWeekAgo = getOneWeekBefore()
 
     var completedIngredients: LiveData<List<Ingredient>> = recipeDao.getAllCompletedIngredients(
@@ -117,7 +120,10 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         ingredientsFromMealPlans =
             recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
-        var oneWeekAgo = getOneWeekBefore()
+        listGroceriesForAnotherStore
+        recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)
+
+        val oneWeekAgo = getOneWeekBefore()
 
         completedIngredients = recipeDao.getAllCompletedIngredients(
             currentUserUID,
@@ -170,5 +176,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         ingredientShortName: String
     ) {
         recipeDao.updateAisleForAllGroceries(ingredientId, aisleNumber, ingredientShortName)
+    }
+
+    fun updateAisleNumber(ingredientId: Long, aisleNumber: Int) {
+        recipeDao.updateAisleNumber(ingredientId, aisleNumber)
     }
 }

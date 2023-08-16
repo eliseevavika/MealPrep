@@ -40,7 +40,9 @@ val familiarIngredients = setOf(
     "salt" to Aisle.HERBS_AND_SPICES,
     "allspice" to Aisle.HERBS_AND_SPICES,
     "anise" to Aisle.HERBS_AND_SPICES,
+    "aniseed" to Aisle.HERBS_AND_SPICES,
     "leaf" to Aisle.HERBS_AND_SPICES,
+    "seasoning" to Aisle.HERBS_AND_SPICES,
     "caraway" to Aisle.HERBS_AND_SPICES,
     "cardamom" to Aisle.HERBS_AND_SPICES,
     "seed" to Aisle.HERBS_AND_SPICES,
@@ -154,6 +156,8 @@ val familiarIngredients = setOf(
     "scallions" to Aisle.FRUITS_AND_VEGETABLES,
     "chilies" to Aisle.FRUITS_AND_VEGETABLES,
     "cherries" to Aisle.FRUITS_AND_VEGETABLES,
+    "yukon" to Aisle.FRUITS_AND_VEGETABLES,
+    "mushrooms" to Aisle.FRUITS_AND_VEGETABLES,
 
     "beef" to Aisle.MEATS_AND_SEAFOOD,
     "chicken" to Aisle.MEATS_AND_SEAFOOD,
@@ -171,6 +175,8 @@ val familiarIngredients = setOf(
     "powder" to Aisle.BAKING,
     "sugar" to Aisle.BAKING,
     "tahini" to Aisle.BAKING,
+    "dough" to Aisle.BAKING,
+
 
     "nuts" to Aisle.SNACKS,
     "cashews" to Aisle.SNACKS,
@@ -180,6 +186,7 @@ val familiarIngredients = setOf(
     "cranberries" to Aisle.SNACKS,
     "pistachios" to Aisle.SNACKS,
     "seeds" to Aisle.SNACKS,
+    "almonds" to Aisle.SNACKS,
 
     "beans" to Aisle.CANNED_FOODS,
     "canned" to Aisle.CANNED_FOODS,

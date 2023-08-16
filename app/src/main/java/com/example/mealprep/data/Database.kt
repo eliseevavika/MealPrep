@@ -145,8 +145,11 @@ interface RecipeDao {
     fun getRecipesForTheDay(dayId: Int, currentUserUID: String?): Flow<List<Recipe>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND user_uid = :currentUserUID")
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND user_uid = :currentUserUID")
     fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
+    @Transaction
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle = 13 AND Recipe.user_uid = :currentUserUID  UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed  AND aisle = 13 AND user_uid = :currentUserUID")
+    fun getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID: String): LiveData<List<Ingredient>>
 
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID  AND completion_date > :oneWeekAgo UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID AND completion_date > :oneWeekAgo")
@@ -218,6 +221,9 @@ interface RecipeDao {
         aisleNumber: Int,
         ingredientShortName: String
     )
+
+    @Query("UPDATE Ingredient SET aisle = :aisleNumber WHERE id = :ingredientId")
+    fun updateAisleNumber(ingredientId: Long, aisleNumber: Int)
 }
 
 @Dao

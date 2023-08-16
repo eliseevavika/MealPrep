@@ -48,6 +48,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     var ingredientsFromMealPlans: LiveData<List<Ingredient>>
 
+    var listGroceriesForAnotherStore: LiveData<List<Ingredient>>
+
     var completedIngredients: LiveData<List<Ingredient>>
 
     init {
@@ -66,6 +68,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         recipesForSaturday = recipeRepository.recipesForSaturday
 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+        listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
         completedIngredients = recipeRepository.completedIngredients
     }
 
@@ -106,6 +109,12 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val _category = MutableStateFlow("")
     val category = _category.asStateFlow()
 
+    private val _moveIngredientChoice = MutableStateFlow(-1)
+    val moveIngredientChoice = _moveIngredientChoice.asStateFlow()
+
+    private val _newAisleChoice = MutableStateFlow(-1)
+    val newAisleChoice = _newAisleChoice.asStateFlow()
+
     private val _chosenTabIndex = MutableStateFlow(0)
     val chosenTabIndex = _chosenTabIndex.asStateFlow()
 
@@ -145,6 +154,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         recipeRepository.refreshDataForGroceries()
 
         ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+        listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
         completedIngredients = recipeRepository.completedIngredients
     }
 
@@ -387,6 +397,19 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             _serves.value = count
         }
     }
+
+    fun setIngredientSettingChoice(count: Int) {
+        if (count != -1) {
+            _moveIngredientChoice.value = count
+        }
+    }
+
+    fun setNewAsleChoice(count: Int) {
+        if (count != -1) {
+            _newAisleChoice.value = count
+        }
+    }
+
 
     fun setSource(link: String?) {
         if (link != null) {
@@ -799,5 +822,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             result.clear()
         }
         return IngredientAisleInfo(Aisle.OTHERS, input)
+    }
+
+    fun updateAisleNumber(ingredient: Ingredient, aisleNumber: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.updateAisleNumber(ingredient.id, aisleNumber)
+        }
     }
 }
