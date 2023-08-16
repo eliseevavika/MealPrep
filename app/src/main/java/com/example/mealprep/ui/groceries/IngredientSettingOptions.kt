@@ -1,5 +1,7 @@
 package com.example.mealprep.ui.groceries
 
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -13,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -32,8 +35,8 @@ fun IngredientSettingOptions(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     selectedIndex: Int = -1,
-    onItemSelected: (index: Int, item: String) -> Unit,
     showMessage: (Ingredient, String) -> Unit,
+    showMessageForAisleUpdate: (Ingredient, Aisle) -> Unit,
     drawItem: @Composable (String, Boolean, Boolean, () -> Unit) -> Unit = { item, selected, itemEnabled, onClick ->
         CategoryDropdown(
             text = item,
@@ -41,14 +44,15 @@ fun IngredientSettingOptions(
             enabled = itemEnabled,
             onClick = onClick,
         )
-    },
-
-    ) {
+    }
+) {
     var expanded by remember { mutableStateOf(false) }
 
     val listChoices = listOf("Move to another store", "Move to another aisle:")
 
     val newAisleChoice by viewModel.newAisleChoice.collectAsState()
+
+    val context = LocalContext.current
 
     Box(
         modifier = modifier
@@ -111,18 +115,51 @@ fun IngredientSettingOptions(
                                 selectedIndex == 1,
                                 true,
                             ) {
-                                onItemSelected(1, listChoices[1])
                             }
-                            AisleMenuChoice(viewModel = viewModel,
-                                focusRequester = focusRequester,
+                            AisleMenuChoice(ingredient = ingredient,
+                                viewModel = viewModel,
                                 modifier = Modifier.focusRequester(focusRequester),
                                 selectedIndex = newAisleChoice,
-                                onItemSelected = { index, _ ->
-                                    viewModel.setIngredientSettingChoice(index)
+                                onItemSelected = { aisle ->
+                                    viewModel.setNewAsleChoice(aisle)
                                 },
-                                chooseAisle = {
+                                showDialog = { ingredient, aisle, message ->
+                                    val ingredientName = ingredient.name.substringBeforeLast(",")
+                                    val spannableMessage = SpannableString(message)
 
-                                })
+                                    val ingredientStart = message.indexOf(ingredientName)
+                                    if (ingredientStart != -1) {
+                                        spannableMessage.setSpan(
+                                            ForegroundColorSpan(MealPrepColor.orange.toArgb()),
+                                            ingredientStart,
+                                            ingredientStart + ingredientName.length,
+                                            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+                                        )
+                                    }
+                                    val aisleStart = message.indexOf(aisle.departmentName!!)
+                                    if (aisleStart != -1) {
+                                        spannableMessage.setSpan(
+                                            ForegroundColorSpan(MealPrepColor.orange.toArgb()),
+                                            aisleStart,
+                                            aisleStart + aisle.departmentName.length,
+                                            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+                                        )
+                                    }
+                                    android.app.AlertDialog.Builder(context)
+                                        .setMessage(spannableMessage)
+                                        .setPositiveButton("Yes") { dialog, _ ->
+                                            expanded = false
+                                            dialog.dismiss()
+                                            viewModel.updateAisleNumber(ingredient, aisle.value)
+                                            showMessageForAisleUpdate(ingredient, aisle)
+                                        }
+                                        .setNegativeButton("No") { dialog, _ ->
+                                            expanded = false
+                                            dialog.dismiss()
+                                        }
+                                        .show()
+                                }
+                            )
                         }
                     }
                 }

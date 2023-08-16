@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mealprep.Ingredient
+import com.example.mealprep.data.model.Aisle
 import com.example.mealprep.ui.groceries.IngredientSettingOptions
 import com.example.mealprep.ui.navigation.BottomNavigationBar
 import com.example.mealprep.ui.navigation.GroceriesAddition
@@ -234,9 +235,6 @@ fun setUpLines(
                     .focusRequester(focusRequester)
                     .weight(1f),
                 selectedIndex = moveIngredientChoice,
-                onItemSelected = { index, _ ->
-                    viewModel().setIngredientSettingChoice(index)
-                },
                 showMessage = { ingredient, message ->
                     val name = ingredient.name.substringBeforeLast(",")
                     val spannableString = SpannableString(message)
@@ -251,6 +249,38 @@ fun setUpLines(
                         .setPositiveButton("OK") { dialog, _ ->
                             dialog.dismiss()
                         }.show()
+                },
+                showMessageForAisleUpdate = { ingredient, aisle ->
+                    val ingredientName = ingredient.name.substringBeforeLast(",")
+                    val message =
+                        "Ingredient ${ingredientName} moved to ${aisle.departmentName} aisle"
+
+                    val spannableString = SpannableString(message)
+                    val nameStart = message.indexOf(ingredientName)
+                    val nameEnd = nameStart + ingredientName.length
+
+                    if (nameStart != -1) {
+                        spannableString.setSpan(
+                            ForegroundColorSpan(MealPrepColor.orange.toArgb()), // Change color here
+                            nameStart, nameEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                        )
+                    }
+
+                    val aisleStart = message.indexOf(aisle.departmentName!!)
+                    if (aisleStart != -1) {
+                        spannableString.setSpan(
+                            ForegroundColorSpan(MealPrepColor.orange.toArgb()),
+                            aisleStart,
+                            aisleStart + aisle.departmentName.length,
+                            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
+
+                    android.app.AlertDialog.Builder(context).setMessage(spannableString)
+                        .setPositiveButton("OK") { dialog, _ ->
+                            dialog.dismiss()
+                        }.show()
+
                 }
             )
         }
