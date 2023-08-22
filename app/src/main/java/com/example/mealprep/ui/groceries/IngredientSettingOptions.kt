@@ -101,9 +101,8 @@ fun IngredientSettingOptions(
 
                             showMessage(
                                 ingredient,
-                                "Item ${name} moved to the different store section"
+                                "Item ${name} moved to the Another Store section"
                             )
-
                             viewModel.updateAisleNumber(ingredient, Aisle.DIFFERENT_STORE.value)
                         }
 

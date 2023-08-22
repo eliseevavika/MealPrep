@@ -4,6 +4,7 @@ import android.app.Application
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.RichTooltipBox
 import androidx.compose.runtime.*
 import androidx.core.net.toUri
 import androidx.lifecycle.*
@@ -41,6 +42,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     var recipesForSaturday: Flow<List<Recipe>>
 
     val returnedRecipe = MutableLiveData<Recipe>()
+
+    val recipeNameForTooltip = MutableLiveData<String>()
 
     val returnedListIngredient = MutableLiveData<List<Ingredient>>()
 
@@ -745,6 +748,18 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
+    fun getTextForTooltipBox(recipeId: Long?) {
+        if (recipeId != null) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val recipe = recipeRepository.getRecipeById(recipeId)
+                recipeNameForTooltip.postValue(recipe.name)
+            }
+        } else {
+            recipeNameForTooltip.postValue(null)
+        }
+    }
+
+
     fun getListOfIngredients(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             returnedListIngredient.postValue(recipeRepository.getListOfIngredients(recipeId))
@@ -796,7 +811,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteAllRecipesForDay(dayId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.makeAllIgredientsActive(dayId)
             recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
+
         }
     }
 

@@ -135,6 +135,7 @@ interface RecipeDao {
     @Query("DELETE FROM recipewithmealplan WHERE mealplan_id = :dayId")
     fun deleteRecipeWithMealPlan(dayId: Int)
 
+
     @Transaction
     suspend fun deleteRecipeAndMealPlanTransaction(dayId: Int) {
         deleteRecipeWithMealPlan(dayId)
@@ -145,7 +146,7 @@ interface RecipeDao {
     fun getRecipesForTheDay(dayId: Int, currentUserUID: String?): Flow<List<Recipe>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND user_uid = :currentUserUID")
+    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND aisle != 13 AND user_uid = :currentUserUID")
     fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle = 13 AND Recipe.user_uid = :currentUserUID  UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed  AND aisle = 13 AND user_uid = :currentUserUID")
@@ -224,6 +225,11 @@ interface RecipeDao {
 
     @Query("UPDATE Ingredient SET aisle = :aisleNumber WHERE id = :ingredientId")
     fun updateAisleNumber(ingredientId: Long, aisleNumber: Int)
+    @Query("SELECT recipe_id FROM recipewithmealplan WHERE mealplan_id = :mealplanId")
+    fun getRecipeIdsForMealplan(mealplanId: Int): List<Long>
+    @Query("UPDATE Ingredient SET completed = 0, completion_date = NULL WHERE recipe_id = :recipeId")
+    suspend fun updateIngredientsForRecipe(recipeId: Long)
+
 }
 
 @Dao

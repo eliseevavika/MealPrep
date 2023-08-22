@@ -181,4 +181,11 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     fun updateAisleNumber(ingredientId: Long, aisleNumber: Int) {
         recipeDao.updateAisleNumber(ingredientId, aisleNumber)
     }
+
+    suspend fun makeAllIgredientsActive(dayId: Int) {
+        val recipeIds = recipeDao.getRecipeIdsForMealplan(dayId)
+        for (recipeId in recipeIds) {
+            recipeDao.updateIngredientsForRecipe(recipeId)
+        }
+    }
 }
