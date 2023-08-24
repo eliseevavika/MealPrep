@@ -6,31 +6,23 @@ import android.text.style.ForegroundColorSpan
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.Icon
-import androidx.compose.material.RadioButton
-import androidx.compose.material.RadioButtonDefaults
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.FilePresent
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.rounded.Restaurant
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.RichTooltipBox
+import androidx.compose.material3.RichTooltipState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -39,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.mealprep.Ingredient
-import com.example.mealprep.data.model.Aisle
 import com.example.mealprep.ui.groceries.IngredientSettingOptions
 import com.example.mealprep.ui.navigation.BottomNavigationBar
 import com.example.mealprep.ui.navigation.GroceriesAddition
@@ -54,8 +45,13 @@ import kotlinx.coroutines.launch
 fun GroceriesScreen(
     navController: () -> NavHostController, viewModel: () -> RecipeViewModel
 ) {
+    val scrollState = rememberScrollState()
+    val expandMainStore = viewModel().expandMainStore.collectAsState().value
+    val expandAnotherStore = viewModel().expandAnotherStore.collectAsState().value
+    var expandCompleted by remember { mutableStateOf(false) }
+
     Scaffold(topBar = {
-        TopBarForGroceriesScreen()
+        TopBarForGroceriesScreen(viewModel)
     },
         bottomBar = { BottomNavigationBar(navController = navController) },
         floatingActionButton = {
@@ -88,8 +84,6 @@ fun GroceriesScreen(
                 Column(
                     Modifier.wrapContentHeight()
                 ) {
-                    var expand by remember { mutableStateOf(false) }
-
                     val listGroceriesForAnotherStore =
                         viewModel().listGroceriesForAnotherStore.observeAsState(listOf()).value.sortedBy { it.aisle }
                             .groupBy { it.aisle }
@@ -101,18 +95,46 @@ fun GroceriesScreen(
                     Column(
                         Modifier
                             .weight(1f)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(scrollState)
                     ) {
-                        if (listGroceries.isNotEmpty()) {
-                            listGroceries.forEach { item ->
-                                Column(
-                                    modifier = Modifier.background(Color.White),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    setUpLines(
-                                        item, viewModel, false, completedIngredients
-                                    )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
+                                ), verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Main store",
+                                color = MealPrepColor.orange,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Start,
+                                fontWeight = FontWeight.Normal,
+                                modifier = Modifier.padding(start = 8.dp)
+                            )
+                            IconButton(modifier = Modifier.rotate(if (expandMainStore) 180F else 0F),
+                                onClick = {
+                                    viewModel().setExpandMainStore(!expandMainStore)
+                                }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    tint = MealPrepColor.orange,
+                                    contentDescription = "Drop Down Arrow"
+                                )
+                            }
+                        }
+                        if (expandMainStore) {
+                            if (listGroceries.isNotEmpty()) {
+                                listGroceries.forEach { item ->
+                                    Column(
+                                        modifier = Modifier.background(Color.White),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        setUpLines(
+                                            item, viewModel, false, completedIngredients
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -131,17 +153,29 @@ fun GroceriesScreen(
                                 fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(start = 8.dp)
                             )
+                            IconButton(modifier = Modifier.rotate(if (expandAnotherStore) 180F else 0F),
+                                onClick = {
+                                    viewModel().setExpandAnotherStore(!expandAnotherStore)
+                                }) {
+                                Icon(
+                                    imageVector = Icons.Default.KeyboardArrowDown,
+                                    tint = MealPrepColor.orange,
+                                    contentDescription = "Drop Down Arrow"
+                                )
+                            }
                         }
-                        if (listGroceriesForAnotherStore.isNotEmpty()) {
-                            listGroceriesForAnotherStore.forEach { item ->
-                                Column(
-                                    modifier = Modifier.background(Color.White),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    setUpLines(
-                                        item, viewModel, false, completedIngredients
-                                    )
+                        if (expandAnotherStore) {
+                            if (listGroceriesForAnotherStore.isNotEmpty()) {
+                                listGroceriesForAnotherStore.forEach { item ->
+                                    Column(
+                                        modifier = Modifier.background(Color.White),
+                                        verticalArrangement = Arrangement.Center,
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
+                                        setUpLines(
+                                            item, viewModel, false, completedIngredients
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -160,10 +194,9 @@ fun GroceriesScreen(
                                 fontWeight = FontWeight.Normal,
                                 modifier = Modifier.padding(start = 8.dp)
                             )
-                            IconButton(
-                                modifier = Modifier.rotate(if (expand) 180F else 0F),
+                            IconButton(modifier = Modifier.rotate(if (expandCompleted) 180F else 0F),
                                 onClick = {
-                                    expand = !expand
+                                    expandCompleted = !expandCompleted
                                 }) {
                                 Icon(
                                     imageVector = Icons.Default.KeyboardArrowDown,
@@ -172,7 +205,7 @@ fun GroceriesScreen(
                                 )
                             }
                         }
-                        if (expand) {
+                        if (expandCompleted) {
                             if (completedIngredients.isNotEmpty()) {
                                 completedIngredients.forEach { item ->
                                     key(item.id) {
@@ -203,7 +236,6 @@ fun setUpLines(
     isCompleted: Boolean,
     completedIngredients: List<Ingredient>?
 ) {
-    val moveIngredientChoice by viewModel().moveIngredientChoice.collectAsState()
     val context = LocalContext.current
     val tooltipState = remember { RichTooltipState() }
     val scope = rememberCoroutineScope()
@@ -246,7 +278,6 @@ fun setUpLines(
                 ),
                 fontSize = 16.sp
             )
-
             RichTooltipBox(modifier = Modifier.weight(9f), title = {
                 Text(
                     item.name, color = MealPrepColor.black,
@@ -283,22 +314,16 @@ fun setUpLines(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            val focusRequester = remember { FocusRequester() }
-
             IngredientSettingOptions(item,
                 viewModel = viewModel(),
-                focusRequester = focusRequester,
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .weight(1f),
-                selectedIndex = moveIngredientChoice,
+                modifier = Modifier.weight(1f),
                 showMessage = { ingredient, message ->
                     val name = ingredient.name.substringBeforeLast(",")
                     val spannableString = SpannableString(message)
                     val nameStart = message.indexOf(name)
                     val nameEnd = nameStart + name.length
                     spannableString.setSpan(
-                        ForegroundColorSpan(MealPrepColor.orange.toArgb()), // Change color here
+                        ForegroundColorSpan(MealPrepColor.orange.toArgb()),
                         nameStart, nameEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
                     )
                     android.app.AlertDialog.Builder(context).setMessage(spannableString)

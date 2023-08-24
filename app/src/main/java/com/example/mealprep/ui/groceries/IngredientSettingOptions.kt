@@ -12,8 +12,6 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -31,17 +29,13 @@ import com.google.android.material.color.MaterialColors
 fun IngredientSettingOptions(
     ingredient: Ingredient,
     viewModel: RecipeViewModel,
-    focusRequester: FocusRequester,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    selectedIndex: Int = -1,
     showMessage: (Ingredient, String) -> Unit,
     showMessageForAisleUpdate: (Ingredient, Aisle) -> Unit,
-    drawItem: @Composable (String, Boolean, Boolean, () -> Unit) -> Unit = { item, selected, itemEnabled, onClick ->
+    drawItem: @Composable (String, () -> Unit) -> Unit = { item, onClick ->
         CategoryDropdown(
             text = item,
-            selected = selected,
-            enabled = itemEnabled,
             onClick = onClick,
         )
     }
@@ -83,25 +77,15 @@ fun IngredientSettingOptions(
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                 ) {
-                    val listState = rememberLazyListState()
-                    if (selectedIndex > -1) {
-                        LaunchedEffect("ScrollToSelected") {
-                            listState.scrollToItem(index = selectedIndex)
-                        }
-                    }
-
                     Column(modifier = Modifier.fillMaxWidth()) {
                         drawItem(
                             listChoices[0],
-                            selectedIndex == 0,
-                            true,
                         ) {
                             expanded = false
                             val name = ingredient.name.substringBeforeLast(",")
 
                             showMessage(
-                                ingredient,
-                                "Item ${name} moved to the Another Store section"
+                                ingredient, "Item ${name} moved to the Another Store section"
                             )
                             viewModel.updateAisleNumber(ingredient, Aisle.DIFFERENT_STORE.value)
                         }
@@ -111,18 +95,11 @@ fun IngredientSettingOptions(
                         Row() {
                             drawItem(
                                 listChoices[1],
-                                selectedIndex == 1,
-                                true,
-                            ) {
-                            }
-                            AisleMenuChoice(ingredient = ingredient,
-                                viewModel = viewModel,
-                                modifier = Modifier.focusRequester(focusRequester),
-                                selectedIndex = newAisleChoice,
-                                onItemSelected = { aisle ->
+                            ) {}
+                            AisleMenuChoice(ingredient = ingredient, viewModel = viewModel,
+                                selectedIndex = newAisleChoice, onItemSelected = { aisle ->
                                     viewModel.setNewAsleChoice(aisle)
-                                },
-                                showDialog = { ingredient, aisle, message ->
+                                }, showDialog = { ingredient, aisle, message ->
                                     val ingredientName = ingredient.name.substringBeforeLast(",")
                                     val spannableMessage = SpannableString(message)
 
@@ -151,14 +128,11 @@ fun IngredientSettingOptions(
                                             dialog.dismiss()
                                             viewModel.updateAisleNumber(ingredient, aisle.value)
                                             showMessageForAisleUpdate(ingredient, aisle)
-                                        }
-                                        .setNegativeButton("No") { dialog, _ ->
+                                        }.setNegativeButton("No") { dialog, _ ->
                                             expanded = false
                                             dialog.dismiss()
-                                        }
-                                        .show()
-                                }
-                            )
+                                        }.show()
+                                })
                         }
                     }
                 }
@@ -171,18 +145,14 @@ fun IngredientSettingOptions(
 @Composable
 fun CategoryDropdown(
     text: String,
-    selected: Boolean,
-    enabled: Boolean,
     onClick: () -> Unit,
 ) {
     val contentColor = when {
-        !enabled -> MaterialTheme.colors.onSurface.copy(alpha = MaterialColors.ALPHA_DISABLED)
-        selected -> MealPrepColor.orange.copy(alpha = MaterialColors.ALPHA_FULL)
         else -> MaterialTheme.colors.onSurface.copy(alpha = MaterialColors.ALPHA_FULL)
     }
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(modifier = Modifier
-            .clickable(enabled) { onClick() }
+            .clickable(true) { onClick() }
             .padding(16.dp)) {
             Text(
                 text = text, fontFamily = fontFamilyForBodyB1

@@ -112,9 +112,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val _category = MutableStateFlow("")
     val category = _category.asStateFlow()
 
-    private val _moveIngredientChoice = MutableStateFlow(-1)
-    val moveIngredientChoice = _moveIngredientChoice.asStateFlow()
-
     private val _newAisleChoice = MutableStateFlow(-1)
     val newAisleChoice = _newAisleChoice.asStateFlow()
 
@@ -131,6 +128,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _isValidUrl = MutableStateFlow(true)
     val isValidUrl = _isValidUrl.asStateFlow()
+
+    private val _expandAnotherStore = MutableStateFlow(true)
+    val expandAnotherStore = _expandAnotherStore.asStateFlow()
+
+    private val _expandMainStore = MutableStateFlow(true)
+    val expandMainStore = _expandMainStore.asStateFlow()
+
 
     private var _listExtraGroceries = MutableLiveData<List<Ingredient>?>()
     val listExtraGroceries: MutableLiveData<List<Ingredient>?>
@@ -401,12 +405,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun setIngredientSettingChoice(count: Int) {
-        if (count != -1) {
-            _moveIngredientChoice.value = count
-        }
-    }
-
     fun setNewAsleChoice(count: Int) {
         if (count != -1) {
             _newAisleChoice.value = count
@@ -467,8 +465,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                                 recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
                             }
                         }
-                    }
-                    .addOnFailureListener { exception ->
+                    }.addOnFailureListener { exception ->
                         (exception.message.toString())
                     }
             }
@@ -482,9 +479,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     val aisleNumber = ingredientAisleInfo.aisle.value
                     val ingredientShortName = ingredientAisleInfo.shortName
                     recipeRepository.updateAisleForAllGroceries(
-                        ingredient.id,
-                        aisleNumber,
-                        ingredientShortName
+                        ingredient.id, aisleNumber, ingredientShortName
                     )
                 }
 
@@ -844,6 +839,29 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun updateAisleNumber(ingredient: Ingredient, aisleNumber: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             recipeRepository.updateAisleNumber(ingredient.id, aisleNumber)
+        }
+    }
+
+    fun setExpandAnotherStore(expandAnotherStoreParam: Boolean) {
+        _expandAnotherStore.value = expandAnotherStoreParam
+    }
+
+    fun setExpandMainStore(expandMainStoreParam: Boolean) {
+        _expandMainStore.value = expandMainStoreParam
+    }
+
+    fun markAllComplete() {
+        viewModelScope.launch(Dispatchers.IO) {
+            ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+            ingredientsFromMealPlans.value?.forEach { ingredient ->
+                makeIngredientComplete(ingredient)
+            }
+
+            listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
+
+            listGroceriesForAnotherStore.value?.forEach { ingredient ->
+                makeIngredientComplete(ingredient)
+            }
         }
     }
 }
