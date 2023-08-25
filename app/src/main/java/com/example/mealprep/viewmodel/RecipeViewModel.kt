@@ -4,13 +4,15 @@ import android.app.Application
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.material3.RichTooltipBox
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.toUpperCase
 import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.example.mealprep.*
 import com.example.mealprep.data.RecipeRepository
 import com.example.mealprep.data.model.*
+import com.example.mealprep.ui.mealplanning.MealPlanWithLinks
+import com.example.mealprep.ui.mealplanning.RecipeWithLink
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -862,6 +864,88 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             listGroceriesForAnotherStore.value?.forEach { ingredient ->
                 makeIngredientComplete(ingredient)
             }
+        }
+    }
+
+    fun makeCopyMealPlansWithLinks(
+        recipesForSunday: List<Recipe>,
+        recipesForMonday: List<Recipe>,
+        recipesForTuesday: List<Recipe>,
+        recipesForWednesday: List<Recipe>,
+        recipesForThursday: List<Recipe>,
+        recipesForFriday: List<Recipe>,
+        recipesForSaturday: List<Recipe>
+    ): List<MealPlanWithLinks> {
+        val resultList = mutableListOf<MealPlanWithLinks>()
+
+        if (recipesForSunday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(0, recipesForSunday))
+        }
+        if (recipesForMonday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(1, recipesForMonday))
+        }
+
+        if (recipesForTuesday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(2, recipesForTuesday))
+        }
+
+        if (recipesForWednesday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(3, recipesForWednesday))
+        }
+
+        if (recipesForThursday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(4, recipesForThursday))
+        }
+
+        if (recipesForFriday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(5, recipesForFriday))
+        }
+
+        if (recipesForSaturday.isNotEmpty()) {
+            resultList.add(getMealPlanRecipesWithLinks(6, recipesForSaturday))
+        }
+
+        return resultList
+    }
+
+    fun getMealPlanRecipesWithLinks(day: Int, recipesByDay: List<Recipe>): MealPlanWithLinks {
+        val list = mutableListOf<RecipeWithLink>()
+
+        recipesByDay.forEach { recipe ->
+            val recipeName = recipe.name
+            val recipeLink = recipe.source
+
+            list.add(RecipeWithLink(recipeName, recipeLink))
+
+        }
+        return MealPlanWithLinks(day, list)
+    }
+
+    fun makeJoinedNameForSpecificMealPlan(mealPlan: MealPlanWithLinks): List<String> {
+        val day = mealPlan.dayOfWeek
+        val result = mutableListOf<String>()
+        result.add(days[day].title)
+        result.add("")
+
+        mealPlan.recipesWithLinks.forEach { recipe ->
+            val name = recipe.recipeName.uppercase()
+            val link = recipe.recipeLink
+            result.add(name)
+            link?.let { result.add(it) }
+            result.add("")
+        }
+        return result.toList()
+    }
+
+    fun resetAllMealPlansForTheWeek() {
+        viewModelScope.launch(Dispatchers.IO) {
+            deleteAllRecipesForDay(0)
+            deleteAllRecipesForDay(1)
+            deleteAllRecipesForDay(2)
+            deleteAllRecipesForDay(3)
+            deleteAllRecipesForDay(4)
+            deleteAllRecipesForDay(5)
+            deleteAllRecipesForDay(6)
         }
     }
 }

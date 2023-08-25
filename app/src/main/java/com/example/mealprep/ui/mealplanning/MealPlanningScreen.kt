@@ -44,36 +44,31 @@ fun MealPlanningScreen(
     navController: () -> NavHostController,
     viewModel: () -> RecipeViewModel,
 ) {
+    val context = LocalContext.current
     val chosenDay by rememberUpdatedState(viewModel().chosenDay.collectAsState()).value
     val recipesForSunday by viewModel().recipesForSunday.collectAsState(listOf())
 
-    val recipesForMonday by
-    viewModel().recipesForMonday.collectAsState(
+    val recipesForMonday by viewModel().recipesForMonday.collectAsState(
         listOf()
     )
 
-    val recipesForTuesday by
-    viewModel().recipesForTuesday.collectAsState(
+    val recipesForTuesday by viewModel().recipesForTuesday.collectAsState(
         listOf()
     )
 
-    val recipesForWednesday by
-    viewModel().recipesForWednesday.collectAsState(
+    val recipesForWednesday by viewModel().recipesForWednesday.collectAsState(
         listOf()
     )
 
-    val recipesForThursday by
-    viewModel().recipesForThursday.collectAsState(
+    val recipesForThursday by viewModel().recipesForThursday.collectAsState(
         listOf()
     )
 
-    val recipesForFriday by
-    viewModel().recipesForFriday.collectAsState(
+    val recipesForFriday by viewModel().recipesForFriday.collectAsState(
         listOf()
     )
 
-    val recipesForSaturday by
-    viewModel().recipesForSaturday.collectAsState(
+    val recipesForSaturday by viewModel().recipesForSaturday.collectAsState(
         listOf()
     )
 
@@ -107,18 +102,28 @@ fun MealPlanningScreen(
     }) {
         Scaffold(
             topBar = {
-                TopAppBarMealPlanning()
+                TopAppBarMealPlanning(
+                    viewModel,
+                    recipesForSunday,
+                    recipesForMonday,
+                    recipesForTuesday,
+                    recipesForWednesday,
+                    recipesForThursday,
+                    recipesForFriday,
+                    recipesForSaturday,
+                    showMessage = {
+                        android.app.AlertDialog.Builder(context)
+                            .setMessage("It looks like there are no planned recipes for this week")
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }.show()
+                    })
             },
             bottomBar = { BottomNavigationBar(navController = navController) },
-
-            ) { padding ->
-
+        ) { padding ->
             Box(
                 modifier = Modifier.padding(
-                    top = 16.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                    bottom = 35.dp
+                    top = 16.dp, start = 16.dp, end = 16.dp, bottom = 35.dp
                 )
             ) {
                 Column(
@@ -156,7 +161,6 @@ fun MealPlanningScreen(
                                 )
                             }
                         }
-
                         if (recipesForSunday.isNotEmpty() && day.id == 0) {
                             MealPlanRecipesByDay { recipesForSunday }
                         } else if (recipesForMonday.isNotEmpty() && day.id == 1) {
@@ -190,8 +194,7 @@ fun BottomSheetContent(
                 viewModel().performQueryForChosenMealsFromDB(chosenDay.id)
                 navController().navigate(com.example.mealprep.ui.navigation.MealPrepForSpecificDay.route + "/${chosenDay.id}")
             })
-        BottomSheetListItem(
-            icon = R.drawable.outline_delete_24,
+        BottomSheetListItem(icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
                 viewModel().deleteAllRecipesForDay(chosenDay.id)
@@ -213,10 +216,8 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
             val imagePathFromDatabase = recipe.photo
 
             val painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imagePathFromDatabase)
-                    .size(Size.ORIGINAL)
-                    .build()
+                model = ImageRequest.Builder(LocalContext.current).data(imagePathFromDatabase)
+                    .size(Size.ORIGINAL).build()
             )
             Card(modifier = Modifier
                 .padding(8.dp)
@@ -225,9 +226,8 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
                     Column(
                         modifier = Modifier.size(74.dp, 108.dp),
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start,
-
-                        ) {
+                        horizontalAlignment = Alignment.Start
+                    ) {
                         if (imagePathFromDatabase != "") {
                             Image(
                                 painter = painter,
