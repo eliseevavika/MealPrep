@@ -16,7 +16,6 @@ import androidx.compose.material3.RichTooltipState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
@@ -73,7 +72,7 @@ fun GroceriesScreen(
         content = { padding ->
             Column(
                 modifier = Modifier.padding(
-                    top = 30.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
+                    top = 16.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
                 ), verticalArrangement = Arrangement.Top
             ) {
                 val listGroceries =
@@ -101,7 +100,7 @@ fun GroceriesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
+                                    top = 20.dp, start = 8.dp, bottom = 8.dp
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -142,7 +141,7 @@ fun GroceriesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
+                                    top = 20.dp, start = 8.dp, bottom = 8.dp
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -183,7 +182,7 @@ fun GroceriesScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    top = 20.dp, start = 8.dp, end = 8.dp, bottom = 8.dp
+                                    top = 20.dp, start = 8.dp, bottom = 8.dp
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
@@ -247,7 +246,7 @@ fun setUpLines(
             .fillMaxWidth()
             .fillMaxHeight()
             .background(Color.White)
-            .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 30.dp)
+            .padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 30.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically
@@ -324,7 +323,9 @@ fun setUpLines(
                     val nameEnd = nameStart + name.length
                     spannableString.setSpan(
                         ForegroundColorSpan(MealPrepColor.orange.toArgb()),
-                        nameStart, nameEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
+                        nameStart,
+                        nameEnd,
+                        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
                     )
                     android.app.AlertDialog.Builder(context).setMessage(spannableString)
                         .setPositiveButton("OK") { dialog, _ ->

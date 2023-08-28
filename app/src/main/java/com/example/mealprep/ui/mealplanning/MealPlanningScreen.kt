@@ -29,6 +29,7 @@ import com.example.mealprep.data.model.Day
 import com.example.mealprep.data.model.days
 import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.navigation.BottomNavigationBar
+import com.example.mealprep.ui.navigation.DishDetails
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
@@ -102,8 +103,7 @@ fun MealPlanningScreen(
     }) {
         Scaffold(
             topBar = {
-                TopAppBarMealPlanning(
-                    viewModel,
+                TopAppBarMealPlanning(viewModel,
                     recipesForSunday,
                     recipesForMonday,
                     recipesForTuesday,
@@ -162,19 +162,19 @@ fun MealPlanningScreen(
                             }
                         }
                         if (recipesForSunday.isNotEmpty() && day.id == 0) {
-                            MealPlanRecipesByDay { recipesForSunday }
+                            MealPlanRecipesByDay({ recipesForSunday }, navController)
                         } else if (recipesForMonday.isNotEmpty() && day.id == 1) {
-                            MealPlanRecipesByDay { recipesForMonday }
+                            MealPlanRecipesByDay({ recipesForMonday }, navController)
                         } else if (recipesForTuesday.isNotEmpty() && day.id == 2) {
-                            MealPlanRecipesByDay { recipesForTuesday }
+                            MealPlanRecipesByDay({ recipesForTuesday }, navController)
                         } else if (recipesForWednesday.isNotEmpty() && day.id == 3) {
-                            MealPlanRecipesByDay { recipesForWednesday }
+                            MealPlanRecipesByDay({ recipesForWednesday }, navController)
                         } else if (recipesForThursday.isNotEmpty() && day.id == 4) {
-                            MealPlanRecipesByDay { recipesForThursday }
+                            MealPlanRecipesByDay({ recipesForThursday }, navController)
                         } else if (recipesForFriday.isNotEmpty() && day.id == 5) {
-                            MealPlanRecipesByDay { recipesForFriday }
+                            MealPlanRecipesByDay({ recipesForFriday }, navController)
                         } else if (recipesForSaturday.isNotEmpty() && day.id == 6) {
-                            MealPlanRecipesByDay { recipesForSaturday }
+                            MealPlanRecipesByDay({ recipesForSaturday }, navController)
                         }
                     }
                 }
@@ -194,7 +194,8 @@ fun BottomSheetContent(
                 viewModel().performQueryForChosenMealsFromDB(chosenDay.id)
                 navController().navigate(com.example.mealprep.ui.navigation.MealPrepForSpecificDay.route + "/${chosenDay.id}")
             })
-        BottomSheetListItem(icon = R.drawable.outline_delete_24,
+        BottomSheetListItem(
+            icon = R.drawable.outline_delete_24,
             title = "Reset menu",
             onItemClick = {
                 viewModel().deleteAllRecipesForDay(chosenDay.id)
@@ -205,7 +206,7 @@ fun BottomSheetContent(
 @OptIn(ExperimentalMaterialApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
+fun MealPlanRecipesByDay(recipes: () -> List<Recipe>, navController: () -> NavHostController) {
     LazyRow(
         modifier = Modifier.padding(start = 8.dp, bottom = 16.dp),
         horizontalArrangement = Arrangement.Start
@@ -221,7 +222,10 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>) {
             )
             Card(modifier = Modifier
                 .padding(8.dp)
-                .wrapContentSize(), onClick = {}) {
+                .wrapContentSize(),
+                onClick = {
+                    navController().navigate(DishDetails.route + "/${recipe.recipe_id}" + "/${true}")
+                }) {
                 Row {
                     Column(
                         modifier = Modifier.size(74.dp, 108.dp),

@@ -40,6 +40,7 @@ object Account : Destinations {
 object DishDetails : Destinations {
     override val route = "menu"
     const val argDishId = "dishId"
+    const val mealPrepOn = "mealPrepOn"
 }
 
 object MealPrepForSpecificDay : Destinations {

@@ -95,7 +95,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Scaffold(
                         content = { padding ->
-                            Box(modifier = Modifier.padding(padding)) {
+                            Box(modifier = Modifier.padding(0.dp)) {
                                 NavHost(
                                     navController = navController,
                                     startDestination = getStartDestination(
@@ -145,17 +145,30 @@ class MainActivity : ComponentActivity() {
                                     }
 
                                     composable(
-                                        DishDetails.route + "/{${DishDetails.argDishId}}",
+                                        DishDetails.route + "/{${DishDetails.argDishId}}" + "/{${DishDetails.mealPrepOn}}",
                                         arguments = listOf(navArgument(DishDetails.argDishId) {
                                             type = NavType.LongType
+                                        }, navArgument(DishDetails.mealPrepOn) {
+                                            type = NavType.BoolType
                                         })
                                     ) { backStackEntry ->
                                         val id = requireNotNull(
                                             backStackEntry.arguments?.getLong(
                                                 DishDetails.argDishId
                                             )
-                                        ) { "Dish id is null" }
-                                        DishDetails(id, { navController }) { viewModel }
+                                        )
+                                        val isMealPlan = requireNotNull(
+                                            backStackEntry.arguments?.getBoolean(
+                                                DishDetails.mealPrepOn
+                                            )
+                                        )
+
+                                        DishDetails(
+                                            id,
+                                            { navController },
+                                            { viewModel },
+                                            isMealPlan
+                                        )
                                     }
 
                                     composable(

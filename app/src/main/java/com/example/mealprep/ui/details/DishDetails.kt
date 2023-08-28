@@ -12,7 +12,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -38,7 +37,7 @@ import com.example.meaprep.R
 
 @Composable
 fun TopAppBarDishDetail(
-    navController: () -> NavHostController
+    navController: () -> NavHostController, mealPrepOn: Boolean
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -50,7 +49,11 @@ fun TopAppBarDishDetail(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
-            navController().popBackStack("home", inclusive = false)
+            if (!mealPrepOn) {
+                navController().popBackStack("home", inclusive = false)
+            } else {
+                navController().popBackStack("mealprep", inclusive = false)
+            }
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
         }
@@ -60,15 +63,14 @@ fun TopAppBarDishDetail(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DishDetails(
-    id: Long, navController: () -> NavHostController, viewModel: () -> RecipeViewModel
+    id: Long,
+    navController: () -> NavHostController,
+    viewModel: () -> RecipeViewModel,
+    mealPrepOn: Boolean
 ) {
-    val scope = rememberCoroutineScope()
-
-    Scaffold(
-        topBar = {
-        TopAppBarDishDetail(navController)
-    },
-        content = { padding ->
+    Scaffold(topBar = {
+        TopAppBarDishDetail(navController, mealPrepOn)
+    }, content = { padding ->
         Box(modifier = Modifier.padding(padding)) {
             Column {
                 viewModel().getRecipe(id)
@@ -93,12 +95,10 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
     val imagePathFromDatabase = recipe?.photo
 
     val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(imagePathFromDatabase)
-            .size(Size.ORIGINAL)
-            .build()
+        model = ImageRequest.Builder(LocalContext.current).data(imagePathFromDatabase)
+            .size(Size.ORIGINAL).build()
     )
-    val cookTimeString = remember(recipe){
+    val cookTimeString = remember(recipe) {
         viewModel().getCookTimeString(recipe?.cook_time)
     }
 

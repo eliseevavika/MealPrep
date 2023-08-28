@@ -1,5 +1,6 @@
 package com.example.mealprep.ui.groceries
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -9,7 +10,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -38,23 +38,12 @@ fun ShoppingListSettingOptions(
     Box(
         modifier = modifier
             .height(IntrinsicSize.Min)
-            .width(400.dp)
-            .padding(8.dp)
     ) {
         IconButton(onClick = {
-
+            expanded = true
         }) {
             Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
         }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp)
-                .clip(MaterialTheme.shapes.small)
-                .clickable(enabled = enabled) { expanded = true },
-            color = Color.Transparent,
-        ) {}
     }
 
     if (expanded) {
@@ -77,7 +66,6 @@ fun ShoppingListSettingOptions(
                             listChoices[0],
                         ) {
                             expanded = false
-
                             makeCopy()
                         }
 
@@ -89,7 +77,6 @@ fun ShoppingListSettingOptions(
                             expanded = false
                             viewModel.markAllComplete()
                         }
-
                     }
                 }
             }

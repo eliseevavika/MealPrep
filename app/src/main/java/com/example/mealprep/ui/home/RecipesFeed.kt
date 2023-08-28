@@ -20,16 +20,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.mealprep.ui.navigation.DishDetails
-import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
+import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.meaprep.R
 
 
@@ -89,7 +87,7 @@ fun MenuDish(
         .padding(8.dp)
         .wrapContentSize(), onClick = {
         if (!isMealPlanningOn) {
-            navController().navigate(DishDetails.route + "/${recipe.recipe_id}")
+            navController().navigate(DishDetails.route + "/${recipe.recipe_id}" + "/${false}")
         } else {
             onPerformQuery(recipe)
         }
@@ -126,7 +124,7 @@ fun MenuDish(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                if(imagePathFromDatabase != ""){
+                if (imagePathFromDatabase != "") {
                     Image(
                         painter = painter,
                         contentDescription = "Image",
@@ -138,7 +136,7 @@ fun MenuDish(
                             )
                             .alpha(alpha)
                     )
-                }else{
+                } else {
                     ShowDefaultImage(alpha)
                 }
 
@@ -174,7 +172,6 @@ fun CooktimeIconAndTitle(cookTimeString: String) {
                 .align(CenterVertically),
             tint = MealPrepColor.grey_800
         )
-
         Text(
             text = "Cook: $cookTimeString",
             fontFamily = fontFamilyForBodyB2,

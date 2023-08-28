@@ -16,8 +16,7 @@ fun TopAppBarHome() {
         horizontalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
-            .fillMaxWidth(60f),
+            .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text = "Recipes", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp)
