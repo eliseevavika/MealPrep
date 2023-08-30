@@ -42,7 +42,6 @@ fun TopBarForGroceriesScreen(
                 text = "Groceries", fontFamily = fontFamilyForBodyB1, fontSize = 20.sp
             )
         }
-
         Column(
             modifier = Modifier.wrapContentWidth(Alignment.End),
             horizontalAlignment = Alignment.End

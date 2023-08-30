@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.text.toUpperCase
 import androidx.core.net.toUri
 import androidx.lifecycle.*
@@ -149,7 +150,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun refreshDataMealPrepForCurrentUser() {
         recipeRepository.refreshDataForMealPrep()
-
         recipesForSunday = recipeRepository.recipesForSunday
         recipesForMonday = recipeRepository.recipesForMonday
         recipesForTuesday = recipeRepository.recipesForTuesday
@@ -160,11 +160,12 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun refreshDataGroceriesForCurrentUser() {
-        recipeRepository.refreshDataForGroceries()
-
-        ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
-        listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
-        completedIngredients = recipeRepository.completedIngredients
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.refreshDataForGroceries()
+            ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+            listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
+            completedIngredients = recipeRepository.completedIngredients
+        }
     }
 
     fun performQueryIngredients(
@@ -204,7 +205,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun importDataFromFile(inputStream: InputStream?, showError: (String) -> Unit) {
+    fun importDataFromFile(
+        inputStream: InputStream?,
+        showSuccessMessage: () -> Unit,
+        showError: (String) -> Unit
+    ) {
         inputStream?.let {
             try {
                 val jsonContent = it.bufferedReader().use { reader -> reader.readText() }
@@ -229,6 +234,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     ingredient.user_uid = getUserUid()
                 }
                 saveDataToDatabase(allRecipes, allIngredients, allRecipesWithMealPlan, allSteps)
+                showSuccessMessage()
             } catch (e: IOException) {
                 showError("Error, file cannot be uploaded")
             }
@@ -428,7 +434,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setPhoto(str: String) {
         _photo.value = str
-
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -484,7 +489,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                         ingredient.id, aisleNumber, ingredientShortName
                     )
                 }
-
             }
         })
     }
@@ -494,8 +498,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         return user?.uid ?: "0"
     }
 
-    fun getUserEmail(): String {
-        return Firebase.auth.currentUser?.email.toString()
+    fun getUserEmail(): String? {
+        return Firebase.auth.currentUser?.email
     }
 
     fun addNewMealPlan() {
@@ -525,7 +529,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         updateAisleForAllGroceries: (Long) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            var recipeId = recipeRepository.insertRecipeIngredientAndStepTransaction(
+            val recipeId = recipeRepository.insertRecipeIngredientAndStepTransaction(
                 recipe, _listIngredients.value, _listSteps.value, getUserUid()
             )
             updateImageFromFirebase(recipeId)
@@ -589,7 +593,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private var _listChosenMeals = MutableLiveData<List<Recipe>?>()
-
     val listChosenMeals: MutableLiveData<List<Recipe>?>
         get() = _listChosenMeals
 
@@ -810,7 +813,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             recipeRepository.makeAllIgredientsActive(dayId)
             recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
-
         }
     }
 
@@ -858,7 +860,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             ingredientsFromMealPlans.value?.forEach { ingredient ->
                 makeIngredientComplete(ingredient)
             }
-
             listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
 
             listGroceriesForAnotherStore.value?.forEach { ingredient ->
@@ -904,7 +905,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         if (recipesForSaturday.isNotEmpty()) {
             resultList.add(getMealPlanRecipesWithLinks(6, recipesForSaturday))
         }
-
         return resultList
     }
 
@@ -914,9 +914,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         recipesByDay.forEach { recipe ->
             val recipeName = recipe.name
             val recipeLink = recipe.source
-
             list.add(RecipeWithLink(recipeName, recipeLink))
-
         }
         return MealPlanWithLinks(day, list)
     }
@@ -947,5 +945,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             deleteAllRecipesForDay(5)
             deleteAllRecipesForDay(6)
         }
+    }
+
+    fun checkIfSomethingFilled(): Boolean {
+        return (_title.value != "" || _hours.value != 0
+                || _minutes.value != 0 || _description.value != ""
+                || _category.value != "" || _serves.value != ""
+                || _source.value != "" || _uri.value != null
+                || _listIngredients.value != null
+                || _listSteps.value != null)
     }
 }

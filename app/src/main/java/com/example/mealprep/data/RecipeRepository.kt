@@ -2,6 +2,7 @@ package com.example.mealprep.data
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealprep.*
 import com.example.mealprep.data.model.Groceries
 import com.example.mealprep.data.model.Steps
@@ -120,8 +121,8 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         ingredientsFromMealPlans =
             recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
 
-        listGroceriesForAnotherStore
-        recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)
+        listGroceriesForAnotherStore =
+            recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)
 
         val oneWeekAgo = getOneWeekBefore()
 

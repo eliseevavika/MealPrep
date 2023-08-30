@@ -1,6 +1,8 @@
 package com.example.mealprep.fill.out.recipe.card
 
 import android.os.Build
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,11 +33,24 @@ import com.example.mealprep.ui.theme.fontFamilyForError
 fun TopBarRecipeCreationForm(
     navController: () -> NavHostController,
     viewModel: () -> RecipeViewModel,
-    focusRequester: FocusRequester
+    showMessageNameIsRequired: () -> Unit,
+    showMessageIfGoBack: () -> Unit
 ) {
-    val chosenTabIndex by viewModel().chosenTabIndex.collectAsState()
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-    var context = LocalContext.current
+    val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+    DisposableEffect(backDispatcher) {
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                showMessageIfGoBack()
+            }
+        }
+        backDispatcher?.addCallback(callback)
+
+        onDispose {
+            callback.remove()
+        }
+    }
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = Modifier
@@ -45,7 +60,7 @@ fun TopBarRecipeCreationForm(
         verticalAlignment = Alignment.CenterVertically
     ) {
         IconButton(onClick = {
-            navController().popBackStack("home", inclusive = false)
+            showMessageIfGoBack()
         }) {
             Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = "Go Back")
         }
@@ -60,12 +75,9 @@ fun TopBarRecipeCreationForm(
             onClick = {
                 if (viewModel().isRquiredDataEntered()) {
                     viewModel().addNewRecipe()
-                    navController()?.navigate(Home.route)
+                    navController().navigate(Home.route)
                 } else {
-                    if (chosenTabIndex == 1 || chosenTabIndex == 2) {
-                        showDialog = true
-                    }
-                    focusRequester.requestFocus()
+                    showMessageNameIsRequired()
                 }
             }) {
             Text(
@@ -73,54 +85,6 @@ fun TopBarRecipeCreationForm(
                 fontFamily = fontFamilyForBodyB2,
                 fontSize = 20.sp,
                 color = MealPrepColor.orange
-            )
-        }
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = {
-                    showDialog = false
-                },
-                title = {
-                    Column(Modifier.padding(start = 30.dp, top = 10.dp)) {
-                        Row() {
-                            Text(
-                                "The ",
-                                color = MealPrepColor.black,
-                                fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp,
-                            )
-                            Text(
-                                "Title ",
-                                color = MealPrepColor.error,
-                                fontFamily = fontFamilyForError,
-                                fontSize = 16.sp,
-                            )
-                            Text(
-                                "field is required.",
-                                color = MealPrepColor.black,
-                                fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp,
-                            )
-                        }
-                        Row() {
-                            Text(
-                                "Give your recipe a name.",
-                                color = MealPrepColor.black,
-                                fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp,
-                            )
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showDialog = false }) {
-                        Text(
-                            text = "Ok", color = MealPrepColor.black,
-                            fontFamily = fontFamilyForBodyB2,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }, backgroundColor = MealPrepColor.white, contentColor = MealPrepColor.black
             )
         }
     }

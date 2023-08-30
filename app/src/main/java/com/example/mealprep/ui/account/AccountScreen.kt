@@ -6,7 +6,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
- import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExitToApp
@@ -42,14 +42,18 @@ fun AccountScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    val email = viewModal().getUserEmail()
-
     val filePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { selectedFileUri ->
                 val contentResolver = context.contentResolver
                 val inputStream = contentResolver.openInputStream(selectedFileUri)
-                viewModal().importDataFromFile(inputStream, showError = {
+                viewModal().importDataFromFile(inputStream, showSuccessMessage = {
+                    android.app.AlertDialog.Builder(context)
+                        .setMessage("Your file has been uploaded successfully.")
+                        .setPositiveButton("OK") { dialog, _ ->
+                            dialog.dismiss()
+                        }.show()
+                }, showError = {
                     android.app.AlertDialog.Builder(context).setMessage(it)
                         .setPositiveButton("OK") { dialog, _ ->
                             dialog.dismiss()
@@ -92,7 +96,6 @@ fun AccountScreen(
                         contentScale = ContentScale.Crop
                     )
                 }
-
                 Column(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.Start,
@@ -106,7 +109,7 @@ fun AccountScreen(
                     Spacer(modifier = Modifier.padding(vertical = 2.dp))
 
                     Text(
-                        text = email, fontFamily = fontFamilyForBodyB2,
+                        text = viewModal().getUserEmail() ?: "", fontFamily = fontFamilyForBodyB2,
                         fontSize = 16.sp, textAlign = TextAlign.Start
                     )
                 }
@@ -124,10 +127,9 @@ fun AccountScreen(
                 onClick = {
                     val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
-                    intent.type = "application/json" // Specify the MIME type for JSON files
+                    intent.type = "application/json"
                     val mimeType = "application/json"
                     filePickerLauncher.launch(mimeType)
-
                 },
                 content = {
                     Row(modifier = Modifier.fillMaxWidth(),
@@ -136,7 +138,7 @@ fun AccountScreen(
                         content = {
                             Text(
                                 color = MaterialTheme.colors.onSurface,
-                                text = "Import data from a file"
+                                text = "Import data from a json file"
                             )
                         })
                 })
@@ -175,7 +177,6 @@ fun AccountScreen(
                             )
                         })
                 })
-
             Divider(
                 color = MealPrepColor.grey_600,
                 thickness = 1.dp,
@@ -183,18 +184,39 @@ fun AccountScreen(
             )
             Spacer(modifier = Modifier.padding(vertical = 18.dp))
 
-            IconButton(onClick = { Firebase.auth.signOut() }) {
+            IconButton(onClick = {
+                val email = viewModal().getUserEmail()
+                if (email.isNullOrBlank()) {
+                    android.app.AlertDialog.Builder(context)
+                        .setMessage(
+                            "Logging out from your anonymous account will " +
+                                    "result in the loss of associated data." +
+                                    " You can export your data before logging out if you want to retain it. \n " +
+                                    "Are you sure you want to log out?"
+                        )
+                        .setPositiveButton("Log out") { dialog, _ ->
+                            Firebase.auth.signOut()
+                        }.setNegativeButton("Close this message") { dialog, _ ->
+                            dialog.dismiss()
+                        }.show()
+                } else {
+                    Firebase.auth.signOut()
+                }
+            }) {
                 Row() {
-                    Text(text = "Log out", modifier = Modifier.padding(end = 5.dp), fontFamily = fontFamilyForBodyB1,
-                        fontSize = 20.sp, textAlign = TextAlign.Start)
+                    Text(
+                        text = "Log out",
+                        modifier = Modifier.padding(end = 5.dp),
+                        fontFamily = fontFamilyForBodyB1,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Start
+                    )
                     Icon(
                         imageVector = Icons.Rounded.ExitToApp,
                         contentDescription = null,
                     )
                 }
             }
-
         }
     })
 }
-

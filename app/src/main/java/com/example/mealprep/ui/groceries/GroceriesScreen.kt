@@ -49,6 +49,19 @@ fun GroceriesScreen(
     val expandAnotherStore = viewModel().expandAnotherStore.collectAsState().value
     var expandCompleted by remember { mutableStateOf(false) }
 
+    val listGroceries =
+        viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
+            .groupBy { it.aisle }
+            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
+
+    val listGroceriesForAnotherStore =
+        viewModel().listGroceriesForAnotherStore.observeAsState(listOf()).value.sortedBy { it.aisle }
+            .groupBy { it.aisle }
+            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
+
+    val completedIngredients =
+        viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
+
     Scaffold(topBar = {
         TopBarForGroceriesScreen(viewModel)
     },
@@ -75,22 +88,9 @@ fun GroceriesScreen(
                     top = 16.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
                 ), verticalArrangement = Arrangement.Top
             ) {
-                val listGroceries =
-                    viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
-                        .groupBy { it.aisle }
-                        .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
-
                 Column(
                     Modifier.wrapContentHeight()
                 ) {
-                    val listGroceriesForAnotherStore =
-                        viewModel().listGroceriesForAnotherStore.observeAsState(listOf()).value.sortedBy { it.aisle }
-                            .groupBy { it.aisle }
-                            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
-
-                    val completedIngredients =
-                        viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
-
                     Column(
                         Modifier
                             .weight(1f)
@@ -270,7 +270,7 @@ fun setUpLines(
                             tooltipState.show()
                         }
                     }),
-                text = item.name.substringBeforeLast(","),
+                text = item.name,
                 fontFamily = fontFamilyForBodyB2,
                 style = if (isCompleted) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle(
                     textDecoration = TextDecoration.None
