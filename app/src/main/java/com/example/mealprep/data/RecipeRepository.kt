@@ -2,10 +2,7 @@ package com.example.mealprep.data
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mealprep.*
-import com.example.mealprep.data.model.Groceries
-import com.example.mealprep.data.model.Steps
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
@@ -16,8 +13,8 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     suspend fun insertRecipeIngredientAndStepTransaction(
         recipe: Recipe,
-        listIngredients: List<Groceries>?,
-        listSteps: List<Steps>?,
+        listIngredients: List<Ingredient>?,
+        listSteps: List<Step>?,
         currentUserUID: String
     ): Long = recipeDao.insertRecipeIngredientAndStepTransaction(
         recipe,

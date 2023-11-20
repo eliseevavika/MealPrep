@@ -51,7 +51,7 @@ data class RecipeWithMealPlan(
 @Entity(tableName = "step")
 data class Step(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val description: String,
+    var description: String,
     val recipe_id: Long
 )
 
@@ -72,8 +72,8 @@ interface RecipeDao {
     @Transaction
     suspend fun insertRecipeIngredientAndStepTransaction(
         recipe: Recipe,
-        ingredients: List<com.example.mealprep.data.model.Groceries>?,
-        steps: List<com.example.mealprep.data.model.Steps>?,
+        ingredients: List<Ingredient>?,
+        steps: List<Step>?,
         currentUserUID: String
     ): Long {
         // Anything inside this method runs in a single transaction.

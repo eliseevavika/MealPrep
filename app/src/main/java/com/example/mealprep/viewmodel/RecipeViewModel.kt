@@ -5,8 +5,6 @@ import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.text.toUpperCase
 import androidx.core.net.toUri
 import androidx.lifecycle.*
 import com.example.mealprep.*
@@ -121,9 +119,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     private val _chosenTabIndex = MutableStateFlow(0)
     val chosenTabIndex = _chosenTabIndex.asStateFlow()
 
-    private var _listIngredients = MutableLiveData<List<Groceries>>()
+    private var _listIngredients = MutableLiveData<List<Ingredient>>()
 
-    val listIngredients: LiveData<List<Groceries>>
+    val listIngredients: LiveData<List<Ingredient>>
         get() = _listIngredients
 
     private val _isErrorTitle = MutableStateFlow(false)
@@ -174,10 +172,24 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         if (ingredientName.isNotEmpty()) {
             val list = parseStringByNewLine(ingredientName)
             if (list.isNotEmpty()) {
-                list.forEach { ingredient ->
-                    val id = UUID.randomUUID().toString()
-                    val item = Groceries(id, ingredient)
-                    _listIngredients.value = _listIngredients.value?.plus(item) ?: listOf(item)
+                list.forEach { ingredientName ->
+
+//                    ingredients?.forEach { ingredient ->
+//                        val item = Ingredient(
+//                            name = ingredient.name, completed = false, completion_date = null, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
+//                        )
+//                        listIngredients.add(item)
+//                    }
+                    val ingredient = Ingredient(
+                        name = ingredientName,
+                        completed = false,
+                        completion_date = null,
+                        recipe_id = 0,
+                        aisle = 0,
+                        short_name = "",
+                        user_uid = ""
+                    )
+                    _listIngredients.value = _listIngredients.value?.plus(ingredient) ?: listOf(ingredient)
                 }
             }
         }
@@ -188,19 +200,19 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun removeElementIngredients(
-        item: Groceries
+        item: Ingredient
     ) {
         _listIngredients.value = _listIngredients.value?.filter { it != item }
     }
 
     fun setNameIngredients(
-        item: Groceries, input: String
+        item: Ingredient, input: String
     ) {
-        val updatedItem = Groceries(item.id, input)
+//        val updatedItem = Groceries(item.name, input)
 
         _listIngredients.value?.forEach { grocery ->
             if (grocery.id == item.id) {
-                grocery.name = updatedItem.name
+                grocery.name = input
             }
         }
     }
@@ -294,8 +306,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private var _listSteps = MutableLiveData<List<Steps>>()
-    val listSteps: LiveData<List<Steps>>
+    private var _listSteps = MutableLiveData<List<Step>>()
+    val listSteps: LiveData<List<Step>>
         get() = _listSteps
 
     fun performQuerySteps(
@@ -304,10 +316,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         if (stepName.isNotEmpty()) {
             val list = parseStringByNewLine(stepName)
             if (list.isNotEmpty()) {
-                list.forEach { step ->
-                    val id = UUID.randomUUID().toString()
-                    val item = Steps(id, step)
-                    _listSteps.value = _listSteps.value?.plus(item) ?: listOf(item)
+                list.forEach { stepDescription ->
+                    val step = Step(
+                        description = stepDescription, recipe_id = 0
+                    )
+                    _listSteps.value = _listSteps.value?.plus(step) ?: listOf(step)
                 }
             }
         }
@@ -363,19 +376,17 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun removeElementSteps(
-        item: Steps
+        item: Step
     ) {
         _listSteps.value = _listSteps.value?.filter { it != item }
     }
 
     fun setNameSteps(
-        item: Steps, input: String
+        item: Step, input: String
     ) {
-        val undatedItem = Steps(item.id, input)
-
-        _listSteps.value?.forEach { grocery ->
-            if (grocery.id == item.id) {
-                grocery.description = undatedItem.description
+        _listSteps.value?.forEach { step ->
+            if (step.id == item.id) {
+                step.description = input
             }
         }
     }
@@ -954,5 +965,39 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 || _source.value != "" || _uri.value != null
                 || _listIngredients.value != null
                 || _listSteps.value != null)
+    }
+
+    fun getHours(cookTime: Int?): Int {
+        return if (cookTime != null) {
+            cookTime / 60
+        } else {
+            0
+        }
+    }
+
+
+    fun getMinuts(cookTime: Int?): Int {
+        return if (cookTime != null) {
+            cookTime % 60
+        } else {
+            0
+        }
+    }
+
+    fun getAllStateDataForRecipe(recipe: Recipe) {
+        emptyLiveData()
+        _title.value = recipe.name
+        _description.value = recipe.description ?: ""
+        _hours.value = getHours(recipe.cook_time ?: 0)
+        _minutes.value = getMinuts(recipe.cook_time ?: 0)
+        _serves.value = recipe.serves?.toString() ?: "0"
+        _source.value = recipe.source ?: ""
+        _category.value = recipe.category ?: ""
+        _photo.value = recipe.photo ?: ""
+
+        viewModelScope.launch(Dispatchers.IO){
+            _listIngredients.postValue(recipeRepository.getListOfIngredients(recipe.recipe_id))
+            _listSteps.postValue(recipeRepository.getListOfSteps(recipe.recipe_id))
+        }
     }
 }

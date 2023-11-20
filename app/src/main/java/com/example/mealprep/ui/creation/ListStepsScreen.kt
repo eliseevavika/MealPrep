@@ -25,7 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.ExperimentalUnitApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mealprep.data.model.Steps
+import com.example.mealprep.Step
 import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
@@ -160,7 +160,7 @@ fun KeyboardHandlingDemo(viewModel: () -> RecipeViewModel) {
 @Composable
 fun setUpInstructions(
     viewModel: () -> RecipeViewModel,
-    item: Steps
+    item: Step
 ) {
     var input by remember { mutableStateOf(" ") }
     Row(

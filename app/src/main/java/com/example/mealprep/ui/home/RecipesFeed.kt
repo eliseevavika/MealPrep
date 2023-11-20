@@ -1,20 +1,27 @@
 package com.example.mealprep
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -23,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.example.mealprep.ui.home.RecipeHomeSettingOptions
+import com.example.mealprep.ui.mealplanning.MealPrepSettingOptions
 import com.example.mealprep.ui.navigation.DishDetails
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
@@ -120,26 +129,46 @@ fun MenuDish(
 
         Row {
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = CenterHorizontally,
             ) {
-                if (imagePathFromDatabase != "") {
-                    Image(
-                        painter = painter,
-                        contentDescription = "Image",
-                        contentScale = ContentScale.Crop,
+                Box(
+                    modifier = Modifier
+                        .size(144.dp, 171.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .alpha(alpha)
+                ) {
+                    if (imagePathFromDatabase != "") {
+                        Image(
+                            painter = painter,
+                            contentDescription = "Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(144.dp, 171.dp)
+                                .clip(
+                                    RoundedCornerShape(16.dp)
+                                )
+                                .alpha(alpha)
+                        )
+                    } else {
+                        ShowDefaultImage(alpha)
+                    }
+                    Box(
                         modifier = Modifier
-                            .size(144.dp, 171.dp)
-                            .clip(
-                                RoundedCornerShape(16.dp)
-                            )
-                            .alpha(alpha)
-                    )
-                } else {
-                    ShowDefaultImage(alpha)
+                            .align(Alignment.TopEnd)
+                            .background(Color.White.copy(alpha = 0.6f), RoundedCornerShape(32.dp))
+                    ) {
+                        RecipeHomeSettingOptions(
+                            recipe,
+                            viewModel,
+                            navController(),
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                        )
+                    }
                 }
-
                 Text(
                     text = recipeName,
                     maxLines = 2,
@@ -149,9 +178,12 @@ fun MenuDish(
                 )
                 CooktimeIconAndTitle(cookTimeString)
             }
+
+
         }
     }
 }
+
 
 @Composable
 fun CooktimeIconAndTitle(cookTimeString: String) {
