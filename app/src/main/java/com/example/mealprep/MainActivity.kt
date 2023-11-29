@@ -32,6 +32,7 @@ import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.AccountScreen
 import com.example.mealprep.ui.authentication.*
+import com.example.mealprep.ui.home.editing.RecipeEditingScreen
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme
 import com.example.mealprep.viewmodel.RecipeViewModel
@@ -198,12 +199,28 @@ class MainActivity : ComponentActivity() {
                                             { navController },
                                         ) { viewModel }
                                     }
-                                }
 
+                                    composable(
+                                        RecipeEditing.route + "/{${RecipeEditing.argRecipeId}}",
+                                        arguments = listOf(navArgument(RecipeEditing.argRecipeId) {
+                                            type = NavType.LongType
+                                        })
+                                    ) { backStackEntry ->
+                                        val id = requireNotNull(
+                                            backStackEntry.arguments?.getLong(
+                                                RecipeEditing.argRecipeId
+                                            )
+                                        )
+
+                                        RecipeEditingScreen(
+                                            id,
+                                            { navController },
+                                            { viewModel }
+                                        )
+                                    }
+                                }
                             }
-                        },
-                        backgroundColor = Color.White,
-                    )
+                        })
                 }
             }
         }

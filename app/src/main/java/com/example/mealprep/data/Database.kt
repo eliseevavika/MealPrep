@@ -11,14 +11,14 @@ import java.util.*
 @Entity(tableName = "recipe")
 data class Recipe(
     @PrimaryKey(autoGenerate = true) val recipe_id: Long = 0,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "name") var name: String,
+    @ColumnInfo(name = "description") var description: String?,
     var photo: String?,
-    @ColumnInfo(name = "cook_time") val cook_time: Int?,
-    @ColumnInfo(name = "serves") val serves: Int?,
-    @ColumnInfo(name = "source") val source: String?,
+    @ColumnInfo(name = "cook_time") var cook_time: Int?,
+    @ColumnInfo(name = "serves") var serves: Int?,
+    @ColumnInfo(name = "source") var source: String?,
     @ColumnInfo(name = "user_uid") var user_uid: String,
-    @ColumnInfo(name = "category") val category: String?,
+    @ColumnInfo(name = "category") var category: String?,
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
 
@@ -85,7 +85,13 @@ interface RecipeDao {
 
         ingredients?.forEach { ingredient ->
             val item = Ingredient(
-                name = ingredient.name, completed = false, completion_date = null, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
+                name = ingredient.name,
+                completed = false,
+                completion_date = null,
+                recipe_id = recipeId,
+                aisle = 0,
+                short_name = ingredient.name,
+                user_uid = currentUserUID
             )
             listIngredients.add(item)
         }
@@ -100,6 +106,74 @@ interface RecipeDao {
         insertSteps(listSteps)
         return recipeId
     }
+
+    @Transaction
+    suspend fun insertUpdatedRecipeIngredientAndStepTransaction(
+        recipe: Recipe,
+        ingredients: List<Ingredient>?,
+        steps: List<Step>?,
+        currentUserUID: String
+    ): Long {
+        // Anything inside this method runs in a single transaction.
+        val listIngredients = mutableListOf<Ingredient>()
+
+        val listSteps = mutableListOf<Step>()
+
+        updateRecipe(recipe)
+
+        ingredients?.forEach { ingredient ->
+            val item = Ingredient(
+                name = ingredient.name,
+                completed = false,
+                completion_date = null,
+                recipe_id = recipe.recipe_id,
+                aisle = 0,
+                short_name = ingredient.name,
+                user_uid = currentUserUID
+            )
+            listIngredients.add(item)
+        }
+
+        steps?.forEach { step ->
+            val item = Step(
+                description = step.description, recipe_id = recipe.recipe_id
+            )
+            listSteps.add(item)
+        }
+        insertIngredients(listIngredients)
+        insertSteps(listSteps)
+        return recipe.recipe_id
+    }
+
+
+    @Transaction
+    suspend fun updateRecipeWithNewData(
+        recipeId: Long,
+        recipeWithUpdatedFields: Recipe,
+        listIngredients: List<Ingredient>?,
+        listSteps: List<Step>?,
+        userUid: String
+    ) {
+        val recipe = getRecipeById(recipeId)
+
+        recipe.name = recipeWithUpdatedFields.name
+        recipe.description = recipeWithUpdatedFields.description
+        recipe.photo = recipeWithUpdatedFields.photo
+        recipe.cook_time = recipeWithUpdatedFields.cook_time
+        recipe.serves = recipeWithUpdatedFields.serves
+        recipe.source = recipeWithUpdatedFields.source
+        recipe.category = recipeWithUpdatedFields.category
+
+        deleteAllIngredientsForRecipe(recipe.recipe_id)
+        deleteAllStepsForRecipe(recipe.recipe_id)
+        insertUpdatedRecipeIngredientAndStepTransaction(recipe, listIngredients,listSteps, userUid)
+    }
+
+    @Query("DELETE FROM Ingredient WHERE recipe_id = :recipeId")
+     fun deleteAllIngredientsForRecipe(recipeId: Long)
+
+    @Query("DELETE FROM Step WHERE recipe_id = :recipeId")
+    fun deleteAllStepsForRecipe(recipeId: Long)
 
     @Delete
     suspend fun delete(recipe: Recipe)
@@ -117,7 +191,7 @@ interface RecipeDao {
     fun getListOfSteps(recipeId: Long): List<Step>
 
     @Update
-    suspend fun update(recipe: Recipe)
+    suspend fun updateRecipe(recipe: Recipe)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addRecipeWithMealPlan(recipeWithMealPlan: RecipeWithMealPlan)
@@ -148,13 +222,17 @@ interface RecipeDao {
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND aisle != 13 AND user_uid = :currentUserUID")
     fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
+
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle = 13 AND Recipe.user_uid = :currentUserUID  UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed  AND aisle = 13 AND user_uid = :currentUserUID")
     fun getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID: String): LiveData<List<Ingredient>>
 
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE Ingredient.completed AND Recipe.user_uid = :currentUserUID  AND completion_date > :oneWeekAgo UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND completed AND user_uid = :currentUserUID AND completion_date > :oneWeekAgo")
-    fun getAllCompletedIngredients(currentUserUID: String, oneWeekAgo: Date): LiveData<List<Ingredient>>
+    fun getAllCompletedIngredients(
+        currentUserUID: String,
+        oneWeekAgo: Date
+    ): LiveData<List<Ingredient>>
 
     @Query("DELETE FROM Recipe")
     suspend fun clearRecipes()
@@ -193,7 +271,7 @@ interface RecipeDao {
     }
 
     @Query("SELECT * FROM Ingredient WHERE user_uid = :uid")
-    fun getAllIngredients(uid: String) : List<Ingredient>
+    fun getAllIngredients(uid: String): List<Ingredient>
 
     @Query("SELECT * FROM recipewithmealplan")
     fun getAllRecipesWithMealPlans(): List<RecipeWithMealPlan>
@@ -225,8 +303,10 @@ interface RecipeDao {
 
     @Query("UPDATE Ingredient SET aisle = :aisleNumber WHERE id = :ingredientId")
     fun updateAisleNumber(ingredientId: Long, aisleNumber: Int)
+
     @Query("SELECT recipe_id FROM recipewithmealplan WHERE mealplan_id = :mealplanId")
     fun getRecipeIdsForMealplan(mealplanId: Int): List<Long>
+
     @Query("UPDATE Ingredient SET completed = 0, completion_date = NULL WHERE recipe_id = :recipeId")
     suspend fun updateIngredientsForRecipe(recipeId: Long)
 

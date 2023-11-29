@@ -23,6 +23,14 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
         currentUserUID
     )
 
+    suspend fun updateRecipeWithNewData(
+        recipeId: Long,
+        recipeWithUpdatedFields: Recipe,
+        listIngredients: List<Ingredient>?,
+        listSteps: List<Step>?,
+        userUid: String
+    ) = recipeDao.updateRecipeWithNewData(recipeId, recipeWithUpdatedFields, listIngredients, listSteps, userUid)
+
     fun getRecipeById(id: Long): Recipe {
         return recipeDao.getRecipeById(id)
     }

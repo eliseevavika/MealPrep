@@ -55,3 +55,8 @@ object GroceriesAddition : Destinations {
 object RecipeCreation : Destinations {
     override val route = "recipeCreation"
 }
+
+object RecipeEditing : Destinations {
+    override val route = "recipeEditing"
+    const val argRecipeId = "recipeId"
+}

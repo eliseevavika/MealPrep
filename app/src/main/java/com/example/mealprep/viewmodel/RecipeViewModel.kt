@@ -189,7 +189,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                         short_name = "",
                         user_uid = ""
                     )
-                    _listIngredients.value = _listIngredients.value?.plus(ingredient) ?: listOf(ingredient)
+                    _listIngredients.value =
+                        _listIngredients.value?.plus(ingredient) ?: listOf(ingredient)
                 }
             }
         }
@@ -208,8 +209,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun setNameIngredients(
         item: Ingredient, input: String
     ) {
-//        val updatedItem = Groceries(item.name, input)
-
         _listIngredients.value?.forEach { grocery ->
             if (grocery.id == item.id) {
                 grocery.name = input
@@ -504,6 +503,75 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         })
     }
 
+    fun editExistingRecipe(recipeId: Long) {
+        val recipeWithUpdatedFields = Recipe(
+            name = _title.value,
+            description = _description.value,
+            photo = _photo.value,
+            cook_time = _cook_time.value,
+            serves = if (_serves.value == "") 0 else _serves.value.toInt(),
+            source = _source.value,
+            user_uid = getUserUid(),
+            category = _category.value,
+            creation_date = Calendar.getInstance().time
+        )
+
+        editRecipe(recipeId, recipeWithUpdatedFields, updateImageFromFirebase = { recipeId ->
+            val storage = FirebaseStorage.getInstance()
+            val storageRef = storage.reference.child("gs://slice up-bbbb7.appspot.com")
+            val imageFileUri: Uri = _photo.value.toUri()
+
+            if (imageFileUri.pathSegments.size != 0) {
+                val fileName = imageFileUri.pathSegments.last()
+
+                storageRef.child(fileName).putFile(imageFileUri)
+                    .addOnSuccessListener { taskSnapshot ->
+                        taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
+                            viewModelScope.launch(Dispatchers.IO) {
+                                recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+                            }
+                        }
+                    }.addOnFailureListener { exception ->
+                        (exception.message.toString())
+                    }
+            }
+        }, updateAisleForAllGroceries = { recipeId ->
+            viewModelScope.launch(Dispatchers.IO) {
+                val listOfIngredients = recipeRepository.getListOfIngredients(recipeId)
+                listOfIngredients.forEach { ingredient ->
+                    val name = ingredient.name
+
+                    val ingredientAisleInfo = findAisleForGrocery(name)
+                    val aisleNumber = ingredientAisleInfo.aisle.value
+                    val ingredientShortName = ingredientAisleInfo.shortName
+                    recipeRepository.updateAisleForAllGroceries(
+                        ingredient.id, aisleNumber, ingredientShortName
+                    )
+                }
+            }
+        })
+    }
+
+    private fun editRecipe(
+        recipeId: Long,
+        recipeWithUpdatedFields: Recipe,
+        updateImageFromFirebase: (Long) -> Unit,
+        updateAisleForAllGroceries: (Long) -> Unit
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.updateRecipeWithNewData(
+                recipeId,
+                recipeWithUpdatedFields,
+                _listIngredients.value,
+                _listSteps.value,
+                getUserUid()
+            )
+            updateImageFromFirebase(recipeId)
+            updateAisleForAllGroceries(recipeId)
+            emptyLiveData()
+        }
+    }
+
     fun getUserUid(): String {
         val user = Firebase.auth.currentUser
         return user?.uid ?: "0"
@@ -718,31 +786,37 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                         _listChosenMealsForSunday.value = recipes
                     }
                 }
+
                 1 -> {
                     recipesForMonday.collect { recipes ->
                         _listChosenMealsForMonday.value = recipes
                     }
                 }
+
                 2 -> {
                     recipesForTuesday.collect { recipes ->
                         _listChosenMealsForTuesday.value = recipes
                     }
                 }
+
                 3 -> {
                     recipesForWednesday.collect { recipes ->
                         _listChosenMealsForWednesday.value = recipes
                     }
                 }
+
                 4 -> {
                     recipesForThursday.collect { recipes ->
                         _listChosenMealsForThursday.value = recipes
                     }
                 }
+
                 5 -> {
                     recipesForFriday.collect { recipes ->
                         _listChosenMealsForFriday.value = recipes
                     }
                 }
+
                 6 -> {
                     recipesForSaturday.collect { recipes ->
                         _listChosenMealsForSaturday.value = recipes
@@ -994,8 +1068,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         _source.value = recipe.source ?: ""
         _category.value = recipe.category ?: ""
         _photo.value = recipe.photo ?: ""
+        _uri.value =  _photo.value.toUri()
 
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             _listIngredients.postValue(recipeRepository.getListOfIngredients(recipe.recipe_id))
             _listSteps.postValue(recipeRepository.getListOfSteps(recipe.recipe_id))
         }

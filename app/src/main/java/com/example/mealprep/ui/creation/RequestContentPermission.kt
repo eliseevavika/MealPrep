@@ -43,6 +43,7 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
     ) { uri: Uri? ->
         viewModel().setImageUri(uri)
     }
+
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(imageUri)

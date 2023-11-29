@@ -16,6 +16,7 @@ import com.example.mealprep.Recipe
 import com.example.mealprep.ui.navigation.DishDetails
 import com.example.mealprep.ui.navigation.GroceriesAddition
 import com.example.mealprep.ui.navigation.RecipeCreation
+import com.example.mealprep.ui.navigation.RecipeEditing
 import com.example.mealprep.ui.theme.MealPrepTheme
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.viewmodel.RecipeViewModel
@@ -62,7 +63,7 @@ fun RecipeHomeSettingOptions(
                         ) {
                             expanded = false
                             viewModel.getAllStateDataForRecipe(recipe)
-                            navController.navigate(RecipeCreation.route)
+                            navController.navigate(RecipeEditing.route +  "/${recipe.recipe_id}")
                         }
 
                         Divider(modifier = Modifier.padding(horizontal = 16.dp))
