@@ -1,4 +1,4 @@
-package com.example.mealprep.fill.out.recipe.card
+package com.example.mealprep.ui.creation
 
 import android.widget.Toast
 import androidx.compose.foundation.clickable

@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -16,6 +17,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mealprep.ui.creation.CategoryDropdownMenu
+import com.example.mealprep.ui.creation.RequestContentPermission
 import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
@@ -26,7 +29,10 @@ import java.util.regex.Pattern
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun IntroCreationScreen(viewModel: () -> RecipeViewModel, focusRequester: FocusRequester) {
+fun IntroCreationScreen(
+    viewModel: () -> RecipeViewModel,
+    focusRequester: FocusRequester
+) {
     val title by viewModel().title.collectAsState()
     val hours by viewModel().hours.collectAsState()
     val minutes by viewModel().minutes.collectAsState()

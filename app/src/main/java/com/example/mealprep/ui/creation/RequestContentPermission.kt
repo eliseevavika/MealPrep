@@ -1,4 +1,4 @@
-package com.example.mealprep.fill.out.recipe.card
+package com.example.mealprep.ui.creation
 
 import android.net.Uri
 import android.os.Build
@@ -24,19 +24,16 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.FileProvider.getUriForFile
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import coil.request.ImageRequest
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.meaprep.R
-import java.io.File
-import java.io.FileOutputStream
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
     val imageUri by viewModel().uri.collectAsState()
-
-    val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -87,6 +84,7 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
                         )
                     }, onClick = {
                     viewModel().setImageUri(null)
+                    viewModel().setPhoto("")
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.outline_delete_24),
@@ -120,19 +118,7 @@ fun RequestContentPermission(viewModel: () -> RecipeViewModel) {
         }
 
         imageUri?.let {
-            val inputStream = context.contentResolver.openInputStream(it)
-            val imageData = inputStream?.readBytes()
-            inputStream?.close()
-
-            val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-            val imageFile = File.createTempFile("image_", ".jpg", storageDir)
-
-            val outputStream = FileOutputStream(imageFile)
-            outputStream.write(imageData)
-            outputStream.close()
-
-            val contentUri: Uri = getUriForFile(context, "com.example.meaprep.fileprovider", imageFile)
-            viewModel().setPhoto(contentUri.toString())
+            viewModel().setPhoto(it.toString())
         }
     }
 }

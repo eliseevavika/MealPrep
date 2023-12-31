@@ -27,7 +27,7 @@ import com.example.littlelemon.HomeScreen
 import com.example.mealprep.*
 import com.example.mealprep.fill.out.recipe.card.GroceriesAdditionScreen
 import com.example.mealprep.fill.out.recipe.card.GroceriesScreen
-import com.example.mealprep.fill.out.recipe.card.creation.RecipeCreationScreen
+import com.example.mealprep.ui.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.AccountScreen

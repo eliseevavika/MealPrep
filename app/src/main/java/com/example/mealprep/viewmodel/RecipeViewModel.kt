@@ -1068,7 +1068,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         _source.value = recipe.source ?: ""
         _category.value = recipe.category ?: ""
         _photo.value = recipe.photo ?: ""
-        _uri.value =  _photo.value.toUri()
+        _uri.value = if (_photo.value == "") {
+            null
+        } else {
+            _photo.value.toUri()
+        }
 
         viewModelScope.launch(Dispatchers.IO) {
             _listIngredients.postValue(recipeRepository.getListOfIngredients(recipe.recipe_id))
