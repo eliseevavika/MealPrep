@@ -72,6 +72,7 @@ fun RecipeHomeSettingOptions(
                             listChoices[1]
                         ) {
                             expanded = false
+                            viewModel.deleteTheRecipe(recipe)
                         }
                     }
                 }

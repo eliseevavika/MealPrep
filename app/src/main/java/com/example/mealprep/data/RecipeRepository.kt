@@ -194,4 +194,8 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
             recipeDao.updateIngredientsForRecipe(recipeId)
         }
     }
+
+    suspend fun deleteTheRecipe(recipe: Recipe, userUid: String) {
+       recipeDao.deleteTheRecipe(recipe)
+    }
 }

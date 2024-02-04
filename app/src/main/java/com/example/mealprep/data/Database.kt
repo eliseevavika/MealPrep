@@ -168,6 +168,16 @@ interface RecipeDao {
         deleteAllStepsForRecipe(recipe.recipe_id)
         insertUpdatedRecipeIngredientAndStepTransaction(recipe, listIngredients,listSteps, userUid)
     }
+    @Transaction
+    suspend fun deleteTheRecipe(recipe: Recipe) {
+        delete(recipe)
+        deleteAllIngredientsForRecipe(recipe.recipe_id)
+        deleteAllStepsForRecipe(recipe.recipe_id)
+        deleteMealPlansForTheRecipe(recipe.recipe_id)
+    }
+
+    @Query("DELETE FROM RecipeWithMealPlan WHERE recipe_id = :recipeId")
+    fun deleteMealPlansForTheRecipe(recipeId: Long)
 
     @Query("DELETE FROM Ingredient WHERE recipe_id = :recipeId")
      fun deleteAllIngredientsForRecipe(recipeId: Long)
@@ -208,7 +218,6 @@ interface RecipeDao {
 
     @Query("DELETE FROM recipewithmealplan WHERE mealplan_id = :dayId")
     fun deleteRecipeWithMealPlan(dayId: Int)
-
 
     @Transaction
     suspend fun deleteRecipeAndMealPlanTransaction(dayId: Int) {
@@ -309,7 +318,6 @@ interface RecipeDao {
 
     @Query("UPDATE Ingredient SET completed = 0, completion_date = NULL WHERE recipe_id = :recipeId")
     suspend fun updateIngredientsForRecipe(recipeId: Long)
-
 }
 
 @Dao

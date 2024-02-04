@@ -3,6 +3,7 @@ package com.example.mealprep.viewmodel
 import android.app.Application
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
 import androidx.core.net.toUri
@@ -15,6 +16,7 @@ import com.example.mealprep.ui.mealplanning.RecipeWithLink
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import com.google.gson.Gson
 import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
@@ -22,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path.Companion.toPath
 import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.io.IOException
@@ -473,7 +476,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             val imageFileUri: Uri = _photo.value.toUri()
 
             if (imageFileUri.pathSegments.size != 0) {
-                val fileName = imageFileUri.pathSegments.last()
+                val fileName = imageFileUri.pathSegments.last() + recipeId
 
                 storageRef.child(fileName).putFile(imageFileUri)
                     .addOnSuccessListener { taskSnapshot ->
@@ -1077,6 +1080,41 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             _listIngredients.postValue(recipeRepository.getListOfIngredients(recipe.recipe_id))
             _listSteps.postValue(recipeRepository.getListOfSteps(recipe.recipe_id))
+        }
+    }
+
+    fun deleteTheRecipe(recipe: Recipe) {
+        viewModelScope.launch(Dispatchers.IO) {
+            recipeRepository.deleteTheRecipe(
+                recipe,
+                getUserUid()
+            )
+            deleteImageFromFirebase(recipe)
+        }
+    }
+
+    private fun deleteImageFromFirebase(recipe: Recipe) {
+        val storage = Firebase.storage
+        val imagePath = recipe.photo
+
+        if (!imagePath.isNullOrEmpty()) {
+            val uri = Uri.parse(imagePath)
+            val path = uri.path
+            val fileName = uri.pathSegments.last()
+            if (path != null) {
+                val storageRef = storage.reference.child(fileName)
+                storageRef.delete()
+                    .addOnSuccessListener {
+                        Log.e("FirebasePhotoDelete", "Success deleting image from Firebase Storage")
+                    }
+                    .addOnFailureListener {
+                        Log.e(
+                            "FirebasePhotoDelete",
+                            "Error deleting image from Firebase Storage",
+                            it
+                        )
+                    }
+            }
         }
     }
 }
