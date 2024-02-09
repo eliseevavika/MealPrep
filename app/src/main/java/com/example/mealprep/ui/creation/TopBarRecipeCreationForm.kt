@@ -10,11 +10,8 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -26,7 +23,6 @@ import com.example.mealprep.viewmodel.RecipeViewModel
 import com.example.mealprep.ui.theme.MealPrepColor
 import com.example.mealprep.ui.theme.fontFamilyForBodyB1
 import com.example.mealprep.ui.theme.fontFamilyForBodyB2
-import com.example.mealprep.ui.theme.fontFamilyForError
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -34,9 +30,12 @@ fun TopBarRecipeCreationForm(
     navController: () -> NavHostController,
     viewModel: () -> RecipeViewModel,
     showMessageNameIsRequired: () -> Unit,
+    showMessageUrlIsIncorrect: () -> Unit,
+    showMessageNameIsRequiredAndUrlISIncorrect: () -> Unit,
     showMessageIfGoBack: () -> Unit
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    val isValidUrl = viewModel().isValidUrl.collectAsState()
 
     DisposableEffect(backDispatcher) {
         val callback = object : OnBackPressedCallback(true) {
@@ -73,11 +72,14 @@ fun TopBarRecipeCreationForm(
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
-                if (viewModel().isRquiredDataEntered()) {
-                    viewModel().addNewRecipe()
-                    navController().navigate(Home.route)
-                } else {
-                    showMessageNameIsRequired()
+                when {
+                    viewModel().isRquiredDataEntered() && isValidUrl.value -> {
+                        viewModel().addNewRecipe()
+                        navController().navigate(Home.route)
+                    }
+                    !viewModel().isRquiredDataEntered() && isValidUrl.value -> showMessageNameIsRequired()
+                    viewModel().isRquiredDataEntered() && !isValidUrl.value -> showMessageUrlIsIncorrect()
+                    else -> showMessageNameIsRequiredAndUrlISIncorrect()
                 }
             }) {
             Text(

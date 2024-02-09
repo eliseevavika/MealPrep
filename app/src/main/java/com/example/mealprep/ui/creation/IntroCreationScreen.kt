@@ -53,13 +53,17 @@ fun IntroCreationScreen(
     }
 
     fun verifyUrl(url: String) {
-        val urlPattern: Pattern = Pattern.compile(
-            "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
-                    + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
-                    + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
-            Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
-        )
-        viewModel().setIsValidUrl(url.matches(urlPattern.toRegex()))
+        if (url.isEmpty()) {
+            viewModel().setIsValidUrl(true)
+        } else {
+            val urlPattern: Pattern = Pattern.compile(
+                "(?:^|[\\W])((ht|f)tp(s?):\\/\\/|www\\.)"
+                        + "(([\\w\\-]+\\.){1,}?([\\w\\-.~]+\\/?)*"
+                        + "[\\p{Alnum}.,%_=?&#\\-+()\\[\\]\\*$~@!:/{};']*)",
+                Pattern.CASE_INSENSITIVE or Pattern.MULTILINE or Pattern.DOTALL
+            )
+            viewModel().setIsValidUrl(url.matches(urlPattern.toRegex()))
+        }
     }
 
     Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {

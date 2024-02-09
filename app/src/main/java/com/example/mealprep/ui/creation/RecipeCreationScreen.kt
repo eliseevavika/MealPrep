@@ -28,25 +28,43 @@ fun RecipeCreationScreen(
     ) {
         Scaffold(
             topBar = {
-                TopBarRecipeCreationForm(navController, viewModal, showMessageNameIsRequired = {
-                    android.app.AlertDialog.Builder(context)
-                        .setMessage("The title field is required. Give your recipe a name.")
-                        .setPositiveButton("OK") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                }, showMessageIfGoBack = {
-                    if (viewModal().checkIfSomethingFilled()) {
+                TopBarRecipeCreationForm(
+                    navController,
+                    viewModal,
+                    showMessageNameIsRequired = {
                         android.app.AlertDialog.Builder(context)
-                            .setMessage("Are you sure you want to go back? Any filled data will be lost.")
-                            .setPositiveButton("Stay") { dialog, _ ->
+                            .setMessage("The title field is required. Give your recipe a name.")
+                            .setPositiveButton("OK") { dialog, _ ->
                                 dialog.dismiss()
-                            }.setNegativeButton("Go back") { dialog, _ ->
-                                navController().popBackStack("home", inclusive = false)
                             }.show()
-                    } else {
-                        navController().popBackStack("home", inclusive = false)
-                    }
-                })
+                    },
+                    showMessageUrlIsIncorrect = {
+                        android.app.AlertDialog.Builder(context)
+                            .setMessage("Invalid recipe source link provided.")
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }.show()
+                    },
+                    showMessageNameIsRequiredAndUrlISIncorrect = {
+                        android.app.AlertDialog.Builder(context)
+                            .setMessage("Title required: Give your recipe a name.\nInvalid source link provided.")
+                            .setPositiveButton("OK") { dialog, _ ->
+                                dialog.dismiss()
+                            }.show()
+                    },
+                    showMessageIfGoBack = {
+                        if (viewModal().checkIfSomethingFilled()) {
+                            android.app.AlertDialog.Builder(context)
+                                .setMessage("Are you sure you want to go back? Any filled data will be lost.")
+                                .setPositiveButton("Stay") { dialog, _ ->
+                                    dialog.dismiss()
+                                }.setNegativeButton("Go back") { dialog, _ ->
+                                    navController().popBackStack("home", inclusive = false)
+                                }.show()
+                        } else {
+                            navController().popBackStack("home", inclusive = false)
+                        }
+                    })
             },
             content = { padding ->
                 Box(modifier = Modifier.padding(padding)) {
