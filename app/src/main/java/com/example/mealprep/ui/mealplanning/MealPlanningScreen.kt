@@ -134,8 +134,9 @@ fun MealPlanningScreen(
                     days.forEach { day ->
                         Row(
                             modifier = Modifier
+                                .fillMaxWidth()
                                 .padding(
-                                    start = 16.dp, top = 30.dp, end = 16.dp, bottom = 30.dp
+                                    start = 16.dp, top = 30.dp, bottom = 30.dp
                                 )
                                 .clickable(onClick = {
                                     coroutineScope.launch {
