@@ -59,6 +59,7 @@ fun RecipeCreationScreen(
                                 .setPositiveButton("Stay") { dialog, _ ->
                                     dialog.dismiss()
                                 }.setNegativeButton("Go back") { dialog, _ ->
+                                    viewModal().emptyLiveData()
                                     navController().popBackStack("home", inclusive = false)
                                 }.show()
                         } else {

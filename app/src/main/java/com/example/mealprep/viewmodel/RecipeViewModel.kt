@@ -654,6 +654,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     fun emptyLiveData() {
         _photo.value = ""
         _source.value = ""
+        _isValidUrl.value = true
         _category.value = ""
         _listSteps.postValue(listOf())
         _listIngredients.postValue(listOf())
