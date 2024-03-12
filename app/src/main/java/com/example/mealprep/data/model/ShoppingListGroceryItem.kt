@@ -13,6 +13,7 @@ val familiarIngredients = setOf(
     "yogurt" to Aisle.DAIRY_AND_EGGS,
     "eggs" to Aisle.DAIRY_AND_EGGS,
     "egg" to Aisle.DAIRY_AND_EGGS,
+    "margarine" to Aisle.DAIRY_AND_EGGS,
 
     "sauce" to Aisle.CONDIMENTS,
     "oil" to Aisle.CONDIMENTS,
@@ -34,6 +35,10 @@ val familiarIngredients = setOf(
     "mirin" to Aisle.CONDIMENTS,
     "breadcrumbs" to Aisle.CONDIMENTS,
     "pickled" to Aisle.CONDIMENTS,
+    "relish"  to Aisle.CONDIMENTS,
+    "pickles"  to Aisle.CONDIMENTS,
+    "sriracha"  to Aisle.CONDIMENTS,
+
 
     "za’atar" to Aisle.HERBS_AND_SPICES,
     "pepper" to Aisle.HERBS_AND_SPICES,
@@ -100,6 +105,7 @@ val familiarIngredients = setOf(
     "papaya" to Aisle.FRUITS_AND_VEGETABLES,
     "tomatillo" to Aisle.FRUITS_AND_VEGETABLES,
     "tomato" to Aisle.FRUITS_AND_VEGETABLES,
+    "tomatoes" to Aisle.FRUITS_AND_VEGETABLES,
     "zucchini" to Aisle.FRUITS_AND_VEGETABLES,
     "artichoke" to Aisle.FRUITS_AND_VEGETABLES,
     "capers" to Aisle.FRUITS_AND_VEGETABLES,
@@ -108,6 +114,7 @@ val familiarIngredients = setOf(
     "chives" to Aisle.FRUITS_AND_VEGETABLES,
     "garlic" to Aisle.FRUITS_AND_VEGETABLES,
     "cilantro" to Aisle.FRUITS_AND_VEGETABLES,
+    "basil" to Aisle.FRUITS_AND_VEGETABLES,
     "sage" to Aisle.FRUITS_AND_VEGETABLES,
     "leek" to Aisle.FRUITS_AND_VEGETABLES,
     "onion" to Aisle.FRUITS_AND_VEGETABLES,
@@ -176,7 +183,10 @@ val familiarIngredients = setOf(
     "sugar" to Aisle.BAKING,
     "tahini" to Aisle.BAKING,
     "dough" to Aisle.BAKING,
-
+    "baking" to Aisle.BAKING,
+    "extract" to Aisle.BAKING,
+    "yeast" to Aisle.BAKING,
+    "cornstarch" to Aisle.BAKING,
 
     "nuts" to Aisle.SNACKS,
     "cashews" to Aisle.SNACKS,
@@ -187,6 +197,13 @@ val familiarIngredients = setOf(
     "pistachios" to Aisle.SNACKS,
     "seeds" to Aisle.SNACKS,
     "almonds" to Aisle.SNACKS,
+    "chips" to Aisle.SNACKS,
+    "popcorn" to Aisle.SNACKS,
+    "pretzels" to Aisle.SNACKS,
+    "crackers" to Aisle.SNACKS,
+    "trail" to Aisle.SNACKS,
+    "bars" to Aisle.SNACKS,
+    "jerky" to Aisle.SNACKS,
 
     "beans" to Aisle.CANNED_FOODS,
     "canned" to Aisle.CANNED_FOODS,
@@ -197,10 +214,27 @@ val familiarIngredients = setOf(
     "rice" to Aisle.PASTA_RICE,
     "penne" to Aisle.PASTA_RICE,
     "couscous" to Aisle.PASTA_RICE,
+    "orecchiette" to Aisle.PASTA_RICE,
+    "quinoa" to Aisle.PASTA_RICE,
+    "spaghetti" to Aisle.PASTA_RICE,
+    "fusilli" to Aisle.PASTA_RICE,
+    "linguine" to Aisle.PASTA_RICE,
+    "farfalle" to Aisle.PASTA_RICE,
+    "rigatoni" to Aisle.PASTA_RICE,
+    "macaroni" to Aisle.PASTA_RICE,
+    "fettuccine" to Aisle.PASTA_RICE,
+    "rotini" to Aisle.PASTA_RICE,
+    "orzo" to Aisle.PASTA_RICE,
+    "lasagna" to Aisle.PASTA_RICE,
+    "tortellini" to Aisle.PASTA_RICE,
+    "ravioli" to Aisle.PASTA_RICE,
+    "vermicelli" to Aisle.PASTA_RICE,
+    "angel" to Aisle.PASTA_RICE,
 
     "juice" to Aisle.DRINKS,
     "bottled" to Aisle.DRINKS,
-    "wine" to Aisle.DRINKS
+    "wine" to Aisle.DRINKS,
+    "water" to Aisle.DRINKS,
 )
 
 val sortedFamiliarIngredients = familiarIngredients.toList()

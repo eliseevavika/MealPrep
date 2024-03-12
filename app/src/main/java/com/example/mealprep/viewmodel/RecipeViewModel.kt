@@ -24,7 +24,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okio.Path.Companion.toPath
 import org.apache.commons.lang3.StringUtils
 import java.io.File
 import java.io.IOException
@@ -144,6 +143,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     val listExtraGroceries: MutableLiveData<List<Ingredient>?>
         get() = _listExtraGroceries
 
+    private val _ingredientsInput = MutableStateFlow("")
+    val ingredientsInput = _ingredientsInput.asStateFlow()
+
     fun refreshDataHomeForCurrentUser() {
         recipeRepository.refreshDataForHome()
         allRecipes = recipeRepository.allRecipes
@@ -176,13 +178,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             val list = parseStringByNewLine(ingredientName)
             if (list.isNotEmpty()) {
                 list.forEach { ingredientName ->
-
-//                    ingredients?.forEach { ingredient ->
-//                        val item = Ingredient(
-//                            name = ingredient.name, completed = false, completion_date = null, recipe_id = recipeId, aisle = 0, short_name = ingredient.name, user_uid = currentUserUID
-//                        )
-//                        listIngredients.add(item)
-//                    }
                     val ingredient = Ingredient(
                         name = ingredientName,
                         completed = false,
@@ -197,6 +192,10 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 }
             }
         }
+    }
+
+    fun setIngredientsInpitValueAsEmptyString() {
+        _ingredientsInput.value = ""
     }
 
     fun parseStringByNewLine(input: String): List<String> {
@@ -1117,5 +1116,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     }
             }
         }
+    }
+
+    fun setIngredientsInput(input: String) {
+        _ingredientsInput.value = input
     }
 }

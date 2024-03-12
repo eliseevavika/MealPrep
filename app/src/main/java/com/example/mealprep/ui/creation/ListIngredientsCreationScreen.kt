@@ -108,7 +108,6 @@ fun KeyboardHandlingDemo3(viewModel: () -> RecipeViewModel) {
         ) {
             Box(modifier = Modifier.width(280.dp)) {
                 TextField(
-
                     keyboardOptions = KeyboardOptions(
                         imeAction = ImeAction.Done
                     ),
@@ -116,11 +115,13 @@ fun KeyboardHandlingDemo3(viewModel: () -> RecipeViewModel) {
                         onDone = {
                             callback()
                             input = ""
+                            viewModel().setIngredientsInput(input)
                         }
                     ),
                     value = input,
                     onValueChange = {
                         input = it
+                        viewModel().setIngredientsInput(input)
                     },
                     textStyle = TextStyle(color = MealPrepColor.black),
                     colors = TextFieldDefaults.textFieldColors(
@@ -148,6 +149,7 @@ fun KeyboardHandlingDemo3(viewModel: () -> RecipeViewModel) {
                 onClick = {
                     callback()
                     input = ""
+                    viewModel().setIngredientsInput(input)
                 }) {
                 Text(
                     text = "Add",

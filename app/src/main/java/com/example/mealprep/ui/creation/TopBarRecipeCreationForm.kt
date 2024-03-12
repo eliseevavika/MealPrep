@@ -36,6 +36,7 @@ fun TopBarRecipeCreationForm(
 ) {
     val backDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
     val isValidUrl = viewModel().isValidUrl.collectAsState()
+    val ingredientInput = viewModel().ingredientsInput.collectAsState()
 
     DisposableEffect(backDispatcher) {
         val callback = object : OnBackPressedCallback(true) {
@@ -72,6 +73,10 @@ fun TopBarRecipeCreationForm(
             shape = RoundedCornerShape(50),
             modifier = Modifier.bounceClick(),
             onClick = {
+                if (ingredientInput.value.isNotEmpty()) {
+                    viewModel().performQueryIngredients(ingredientInput.value)
+                    viewModel().setIngredientsInpitValueAsEmptyString()
+                }
                 when {
                     viewModel().isRquiredDataEntered() && isValidUrl.value -> {
                         viewModel().addNewRecipe()
