@@ -183,40 +183,6 @@ fun AccountScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Spacer(modifier = Modifier.padding(vertical = 18.dp))
-
-            IconButton(onClick = {
-                val email = viewModal().getUserEmail()
-                if (email.isNullOrBlank()) {
-                    android.app.AlertDialog.Builder(context)
-                        .setMessage(
-                            "Logging out from your anonymous account will " +
-                                    "result in the loss of associated data." +
-                                    " You can export your data before logging out if you want to retain it. \n " +
-                                    "Are you sure you want to log out?"
-                        )
-                        .setPositiveButton("Log out") { dialog, _ ->
-                            Firebase.auth.signOut()
-                        }.setNegativeButton("Close this message") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                } else {
-                    Firebase.auth.signOut()
-                }
-            }) {
-                Row() {
-                    Text(
-                        text = "Log out",
-                        modifier = Modifier.padding(end = 5.dp),
-                        fontFamily = fontFamilyForBodyB1,
-                        fontSize = 20.sp,
-                        textAlign = TextAlign.Start
-                    )
-                    Icon(
-                        imageVector = Icons.Rounded.ExitToApp,
-                        contentDescription = null,
-                    )
-                }
-            }
         }
     })
 }

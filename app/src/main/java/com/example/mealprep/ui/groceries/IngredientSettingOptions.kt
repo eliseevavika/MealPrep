@@ -41,7 +41,7 @@ fun IngredientSettingOptions(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val listChoices = listOf("Move to another store", "Move to another aisle:")
+    val listChoices = listOf("Move to another aisle:")
 
     val newAisleChoice by viewModel.newAisleChoice.collectAsState()
 
@@ -67,18 +67,6 @@ fun IngredientSettingOptions(
                     shape = RoundedCornerShape(12.dp),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        drawItem(
-                            listChoices[0],
-                        ) {
-                            expanded = false
-                            val name = ingredient.name.substringBeforeLast(",")
-
-                            showMessage(
-                                ingredient, "Item ${name} moved to the Another Store section"
-                            )
-                            viewModel.updateAisleNumber(ingredient, Aisle.DIFFERENT_STORE.value)
-                        }
-
                         Divider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         Row() {

@@ -51,16 +51,15 @@ fun TopBarForGroceriesScreen(
                     val clipboardManager =
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val groceryNamesMain = listGroceries.map { it.name }
-                    val groceryNamesAnother = listGroceriesForAnotherStore.map { it.name }
                     val titleMainGroceries = "Main groceries:"
                     val titleAnotherStore = "Another store:"
                     val joinedName = listOf(titleMainGroceries, "") + groceryNamesMain + listOf(
                         "", titleAnotherStore, ""
-                    ) + groceryNamesAnother
-                    val joinedIngredientsForAnotherStore = joinedName.joinToString(separator = "\n")
+                    )
+                    val joinedIngredients = joinedName.joinToString(separator = "\n")
 
                     val clipData = ClipData.newPlainText(
-                        "Shopping List", joinedIngredientsForAnotherStore
+                        "Shopping List", joinedIngredients
                     )
                     clipboardManager.setPrimaryClip(clipData)
                 })

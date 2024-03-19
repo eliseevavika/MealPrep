@@ -46,7 +46,6 @@ fun GroceriesScreen(
 ) {
     val scrollState = rememberScrollState()
     val expandMainStore = viewModel().expandMainStore.collectAsState().value
-    val expandAnotherStore = viewModel().expandAnotherStore.collectAsState().value
     var expandCompleted by remember { mutableStateOf(false) }
 
     val listGroceries =
@@ -125,47 +124,6 @@ fun GroceriesScreen(
                         if (expandMainStore) {
                             if (listGroceries.isNotEmpty()) {
                                 listGroceries.forEach { item ->
-                                    Column(
-                                        modifier = Modifier.background(Color.White),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        setUpLines(
-                                            item, viewModel, false, completedIngredients
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = 20.dp, start = 8.dp, bottom = 8.dp
-                                ), verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Another store",
-                                color = MealPrepColor.orange,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Normal,
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                            IconButton(modifier = Modifier.rotate(if (expandAnotherStore) 180F else 0F),
-                                onClick = {
-                                    viewModel().setExpandAnotherStore(!expandAnotherStore)
-                                }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    tint = MealPrepColor.orange,
-                                    contentDescription = "Drop Down Arrow"
-                                )
-                            }
-                        }
-                        if (expandAnotherStore) {
-                            if (listGroceriesForAnotherStore.isNotEmpty()) {
-                                listGroceriesForAnotherStore.forEach { item ->
                                     Column(
                                         modifier = Modifier.background(Color.White),
                                         verticalArrangement = Arrangement.Center,

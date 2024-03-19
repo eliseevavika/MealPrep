@@ -46,7 +46,6 @@ import java.lang.reflect.Field
 class MainActivity : ComponentActivity() {
 
     lateinit var viewModel: RecipeViewModel
-    lateinit var authViewModel: LoginScreenViewModel
     private lateinit var auth: FirebaseAuth
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -70,11 +69,6 @@ class MainActivity : ComponentActivity() {
                     this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
                 ).get(RecipeViewModel::class.java)
 
-
-                authViewModel = ViewModelProvider(
-                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(application)
-                ).get(LoginScreenViewModel::class.java)
-
                 val navController = rememberNavController()
 
 
@@ -94,133 +88,102 @@ class MainActivity : ComponentActivity() {
                     sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                     sheetBackgroundColor = Color.Blue,
                 ) {
-                    Scaffold(
-                        content = { padding ->
-                            Box(modifier = Modifier.padding(0.dp)) {
-                                NavHost(
-                                    navController = navController,
-                                    startDestination = getStartDestination(
-                                        viewModel, authViewModel
+                    Scaffold(content = { padding ->
+                        Box(modifier = Modifier.padding(0.dp)) {
+                            NavHost(
+                                navController = navController,
+                                startDestination = getStartDestination(viewModel)
+                            ) {
+                                composable(Home.route) {
+                                    HomeScreen(auth,
+                                        { navController },
+                                        { scope },
+                                        { modalBottomSheetState }) { viewModel }
+                                }
+
+                                composable(MealPrep.route) {
+                                    viewModel.refreshDataMealPrepForCurrentUser()
+                                    MealPlanningScreen({ navController }) { viewModel }
+                                }
+
+                                composable(Groceries.route) {
+                                    viewModel.refreshDataGroceriesForCurrentUser()
+                                    GroceriesScreen({ navController }) { viewModel }
+                                }
+
+                                composable(Account.route) {
+                                    AccountScreen({ navController }) { viewModel }
+                                }
+
+                                composable(
+                                    DishDetails.route + "/{${DishDetails.argDishId}}" + "/{${DishDetails.mealPrepOn}}",
+                                    arguments = listOf(navArgument(DishDetails.argDishId) {
+                                        type = NavType.LongType
+                                    }, navArgument(DishDetails.mealPrepOn) {
+                                        type = NavType.BoolType
+                                    })
+                                ) { backStackEntry ->
+                                    val id = requireNotNull(
+                                        backStackEntry.arguments?.getLong(
+                                            DishDetails.argDishId
+                                        )
                                     )
-                                ) {
-                                    composable(LoginScreen.route) {
-                                        LoginScreen(authViewModel, navController)
-                                    }
-
-                                    composable(ForgotPasswordScreen.route) {
-                                        ForgotPasswordScreen(authViewModel) {
-                                            navController.popBackStack()
-                                        }
-                                    }
-
-                                    composable(SignUpScreen.route) {
-                                        SignUpScreen(
-                                            authViewModel, auth
-                                        ) { navController.popBackStack() }
-                                    }
-                                    composable(VerifyEmailScreen.route) {
-                                        VerifyEmailScreen(
-                                            authViewModel, auth
-                                        ) { navController.navigate(Home.route) }
-                                    }
-
-                                    composable(Home.route) {
-                                        HomeScreen({ navController },
-                                            { scope },
-                                            { modalBottomSheetState }) { viewModel }
-                                    }
-
-                                    composable(MealPrep.route) {
-                                        viewModel.refreshDataMealPrepForCurrentUser()
-                                        MealPlanningScreen({ navController }) { viewModel }
-                                    }
-
-                                    composable(Groceries.route) {
-                                        viewModel.refreshDataGroceriesForCurrentUser()
-                                        GroceriesScreen({ navController }) { viewModel }
-
-                                    }
-
-                                    composable(Account.route) {
-                                        AccountScreen({ navController }) { viewModel }
-                                    }
-
-                                    composable(
-                                        DishDetails.route + "/{${DishDetails.argDishId}}" + "/{${DishDetails.mealPrepOn}}",
-                                        arguments = listOf(navArgument(DishDetails.argDishId) {
-                                            type = NavType.LongType
-                                        }, navArgument(DishDetails.mealPrepOn) {
-                                            type = NavType.BoolType
-                                        })
-                                    ) { backStackEntry ->
-                                        val id = requireNotNull(
-                                            backStackEntry.arguments?.getLong(
-                                                DishDetails.argDishId
-                                            )
+                                    val isMealPlan = requireNotNull(
+                                        backStackEntry.arguments?.getBoolean(
+                                            DishDetails.mealPrepOn
                                         )
-                                        val isMealPlan = requireNotNull(
-                                            backStackEntry.arguments?.getBoolean(
-                                                DishDetails.mealPrepOn
-                                            )
-                                        )
+                                    )
 
-                                        DishDetails(
-                                            id,
-                                            { navController },
-                                            { viewModel },
-                                            isMealPlan
-                                        )
-                                    }
+                                    DishDetails(id, { navController }, { viewModel }, isMealPlan
+                                    )
+                                }
 
-                                    composable(
-                                        MealPrepForSpecificDay.route + "/{${MealPrepForSpecificDay.argDayId}}",
-                                        arguments = listOf(navArgument(
+                                composable(
+                                    MealPrepForSpecificDay.route + "/{${MealPrepForSpecificDay.argDayId}}",
+                                    arguments = listOf(navArgument(
+                                        MealPrepForSpecificDay.argDayId
+                                    ) {
+                                        type = NavType.IntType
+                                    })
+                                ) { backStackEntry ->
+                                    val dayId = requireNotNull(
+                                        backStackEntry.arguments?.getInt(
                                             MealPrepForSpecificDay.argDayId
-                                        ) {
-                                            type = NavType.IntType
-                                        })
-                                    ) { backStackEntry ->
-                                        val dayId = requireNotNull(
-                                            backStackEntry.arguments?.getInt(
-                                                MealPrepForSpecificDay.argDayId
-                                            )
-                                        ) { "Dish id is null" }
-
-                                        MealPrepForSpecificDay(dayId,
-                                            { navController }) { viewModel }
-                                    }
-
-                                    composable(GroceriesAddition.route) {
-                                        GroceriesAdditionScreen({ navController }) { viewModel }
-                                    }
-
-                                    composable(RecipeCreation.route) {
-                                        RecipeCreationScreen(
-                                            { navController },
-                                        ) { viewModel }
-                                    }
-
-                                    composable(
-                                        RecipeEditing.route + "/{${RecipeEditing.argRecipeId}}",
-                                        arguments = listOf(navArgument(RecipeEditing.argRecipeId) {
-                                            type = NavType.LongType
-                                        })
-                                    ) { backStackEntry ->
-                                        val id = requireNotNull(
-                                            backStackEntry.arguments?.getLong(
-                                                RecipeEditing.argRecipeId
-                                            )
                                         )
+                                    ) { "Dish id is null" }
 
-                                        RecipeEditingScreen(
-                                            id,
-                                            { navController },
-                                            { viewModel }
+                                    MealPrepForSpecificDay(
+                                        dayId,
+                                        { navController }) { viewModel }
+                                }
+
+                                composable(GroceriesAddition.route) {
+                                    GroceriesAdditionScreen({ navController }) { viewModel }
+                                }
+
+                                composable(RecipeCreation.route) {
+                                    RecipeCreationScreen(
+                                        { navController },
+                                    ) { viewModel }
+                                }
+
+                                composable(
+                                    RecipeEditing.route + "/{${RecipeEditing.argRecipeId}}",
+                                    arguments = listOf(navArgument(RecipeEditing.argRecipeId) {
+                                        type = NavType.LongType
+                                    })
+                                ) { backStackEntry ->
+                                    val id = requireNotNull(
+                                        backStackEntry.arguments?.getLong(
+                                            RecipeEditing.argRecipeId
                                         )
-                                    }
+                                    )
+
+                                    RecipeEditingScreen(id, { navController }, { viewModel })
                                 }
                             }
-                        })
+                        }
+                    })
                 }
             }
         }
@@ -229,20 +192,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun getStartDestination(
-    viewModel: RecipeViewModel, authViewModel: LoginScreenViewModel
+    viewModel: RecipeViewModel
 ): String {
-    val isUserSignedOut = authViewModel.getAuthState().collectAsState().value
-    val isUserVerified = authViewModel.isEmailVerified
-    val isUserAnonymous = authViewModel.isUserAnonymous
-
-    if (isUserSignedOut) {
-        return LoginScreen.route
-    } else {
-        if (isUserAnonymous || isUserVerified) {
-            viewModel.refreshDataHomeForCurrentUser()
-            return Home.route
-        } else {
-            return VerifyEmailScreen.route
-        }
-    }
+    viewModel.refreshDataHomeForCurrentUser()
+    return Home.route
 }

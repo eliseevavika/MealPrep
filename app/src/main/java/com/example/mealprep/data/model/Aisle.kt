@@ -13,5 +13,4 @@ enum class Aisle(val departmentName: String?, val value: Int) {
     PASTA_RICE("Pasta And Rice", 10),
     DRINKS("Drinks", 11),
     OTHERS(null, 12),
-    DIFFERENT_STORE("Another Store", 13)
 }

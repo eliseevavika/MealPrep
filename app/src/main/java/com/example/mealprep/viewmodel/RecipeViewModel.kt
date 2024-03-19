@@ -13,6 +13,7 @@ import com.example.mealprep.data.RecipeRepository
 import com.example.mealprep.data.model.*
 import com.example.mealprep.ui.mealplanning.MealPlanWithLinks
 import com.example.mealprep.ui.mealplanning.RecipeWithLink
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -131,9 +132,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     private val _isValidUrl = MutableStateFlow(true)
     val isValidUrl = _isValidUrl.asStateFlow()
-
-    private val _expandAnotherStore = MutableStateFlow(true)
-    val expandAnotherStore = _expandAnotherStore.asStateFlow()
 
     private val _expandMainStore = MutableStateFlow(true)
     val expandMainStore = _expandMainStore.asStateFlow()
@@ -934,10 +932,6 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun setExpandAnotherStore(expandAnotherStoreParam: Boolean) {
-        _expandAnotherStore.value = expandAnotherStoreParam
-    }
-
     fun setExpandMainStore(expandMainStoreParam: Boolean) {
         _expandMainStore.value = expandMainStoreParam
     }
@@ -1120,5 +1114,22 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun setIngredientsInput(input: String) {
         _ingredientsInput.value = input
+    }
+
+    fun signAsAGuest(onSuccess: (String) -> Unit, onError: (String?) -> Unit) {
+        FirebaseAuth.getInstance().signInAnonymously()
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val currentUser = FirebaseAuth.getInstance().currentUser
+                    val uid = currentUser?.uid
+                    if (uid != null) {
+                        onSuccess(uid)
+                    } else {
+                        onError("Failed to get UID for anonymous user")
+                    }
+                } else {
+                    onError(task.exception?.message)
+                }
+            }
     }
 }
