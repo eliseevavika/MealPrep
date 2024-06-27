@@ -53,11 +53,6 @@ fun GroceriesScreen(
             .groupBy { it.aisle }
             .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
 
-    val listGroceriesForAnotherStore =
-        viewModel().listGroceriesForAnotherStore.observeAsState(listOf()).value.sortedBy { it.aisle }
-            .groupBy { it.aisle }
-            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
-
     val completedIngredients =
         viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
 
@@ -272,6 +267,7 @@ fun setUpLines(
             Spacer(modifier = Modifier.weight(1f))
 
             IngredientSettingOptions(item,
+                isCompleted,
                 viewModel = viewModel(),
                 modifier = Modifier.weight(1f),
                 showMessage = { ingredient, message ->

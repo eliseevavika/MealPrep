@@ -31,7 +31,6 @@ import com.example.mealprep.ui.creation.RecipeCreationScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPlanningScreen
 import com.example.mealprep.fill.out.recipe.card.mealplanning.MealPrepForSpecificDay
 import com.example.mealprep.fill.out.recipe.card.settings.AccountScreen
-import com.example.mealprep.ui.authentication.*
 import com.example.mealprep.ui.home.editing.RecipeEditingScreen
 import com.example.mealprep.ui.navigation.*
 import com.example.mealprep.ui.theme.MealPrepTheme

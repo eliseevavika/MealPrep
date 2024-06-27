@@ -216,7 +216,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun importDataFromFile(
+    fun  importDataFromFile(
         inputStream: InputStream?,
         showSuccessMessage: () -> Unit,
         showError: (String) -> Unit
@@ -868,7 +868,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             return if (hours == 0) {
                 "$minutes min"
             } else {
-                "$hours h $minutes min"
+                "${hours}h ${minutes}min"
             }
         }
     }

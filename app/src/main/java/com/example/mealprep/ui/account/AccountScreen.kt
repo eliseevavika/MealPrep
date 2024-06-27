@@ -1,6 +1,7 @@
 package com.example.mealprep.fill.out.recipe.card.settings
 
 import android.content.Intent
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -150,20 +151,25 @@ fun AccountScreen(
                     scope.launch {
                         val json = viewModal().export()
 
-                        val file = File(context.filesDir, "sliceUpNew.json")
-                        json?.let { file.writeText(it) }
+                        if (json != null) {
+                            val timestamp = System.currentTimeMillis()
+                            val file = File(context.filesDir, "sliceUpNew_$timestamp.json")
+                            json.let { file.writeText(it) }
 
-                        val uri = FileProvider.getUriForFile(
-                            context,
-                            context.applicationContext.packageName + ".fileprovider",
-                            file
-                        )
-                        val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                            type = "application/json"
-                            putExtra(Intent.EXTRA_STREAM, uri)
+                            val uri = FileProvider.getUriForFile(
+                                context,
+                                context.applicationContext.packageName + ".fileprovider",
+                                file
+                            )
+                            val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                                type = "application/json"
+                                putExtra(Intent.EXTRA_STREAM, uri)
+                            }
+                            sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                            context.startActivity(sendIntent)
+                        }else{
+                            Log.e("ExportError", "Exported JSON is null")
                         }
-                        sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                        context.startActivity(sendIntent)
                     }
                 },
                 content = {

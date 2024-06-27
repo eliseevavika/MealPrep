@@ -27,6 +27,7 @@ import com.google.android.material.color.MaterialColors
 @Composable
 fun IngredientSettingOptions(
     ingredient: Ingredient,
+    isCompleted: Boolean,
     viewModel: RecipeViewModel,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -40,6 +41,11 @@ fun IngredientSettingOptions(
     }
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    if (isCompleted) {
+        // don't need to show menu for completed items
+        return
+    }
 
     val listChoices = listOf("Move to another aisle:")
 
@@ -71,7 +77,7 @@ fun IngredientSettingOptions(
 
                         Row() {
                             drawItem(
-                                listChoices[1],
+                                listChoices[0],
                             ) {}
                             AisleMenuChoice(ingredient = ingredient,
                                 viewModel = viewModel,

@@ -26,10 +26,6 @@ fun TopBarForGroceriesScreen(
         viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
             .groupBy { it.aisle }
             .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
-    val listGroceriesForAnotherStore =
-        viewModel().listGroceriesForAnotherStore.observeAsState(listOf()).value.sortedBy { it.aisle }
-            .groupBy { it.aisle }
-            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
 
     Row(
         modifier = Modifier
@@ -51,11 +47,10 @@ fun TopBarForGroceriesScreen(
                     val clipboardManager =
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val groceryNamesMain = listGroceries.map { it.name }
-                    val titleMainGroceries = "Main groceries:"
-                    val titleAnotherStore = "Another store:"
-                    val joinedName = listOf(titleMainGroceries, "") + groceryNamesMain + listOf(
-                        "", titleAnotherStore, ""
-                    )
+                    val titleMainGroceries = "Groceries:"
+
+                    val joinedName = listOf(titleMainGroceries, "") + groceryNamesMain
+
                     val joinedIngredients = joinedName.joinToString(separator = "\n")
 
                     val clipData = ClipData.newPlainText(

@@ -26,11 +26,11 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = { onItemClick(title) })
-            .height(55.dp)
+            .height(100.dp)
             .background(color = colorResource(id = R.color.white))
-            .padding(start = 15.dp, top = 15.dp, bottom = 5.dp)
+            .padding(start = 25.dp, top = 25.dp, bottom = 15.dp)
     ) {
-        Row(verticalAlignment = Alignment.Bottom) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = title,
@@ -38,12 +38,12 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
             )
         }
         Spacer(modifier = Modifier.width(10.dp))
-        Row(verticalAlignment = Alignment.Top) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = title,
                 color = Color.Black,
                 fontFamily = fontFamilyForBodyB2,
-                fontSize = 16.sp
+                fontSize = 19.sp
             )
         }
     }
@@ -64,11 +64,6 @@ fun BottomSheetContent(
                 scope.launch { modalBottomSheetState.hide() }
                 navController().navigate(RecipeCreation.route)
             },
-        )
-        BottomSheetListItem(
-            icon = R.drawable.ic_attach_file,
-            title = "Save recipe link",
-            onItemClick = {}
         )
     }
 }
