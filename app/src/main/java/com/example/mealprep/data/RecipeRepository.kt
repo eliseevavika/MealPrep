@@ -2,6 +2,7 @@ package com.example.mealprep.data
 
 import android.net.Uri
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.example.mealprep.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -79,8 +80,13 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
 
     var recipesForSaturday: Flow<List<Recipe>> = recipeDao.getRecipesForTheDay(6, currentUserUID)
 
-    var ingredientsFromMealPlans: LiveData<List<Ingredient>> =
+    private val _ingredientsFromMealPlansWithCount: LiveData<List<IngredientWithCount>> =
         recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
+
+    var ingredientsFromMealPlans: LiveData<List<Pair<Ingredient, Int>>> =
+        _ingredientsFromMealPlansWithCount.map { ingredientWithCounts ->
+            ingredientWithCounts.map { it.ingredient to it.recipe_count }
+        }
 
     var listGroceriesForAnotherStore: LiveData<List<Ingredient>> =
         recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)
@@ -123,8 +129,9 @@ class RecipeRepository(private val recipeDao: RecipeDao) {
     fun refreshDataForGroceries() {
         currentUserUID = Firebase.auth.currentUser?.uid.toString()
 
-        ingredientsFromMealPlans =
-            recipeDao.getAllIngredientsFromMealPlansNotCompleted(currentUserUID)
+        ingredientsFromMealPlans = _ingredientsFromMealPlansWithCount.map { ingredientWithCounts ->
+            ingredientWithCounts.map { it.ingredient to it.recipe_count }
+        }
 
         listGroceriesForAnotherStore =
             recipeDao.getAllIngredientsFromMealPlansNotCompletedAndForAnotherStore(currentUserUID)

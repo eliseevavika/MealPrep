@@ -53,7 +53,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     val returnedListSteps = MutableLiveData<List<Step>>()
 
-    var ingredientsFromMealPlans: LiveData<List<Ingredient>>
+    var ingredientsFromMealPlans: LiveData<List<Pair<Ingredient, Int>>>
 
     var listGroceriesForAnotherStore: LiveData<List<Ingredient>>
 
@@ -940,7 +940,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch(Dispatchers.IO) {
             ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
             ingredientsFromMealPlans.value?.forEach { ingredient ->
-                makeIngredientComplete(ingredient)
+                makeIngredientComplete(ingredient.first)
             }
             listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
 

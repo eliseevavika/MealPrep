@@ -22,6 +22,11 @@ data class Recipe(
     @ColumnInfo(name = "creation_date") val creation_date: Date,
 )
 
+data class IngredientWithCount(
+    @Embedded val ingredient: Ingredient,
+    val recipe_count: Int
+)
+
 @Entity(
     tableName = "ingredient", foreignKeys = [ForeignKey(
         entity = Recipe::class,
@@ -229,8 +234,8 @@ interface RecipeDao {
     fun getRecipesForTheDay(dayId: Int, currentUserUID: String?): Flow<List<Recipe>>
 
     @Transaction
-    @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed AND aisle != 13 AND user_uid = :currentUserUID")
-    fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<Ingredient>>
+    @Query("SELECT Ingredient.*, COUNT(recipewithmealplan.mealplan_id) AS recipe_count FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle != 13 AND Recipe.user_uid = :currentUserUID GROUP BY Ingredient.id UNION ALL SELECT Ingredient.*, 1 AS recipe_count FROM Ingredient  WHERE recipe_id IS NULL AND NOT completed AND aisle != 13 AND user_uid = :currentUserUID")
+    fun getAllIngredientsFromMealPlansNotCompleted(currentUserUID: String): LiveData<List<IngredientWithCount>>
 
     @Transaction
     @Query("SELECT Ingredient.* FROM Ingredient INNER JOIN recipewithmealplan ON Ingredient.recipe_id = recipewithmealplan.recipe_id INNER JOIN Recipe ON Recipe.recipe_id = Ingredient.recipe_id WHERE NOT Ingredient.completed AND Ingredient.aisle = 13 AND Recipe.user_uid = :currentUserUID  UNION SELECT * FROM Ingredient WHERE recipe_id IS NULL AND NOT completed  AND aisle = 13 AND user_uid = :currentUserUID")

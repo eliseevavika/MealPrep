@@ -49,9 +49,9 @@ fun GroceriesScreen(
     var expandCompleted by remember { mutableStateOf(false) }
 
     val listGroceries =
-        viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
-            .groupBy { it.aisle }
-            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
+        viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.first.aisle }
+            .groupBy { it.first.aisle }
+            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.first.short_name } }
 
     val completedIngredients =
         viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
@@ -125,7 +125,7 @@ fun GroceriesScreen(
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         setUpLines(
-                                            item, viewModel, false, completedIngredients
+                                            item.first, item.second, viewModel, false, completedIngredients
                                         )
                                     }
                                 }
@@ -166,7 +166,7 @@ fun GroceriesScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             setUpLines(
-                                                item, viewModel, true, completedIngredients
+                                                item, 0, viewModel, true, completedIngredients
                                             )
                                         }
                                     }
@@ -184,6 +184,7 @@ fun GroceriesScreen(
 @Composable
 fun setUpLines(
     item: Ingredient,
+    itemCount: Int,
     viewModel: () -> RecipeViewModel,
     isCompleted: Boolean,
     completedIngredients: List<Ingredient>?
@@ -224,6 +225,22 @@ fun setUpLines(
                         }
                     }),
                 text = item.name,
+                fontFamily = fontFamilyForBodyB2,
+                style = if (isCompleted) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle(
+                    textDecoration = TextDecoration.None
+                ),
+                fontSize = 16.sp
+            )
+            Text(
+                modifier = Modifier
+                    .weight(9f)
+                    .combinedClickable(onClick = {}, onLongClick = {
+                        scope.launch {
+                            viewModel().getTextForTooltipBox(item.recipe_id)
+                            tooltipState.show()
+                        }
+                    }),
+                text = itemCount.takeIf { it > 0 }?.toString() ?: "",
                 fontFamily = fontFamilyForBodyB2,
                 style = if (isCompleted) TextStyle(textDecoration = TextDecoration.LineThrough) else TextStyle(
                     textDecoration = TextDecoration.None

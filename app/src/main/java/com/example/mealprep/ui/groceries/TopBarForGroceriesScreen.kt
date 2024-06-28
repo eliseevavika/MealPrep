@@ -23,9 +23,9 @@ fun TopBarForGroceriesScreen(
     val context = LocalContext.current
 
     val listGroceries =
-        viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.aisle }
-            .groupBy { it.aisle }
-            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.short_name } }
+        viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.first.aisle }
+            .groupBy { it.first.aisle }
+            .flatMap { (_, groupedList) -> groupedList.sortedBy { it.first.short_name } }
 
     Row(
         modifier = Modifier
@@ -46,7 +46,7 @@ fun TopBarForGroceriesScreen(
                 makeCopy = {
                     val clipboardManager =
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val groceryNamesMain = listGroceries.map { it.name }
+                    val groceryNamesMain = listGroceries.map { it.first.name }
                     val titleMainGroceries = "Groceries:"
 
                     val joinedName = listOf(titleMainGroceries, "") + groceryNamesMain
