@@ -25,6 +25,7 @@
      <li><a href="#authentication">Firebase Authentication</a></li>
      <li><a href="#export-import">Data export and import</a></li>
      <li><a href="#images">Saving images to Firebase Storage</a></li>
+     <li><a href="#ingredient-count">Enhanced Ingredient Count Handling for Meal Planning</a></li>
   </ol>
 </details>
 
@@ -188,6 +189,17 @@ After implementing the solution of saving images to Firebase Storage, a new issu
 To optimize the user experience and eliminate the delay, I devised a new approach. Now, when a user creates a recipe with an image, I first save the image to the FileProvider, and the path to the image is saved in the local Room database. This ensures that the user can see the newly created recipe right away without any waiting.
 
 In the background, I asynchronously save the image to Firebase Storage and obtain the downloaded URL. Once the URL is available, I update the photo field of the corresponding recipe in the local Room database. This seamless and asynchronous process guarantees that the images are properly linked to the recipes, and users can enjoy a smooth and uninterrupted experience when creating and viewing recipes.
+
+## Ingredient Count
+
+**Problem:**
+
+When I add the same recipe to different days of the week, the grocery shopping list generated from the weekly recipe planning only shows each ingredient once. This becomes problematic when I want to cook the same recipe multiple times within a week because it doesn't accurately reflect the total ingredients needed.
+
+**Solution:**
+
+To address this issue, I implemented a solution where I created a new data class (IngredientWithCount) that aggregates ingredient counts across different meal planning instances of the same recipe. This new data class is used to display ingredient counts accurately in the UI, reflecting the total ingredients required based on how many times a recipe is included in the meal plans for the week.
+
 
 
 ### APACHE LICENSE, VERSION 2.0¶
