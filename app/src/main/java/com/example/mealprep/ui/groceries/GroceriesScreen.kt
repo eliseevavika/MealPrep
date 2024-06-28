@@ -98,7 +98,7 @@ fun GroceriesScreen(
                                 ), verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Main store",
+                                text = "Shopping list",
                                 color = MealPrepColor.orange,
                                 fontSize = 20.sp,
                                 textAlign = TextAlign.Start,
@@ -233,7 +233,7 @@ fun setUpLines(
             )
             Text(
                 modifier = Modifier
-                    .weight(9f)
+                    .weight(3f).padding(start = 10.dp)
                     .combinedClickable(onClick = {}, onLongClick = {
                         scope.launch {
                             viewModel().getTextForTooltipBox(item.recipe_id)
