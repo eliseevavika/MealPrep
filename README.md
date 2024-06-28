@@ -200,6 +200,8 @@ When I add the same recipe to different days of the week, the grocery shopping l
 
 To address this issue, I implemented a solution where I created a new data class (IngredientWithCount) that aggregates ingredient counts across different meal planning instances of the same recipe. This new data class is used to display ingredient counts accurately in the UI, reflecting the total ingredients required based on how many times a recipe is included in the meal plans for the week.
 
+<img src="app/screenshots/shoppinglist.png" alt= “” width="300">
+
 
 
 ### APACHE LICENSE, VERSION 2.0¶
