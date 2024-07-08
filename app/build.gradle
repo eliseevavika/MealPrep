@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.meaprep'
+    namespace 'com.sliceup.mealprep'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.example.meaprep"
+        applicationId "com.sliceup.mealprep"
         minSdk 24
         targetSdk 34
         versionCode 1
@@ -108,5 +108,7 @@ dependencies {
     implementation  'org.apache.commons:commons-lang3:3.0'
     implementation("androidx.compose.material3:material3:1.1.1")
     implementation("androidx.compose.material3:material3-window-size-class:1.1.1")
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.3"
+
 
 }

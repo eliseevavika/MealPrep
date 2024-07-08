@@ -1,0 +1,11 @@
+package com.sliceup.mealprep.ui.navigation
+
+import com.sliceup.mealprep.R
+
+
+sealed class NavigationItem(val route: String, val icon: Int, val title: String) {
+    object Home : NavigationItem("home", R.drawable.icon_home, "Home")
+    object MealPrep : NavigationItem("mealprep", R.drawable.icon_mealprep, "MealPrep")
+    object Groceries : NavigationItem("groceries", R.drawable.icon_groceries, "Groceries")
+    object Account : NavigationItem("account", R.drawable.icon_settings, "Account")
+}

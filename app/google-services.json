@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:876694761799:android:dbea496800a7cdb2349c62",
         "android_client_info": {
-          "package_name": "com.example.meaprep"
+          "package_name": "com.sliceup.mealprep"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "876694761799-1fp87b8p4qie73v5b1cukt9vc8siatl7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.meaprep",
+            "package_name": "com.sliceup.mealprep",
             "certificate_hash": "98c40c5fc1f565852aa16ebf4965ae8e2760432b"
           }
         },

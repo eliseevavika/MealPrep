@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace 'com.example.benchmark'
+    namespace 'com.sliceup.benchmark'
     compileSdk 33
 
     compileOptions {

@@ -22,7 +22,7 @@
             tools:targetApi="29" />
 
         <activity
-            android:name="com.example.mealprep.MainActivity"
+            android:name="com.sliceup.mealprep.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.MealPrep"
@@ -35,7 +35,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.meaprep.fileprovider"
+            android:authorities="com.sliceup.mealprep.fileprovider"
         android:exported="false"
         android:grantUriPermissions="true">
         <meta-data
