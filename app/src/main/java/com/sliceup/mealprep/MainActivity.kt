@@ -75,7 +75,6 @@ class MainActivity : ComponentActivity() {
 
                 val navController = rememberNavController()
 
-
                 val modalBottomSheetState =
                     rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
                 val scope = rememberCoroutineScope()

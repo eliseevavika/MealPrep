@@ -10,8 +10,11 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Alignment.Companion.CenterVertically
@@ -19,7 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -100,12 +106,14 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
     val cookTimeString = remember(recipe) {
         viewModel().getCookTimeString(recipe?.cook_time)
     }
+    var maxHeight by remember { mutableStateOf(0.dp) }
+    val density = LocalDensity.current
 
     Column(
         verticalArrangement = Arrangement.spacedBy((-150).dp),
         modifier = Modifier
             .background(MealPrepColor.grey_100)
-            .height(300.dp)
+            .wrapContentHeight()
     ) {
         if (imagePathFromDatabase != "") {
             Image(
@@ -133,34 +141,42 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
                 .padding(16.dp)
+                .wrapContentHeight()
         ) {
             Column {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.5F)
-                        .padding(start = 16.dp, end = 16.dp), verticalAlignment = CenterVertically
+                        .padding(start = 16.dp, end = 16.dp)
+                        .wrapContentHeight(),
+                    verticalAlignment = CenterVertically
                 ) {
                     Text(
                         text = "${recipe?.name}",
                         fontFamily = fontFamilyForBodyB1,
-                        fontSize = 24.sp,
+                        fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        maxLines = 2
+                        maxLines = 3
                     )
                 }
                 Divider(modifier = Modifier.padding(horizontal = 16.dp))
                 Row(
                     modifier = Modifier
-                        .fillMaxHeight(0.8F)
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                        .padding(16.dp)
+                        .wrapContentHeight(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Box(Modifier.padding(start = 16.dp, end = 16.dp)) {
+                    Box(
+                        Modifier
+                            .padding(horizontal = 16.dp)
+                            .onGloballyPositioned { layoutCoordinates ->
+                                val height = with(density) { layoutCoordinates.size.height.toDp() }
+                                if (height > maxHeight) maxHeight = height
+                            }) {
                         Column(
                             horizontalAlignment = CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceBetween
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.icons_clock2),
@@ -172,20 +188,24 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                             Text(
                                 text = if (recipe?.cook_time == null) "0 min" else {
                                     cookTimeString
-                                }, fontFamily = fontFamilyForBodyB2, fontSize = 16.sp
+                                },
+                                fontFamily = fontFamilyForBodyB2,
+                                fontSize = 16.sp,
+                                modifier = Modifier.wrapContentHeight()
                             )
                         }
                     }
                     Divider(
                         color = MealPrepColor.grey_400,
                         modifier = Modifier
-                            .fillMaxHeight()
+                            .padding(bottom = 16.dp)
                             .width(1.dp)
+                            .height(maxHeight)
                     )
-                    Box(Modifier.padding(start = 16.dp, end = 16.dp)) {
+                    Box(Modifier.padding(horizontal = 16.dp)) {
                         Column(
                             horizontalAlignment = CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceBetween
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.outline_room_service_24),
@@ -197,20 +217,22 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                             Text(
                                 text = viewModel().getCookingComplexity(recipe?.cook_time),
                                 fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                modifier = Modifier.wrapContentHeight()
                             )
                         }
                     }
                     Divider(
                         color = MealPrepColor.grey_400,
                         modifier = Modifier
-                            .fillMaxHeight()
+                            .padding(bottom = 16.dp)
                             .width(1.dp)
+                            .height(maxHeight)
                     )
-                    Box(Modifier.padding(start = 16.dp, end = 16.dp)) {
+                    Box(Modifier.padding(horizontal = 16.dp)) {
                         Column(
                             horizontalAlignment = CenterHorizontally,
-                            verticalArrangement = Arrangement.SpaceBetween
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
                         ) {
                             Icon(
                                 painter = painterResource(id = R.drawable.outline_restaurant_24),
@@ -220,9 +242,10 @@ fun UpperPart(viewModel: () -> RecipeViewModel) {
                             )
                             Spacer(modifier = Modifier.padding(5.dp))
                             Text(
-                                text = "Serves: " + (recipe?.serves?.toString() ?: "0"),
+                                text = (recipe?.serves?.toString() ?: "0"),
                                 fontFamily = fontFamilyForBodyB2,
-                                fontSize = 16.sp
+                                fontSize = 16.sp,
+                                modifier = Modifier.wrapContentHeight()
                             )
                         }
                     }

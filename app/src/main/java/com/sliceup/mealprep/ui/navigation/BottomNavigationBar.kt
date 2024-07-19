@@ -42,11 +42,6 @@ fun BottomNavigationBar(navController: () -> NavHostController) {
                             tint = color()
                         )
                     },
-                    label = {
-                        Text(
-                            text = item.title, color = color()
-                        )
-                    },
                     selectedContentColor = MealPrepColor.orange,
                     unselectedContentColor = MealPrepColor.black,
                     selected = selected(),
