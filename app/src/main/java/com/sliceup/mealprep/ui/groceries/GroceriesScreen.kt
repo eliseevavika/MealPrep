@@ -188,7 +188,6 @@ fun setUpLines(
     isCompleted: Boolean,
     completedIngredients: List<Ingredient>?
 ) {
-    val context = LocalContext.current
     val tooltipState = remember { RichTooltipState() }
     val scope = rememberCoroutineScope()
     val recipeNameForTooltip = viewModel().recipeNameForTooltip.observeAsState().value
@@ -212,11 +211,11 @@ fun setUpLines(
                 onClick = {
                     viewModel().performQueryForGroceries(item)
                 })
-            Spacer(modifier = Modifier.width(width = 8.dp))
+            Spacer(modifier = Modifier.width(width = 16.dp))
 
             Text(
                 modifier = Modifier
-                    .weight(9f)
+                    .weight(9f).padding(end = 16.dp)
                     .combinedClickable(onClick = {}, onLongClick = {
                         scope.launch {
                             viewModel().getTextForTooltipBox(item.recipe_id)
@@ -232,7 +231,7 @@ fun setUpLines(
             )
             Text(
                 modifier = Modifier
-                    .weight(3f).padding(start = 10.dp)
+                    .weight(2f).padding(start = 16.dp)
                     .combinedClickable(onClick = {}, onLongClick = {
                         scope.launch {
                             viewModel().getTextForTooltipBox(item.recipe_id)
@@ -279,59 +278,6 @@ fun setUpLines(
                     Text(text = "")
                 }
             }, tooltipState = tooltipState, content = {})
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IngredientSettingOptions(item,
-                isCompleted,
-                viewModel = viewModel(),
-                modifier = Modifier.weight(1f),
-                showMessage = { ingredient, message ->
-                    val name = ingredient.name.substringBeforeLast(",")
-                    val spannableString = SpannableString(message)
-                    val nameStart = message.indexOf(name)
-                    val nameEnd = nameStart + name.length
-                    spannableString.setSpan(
-                        ForegroundColorSpan(MealPrepColor.orange.toArgb()),
-                        nameStart,
-                        nameEnd,
-                        Spannable.SPAN_EXCLUSIVE_INCLUSIVE
-                    )
-                    android.app.AlertDialog.Builder(context).setMessage(spannableString)
-                        .setPositiveButton("OK") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                },
-                showMessageForAisleUpdate = { ingredient, aisle ->
-                    val ingredientName = ingredient.name.substringBeforeLast(",")
-                    val message =
-                        "Ingredient ${ingredientName} moved to ${aisle.departmentName} aisle"
-
-                    val spannableString = SpannableString(message)
-                    val nameStart = message.indexOf(ingredientName)
-                    val nameEnd = nameStart + ingredientName.length
-
-                    if (nameStart != -1) {
-                        spannableString.setSpan(
-                            ForegroundColorSpan(MealPrepColor.orange.toArgb()), // Change color here
-                            nameStart, nameEnd, Spannable.SPAN_EXCLUSIVE_INCLUSIVE
-                        )
-                    }
-
-                    val aisleStart = message.indexOf(aisle.departmentName!!)
-                    if (aisleStart != -1) {
-                        spannableString.setSpan(
-                            ForegroundColorSpan(MealPrepColor.orange.toArgb()),
-                            aisleStart,
-                            aisleStart + aisle.departmentName.length,
-                            SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
-                    android.app.AlertDialog.Builder(context).setMessage(spannableString)
-                        .setPositiveButton("OK") { dialog, _ ->
-                            dialog.dismiss()
-                        }.show()
-                })
         }
     }
 }
