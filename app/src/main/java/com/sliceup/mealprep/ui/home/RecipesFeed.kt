@@ -150,18 +150,20 @@ fun MenuDish(
                     } else {
                         ShowDefaultImage(alpha)
                     }
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .background(Color.White.copy(alpha = 0.6f), RoundedCornerShape(32.dp))
-                    ) {
-                        RecipeHomeSettingOptions(
-                            recipe,
-                            viewModel,
-                            navController(),
+                    if(!isMealPlanningOn){
+                        Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                        )
+                                .background(Color.White.copy(alpha = 0.6f), RoundedCornerShape(32.dp))
+                        ) {
+                            RecipeHomeSettingOptions(
+                                recipe,
+                                viewModel,
+                                navController(),
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                            )
+                        }
                     }
                 }
                 Text(
