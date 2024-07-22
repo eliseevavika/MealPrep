@@ -2,12 +2,19 @@ package com.sliceup.mealprep.ui.creation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Tab
+import androidx.compose.material.TabPosition
 import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -31,34 +38,36 @@ fun TabScreen(
 
     val tabs = listOf("Intro", "Ingredients", "Steps")
 
+    val tabIndicator = @Composable { tabPositions: List<TabPosition> ->
+        TabRowDefaults.Indicator(
+            color = MealPrepColor.orange,
+            modifier = Modifier
+                .tabIndicatorOffset(tabPositions[tabIndex])
+                .height(2.dp)
+                .background(color = MealPrepColor.orange, shape = RoundedCornerShape(50))
+        )
+    }
+
     Column(modifier = Modifier.fillMaxWidth()) {
         TabRow(
             selectedTabIndex = tabIndex,
             backgroundColor = MealPrepColor.white,
-            indicator = {},
-        ) {
+            indicator = tabIndicator,
+            ) {
             tabs.forEachIndexed { index, title ->
                 key(index) {
-                    val withForTab = if (index != 1) 94.5.dp else 120.dp
                     Tab(
                         text = {
                             Text(
                                 text = title,
                                 fontFamily = fontFamilyForBodyB2,
                                 fontSize = 16.sp,
-                                color = if (tabIndex == index) MealPrepColor.white else MealPrepColor.grey_800,
-
+                                color = MealPrepColor.grey_800,
+                                maxLines = 2,
                                 modifier = Modifier
-                                    .drawBehind {
-                                        drawRoundRect(
-                                            color = if (tabIndex == index) MealPrepColor.orange else MealPrepColor.transparent,
-                                            cornerRadius = CornerRadius(x = 100f, y = 100f)
-                                        )
-                                    }
-                                    .size(width = withForTab, height = 36.dp)
                                     .padding(
-                                        top = 8.dp,
-                                        bottom = 8.dp
+                                        top = 16.dp,
+                                        bottom = 16.dp
                                     )
                             )
                         },
@@ -66,8 +75,7 @@ fun TabScreen(
                         onClick = {
                             tabIndex = index
                             viewModal().setTabIndex(index)
-                        },
-                        interactionSource = NoRippleInteractionSource()
+                        }
                     )
                 }
             }

@@ -124,7 +124,7 @@ fun IntroCreationScreen(
             Row {
                 Box(
                     modifier = Modifier
-                        .width(120.dp)
+                        .width(140.dp)
                         .padding(end = 10.dp)
                 ) {
                     OutlinedTextField(
@@ -150,7 +150,7 @@ fun IntroCreationScreen(
                         ),
                     )
                 }
-                Box(modifier = Modifier.width(120.dp)) {
+                Box(modifier = Modifier.width(140.dp)) {
                     OutlinedTextField(
                         value = if (minutes == 0) "" else minutes.toString(),
                         textStyle = TextStyle(color = MealPrepColor.black),
