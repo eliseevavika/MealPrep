@@ -70,8 +70,7 @@ fun TabScreenForRecipeCard(viewModel: () -> RecipeViewModel) {
                             )
                         },
                         selected = tabIndex == index,
-                        onClick = { tabIndex = index },
-                        interactionSource = NoRippleInteractionSource()
+                        onClick = { tabIndex = index }
                     )
                 }
             }

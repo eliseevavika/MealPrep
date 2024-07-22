@@ -3,13 +3,44 @@ package com.sliceup.mealprep.ui.mealplanning
 import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,19 +55,18 @@ import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
+import com.sliceup.mealprep.R
+import com.sliceup.mealprep.data.Recipe
 import com.sliceup.mealprep.data.model.Day
 import com.sliceup.mealprep.data.model.days
-import com.sliceup.mealprep.viewmodel.RecipeViewModel
+import com.sliceup.mealprep.ui.home.addEmptyLines
 import com.sliceup.mealprep.ui.navigation.BottomNavigationBar
 import com.sliceup.mealprep.ui.navigation.DishDetails
+import com.sliceup.mealprep.ui.navigation.MealPrepForSpecificDay
 import com.sliceup.mealprep.ui.theme.MealPrepColor
 import com.sliceup.mealprep.ui.theme.fontFamilyForBodyB1
 import com.sliceup.mealprep.ui.theme.fontFamilyForBodyB2
-import com.sliceup.mealprep.data.Recipe
-import com.sliceup.mealprep.ui.home.addEmptyLines
-import com.sliceup.mealprep.ui.navigation.MealPrepForSpecificDay
-import com.sliceup.mealprep.R
-
+import com.sliceup.mealprep.viewmodel.RecipeViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -158,8 +188,8 @@ fun MealPlanningScreen(
                                 Spacer(modifier = Modifier.width(width = 8.dp))
                                 Text(
                                     text = day.title,
+                                    fontSize = 16.sp,
                                     fontFamily = fontFamilyForBodyB2,
-                                    fontSize = 16.sp
                                 )
                             }
                         }
@@ -198,7 +228,7 @@ fun BottomSheetContent(
             })
         BottomSheetListItem(
             icon = R.drawable.outline_delete_24,
-            title = "Reset menu",
+            title = "Reset menu for ${chosenDay.title}",
             onItemClick = {
                 viewModel().deleteAllRecipesForDay(chosenDay.id)
             })
@@ -209,59 +239,69 @@ fun BottomSheetContent(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MealPlanRecipesByDay(recipes: () -> List<Recipe>, navController: () -> NavHostController) {
-    LazyRow(
-        modifier = Modifier.padding(start = 8.dp, bottom = 16.dp),
-        horizontalArrangement = Arrangement.Start
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
-        items(recipes()) { recipe ->
-            val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4),
+            modifier = Modifier
+                .heightIn(0.dp, 600.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(recipes().size) { recipeIndex ->
+                val recipe = recipes()[recipeIndex]
+                val recipeName = remember(recipe.recipe_id) { recipe.name.addEmptyLines(2) }
 
-            val imagePathFromDatabase = recipe.photo
+                val imagePathFromDatabase = recipe.photo
 
-            val painter = rememberAsyncImagePainter(
-                model = ImageRequest.Builder(LocalContext.current).data(imagePathFromDatabase)
-                    .size(Size.ORIGINAL).build()
-            )
-            Card(modifier = Modifier
-                .padding(8.dp)
-                .wrapContentSize(),
-                onClick = {
-                    navController().navigate(DishDetails.route + "/${recipe.recipe_id}" + "/${true}")
-                }) {
-                Row {
-                    Column(
-                        modifier = Modifier.size(74.dp, 108.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start
-                    ) {
-                        if (imagePathFromDatabase != "") {
-                            Image(
-                                painter = painter,
-                                contentDescription = "Image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(
-                                        74.dp, 74.dp
-                                    )
-                                    .clip(
-                                        RoundedCornerShape(
-                                            16.dp
+                val painter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalContext.current).data(imagePathFromDatabase)
+                        .size(Size.ORIGINAL).build()
+                )
+                Card(modifier = Modifier
+                    .padding(8.dp)
+                    .wrapContentSize(),
+                    onClick = {
+                        navController().navigate(DishDetails.route + "/${recipe.recipe_id}" + "/${true}")
+                    }) {
+                    Row {
+                        Column(
+                            modifier = Modifier.size(74.dp, 108.dp),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            if (imagePathFromDatabase != "") {
+                                Image(
+                                    painter = painter,
+                                    contentDescription = "Image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(
+                                            74.dp, 74.dp
                                         )
-                                    )
+                                        .clip(
+                                            RoundedCornerShape(
+                                                16.dp
+                                            )
+                                        )
+                                )
+                            } else {
+                                ShowDefaultIconForRecipe()
+                            }
+                            Text(
+                                text = recipeName,
+                                maxLines = 2,
+                                fontFamily = fontFamilyForBodyB1,
+                                fontSize = 10.sp,
                             )
-                        } else {
-                            ShowDefaultIconForRecipe()
                         }
-                        Text(
-                            text = recipeName,
-                            maxLines = 2,
-                            fontFamily = fontFamilyForBodyB1,
-                            fontSize = 10.sp,
-                        )
                     }
                 }
             }
         }
+
     }
 }
 
@@ -297,10 +337,9 @@ fun BottomSheetListItem(icon: Int, title: String, onItemClick: (String) -> Unit)
 @Composable
 fun ShowIcon() {
     Icon(
-        painter = painterResource(id = R.drawable.outline_density_medium_24),
-        tint = MealPrepColor.grey_600,
-        contentDescription = "Icon",
-        modifier = Modifier.size(16.dp)
+        imageVector = Icons.Default.Edit,
+        tint = MealPrepColor.orange,
+        contentDescription = null,
     )
 }
 
