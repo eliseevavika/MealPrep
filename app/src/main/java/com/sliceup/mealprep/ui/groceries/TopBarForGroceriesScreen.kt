@@ -45,10 +45,12 @@ fun TopBarForGroceriesScreen(
                 makeCopy = {
                     val clipboardManager =
                         context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val groceryNamesMain = listGroceries.map { it.first.name }
+
+                    val groceryItemsWithCounts = listGroceries.map { "${it.first.name} (${it.second})"  }
+
                     val titleMainGroceries = "Groceries:"
 
-                    val joinedName = listOf(titleMainGroceries, "") + groceryNamesMain
+                    val joinedName = listOf(titleMainGroceries, "") + groceryItemsWithCounts
 
                     val joinedIngredients = joinedName.joinToString(separator = "\n")
 
