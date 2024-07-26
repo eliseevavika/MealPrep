@@ -61,7 +61,7 @@ data class Step(
 )
 
 @Dao
-interface RecipeDao {
+interface SliceUpDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(recipe: Recipe): Long
 
@@ -69,7 +69,7 @@ interface RecipeDao {
     suspend fun insertIngredients(ingredients: List<Ingredient>)
 
     @Insert
-    suspend fun insertIngredient(ingredient: Ingredient)
+    suspend fun insertIngredient(ingredient: Ingredient): Long
 
     @Insert
     suspend fun insertSteps(steps: List<Step>)
@@ -224,9 +224,17 @@ interface RecipeDao {
     @Query("DELETE FROM recipewithmealplan WHERE mealplan_id = :dayId")
     fun deleteRecipeWithMealPlan(dayId: Int)
 
+    @Query("DELETE FROM ingredient WHERE recipe_id IS NULL")
+    fun deleteAllExtraAddedIngredients()
+
     @Transaction
     suspend fun deleteRecipeAndMealPlanTransaction(dayId: Int) {
         deleteRecipeWithMealPlan(dayId)
+    }
+
+    @Transaction
+    suspend fun deleteAllExtraAddedIngredientsTransaction() {
+        deleteAllExtraAddedIngredients()
     }
 
     @Transaction
@@ -346,7 +354,7 @@ interface RecipeWithMealPlanDao {
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun getRecipeDao(): RecipeDao
+    abstract fun getRecipeDao(): SliceUpDao
 
     abstract fun getIngredientDao(): IngredientDao
 

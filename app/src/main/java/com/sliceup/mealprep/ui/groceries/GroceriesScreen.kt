@@ -1,10 +1,10 @@
 package com.sliceup.mealprep.ui.groceries
 
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -16,13 +16,15 @@ import androidx.compose.material3.RichTooltipState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.ExperimentalUnitApi
@@ -31,14 +33,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.sliceup.mealprep.data.Ingredient
 import com.sliceup.mealprep.ui.navigation.BottomNavigationBar
-import com.sliceup.mealprep.ui.navigation.GroceriesAddition
 import com.sliceup.mealprep.ui.theme.MealPrepColor
 import com.sliceup.mealprep.ui.theme.fontFamilyForBodyB2
 import com.sliceup.mealprep.viewmodel.RecipeViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalUnitApi::class)
+@OptIn(ExperimentalUnitApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun GroceriesScreen(
     navController: () -> NavHostController, viewModel: () -> RecipeViewModel
@@ -52,27 +54,39 @@ fun GroceriesScreen(
             .groupBy { it.first.aisle }
             .flatMap { (_, groupedList) -> groupedList.sortedBy { it.first.short_name } }
 
+    var showSearch by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val listState = rememberLazyListState()
+
     val completedIngredients =
         viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
+
+    val returnedIngredientId by viewModel().returnedIngredientId.collectAsState()
+    var highlightedItemId by remember { mutableStateOf<Long?>(-1) }
+    var highlightedItemIndex by remember { mutableStateOf<Int?>(-1) }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
         TopBarForGroceriesScreen(viewModel)
     },
         bottomBar = { BottomNavigationBar(navController = navController) },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController().navigate(GroceriesAddition.route)
-                },
-                modifier = Modifier.padding(all = 16.dp),
-                backgroundColor = MealPrepColor.orange,
-                contentColor = Color.White,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = "Add",
-                    tint = MealPrepColor.white
-                )
+            if (!showSearch) {
+                FloatingActionButton(
+                    onClick = {
+                        showSearch = true
+                    },
+                    modifier = Modifier.padding(all = 16.dp),
+                    backgroundColor = MealPrepColor.orange,
+                    contentColor = Color.White,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add",
+                        tint = MealPrepColor.white
+                    )
+
+                }
             }
         },
         content = { padding ->
@@ -118,16 +132,28 @@ fun GroceriesScreen(
                         if (expandMainStore) {
                             if (listGroceries.isNotEmpty()) {
                                 listGroceries.forEach { item ->
+                                    val isHighlighted = item.first.id == highlightedItemId
                                     Column(
                                         modifier = Modifier.background(Color.White),
                                         verticalArrangement = Arrangement.Center,
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         setUpLines(
-                                            item.first, item.second, viewModel, false, completedIngredients
+                                            item.first,
+                                            item.second,
+                                            viewModel,
+                                            false,
+                                            completedIngredients,
+                                            isHighlighted
                                         )
                                     }
                                 }
+                            }
+                            if (showSearch) {
+                                KeyboardHandlingSearch(viewModel, focusRequester, onDone = {
+                                    showSearch = false
+                                    viewModel().addExtraGroceriesToTheDB()
+                                })
                             }
                         }
                         Row(
@@ -165,7 +191,12 @@ fun GroceriesScreen(
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
                                             setUpLines(
-                                                item, 0, viewModel, true, completedIngredients
+                                                item,
+                                                0,
+                                                viewModel,
+                                                true,
+                                                completedIngredients,
+                                                false
                                             )
                                         }
                                     }
@@ -176,6 +207,30 @@ fun GroceriesScreen(
                 }
             }
         })
+    LaunchedEffect(showSearch, listGroceries, returnedIngredientId, highlightedItemId, listState) {
+        coroutineScope.launch {
+            if (showSearch) {
+                focusRequester.requestFocus()
+            }
+            if (listGroceries.isNotEmpty()) {
+                returnedIngredientId?.let { id ->
+                    val index = listGroceries.indexOfFirst { it.first.id == returnedIngredientId }
+                    if (index != -1) {
+                        highlightedItemIndex = index
+                        highlightedItemId = id
+                    }
+                }
+            }
+        }
+    }
+
+    LaunchedEffect(highlightedItemId) {
+        highlightedItemId?.let {
+            delay(7000) // Highlight for 3 seconds
+            highlightedItemId = null // Reset the highlighted item ID
+            viewModel().resetReturnedIngredientId()
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -186,7 +241,8 @@ fun setUpLines(
     itemCount: Int,
     viewModel: () -> RecipeViewModel,
     isCompleted: Boolean,
-    completedIngredients: List<Ingredient>?
+    completedIngredients: List<Ingredient>?,
+    isHighlighted: Boolean
 ) {
     val tooltipState = remember { RichTooltipState() }
     val scope = rememberCoroutineScope()
@@ -197,7 +253,7 @@ fun setUpLines(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(Color.White)
+            .background(if (isHighlighted) MealPrepColor.orange else Color.White)
             .padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 30.dp)
     ) {
         Row(
@@ -215,7 +271,8 @@ fun setUpLines(
 
             Text(
                 modifier = Modifier
-                    .weight(9f).padding(end = 16.dp)
+                    .weight(9f)
+                    .padding(end = 16.dp)
                     .combinedClickable(onClick = {}, onLongClick = {
                         scope.launch {
                             viewModel().getTextForTooltipBox(item.recipe_id)
@@ -231,7 +288,8 @@ fun setUpLines(
             )
             Text(
                 modifier = Modifier
-                    .weight(2f).padding(start = 16.dp)
+                    .weight(2f)
+                    .padding(start = 16.dp)
                     .combinedClickable(onClick = {}, onLongClick = {
                         scope.launch {
                             viewModel().getTextForTooltipBox(item.recipe_id)
@@ -278,6 +336,66 @@ fun setUpLines(
                     Text(text = "")
                 }
             }, tooltipState = tooltipState, content = {})
+        }
+    }
+}
+
+@ExperimentalComposeUiApi
+@Composable
+fun KeyboardHandlingSearch(
+    viewModel: () -> RecipeViewModel,
+    focusRequester: FocusRequester,
+    onDone: () -> Unit
+) {
+    var input by remember { mutableStateOf("") }
+
+    val callback = {
+        viewModel().performQueryForExtraGroceries(input)
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .background(Color.White)
+            .padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 30.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextField(modifier = Modifier
+                .weight(9f)
+                .padding(end = 16.dp)
+                .focusRequester(focusRequester),
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = {
+                    callback()
+                    input = ""
+                    focusRequester.freeFocus()
+                    onDone()
+                }),
+                value = input,
+                onValueChange = {
+                    input = it
+                },
+                textStyle = TextStyle(color = MealPrepColor.black),
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = MealPrepColor.white,
+                    cursorColor = MealPrepColor.black,
+                    focusedIndicatorColor = MealPrepColor.black,
+                    unfocusedIndicatorColor = MealPrepColor.black,
+                    focusedLabelColor = MealPrepColor.grey_800,
+                    unfocusedLabelColor = MealPrepColor.grey_800
+                ),
+                placeholder = {
+                    Text(
+                        text = "Add extra ingredients to your list",
+                        fontFamily = fontFamilyForBodyB2,
+                        fontSize = 16.sp
+                    )
+                })
         }
     }
 }

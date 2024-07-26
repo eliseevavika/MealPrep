@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import androidx.lifecycle.*
-import com.sliceup.mealprep.data.RecipeRepository
+import com.sliceup.mealprep.data.SliceUpRepository
 import com.sliceup.mealprep.ui.mealplanning.MealPlanWithLinks
 import com.sliceup.mealprep.ui.mealplanning.RecipeWithLink
 import com.google.firebase.auth.FirebaseAuth
@@ -39,7 +39,7 @@ import java.util.*
 
 
 class RecipeViewModel(application: Application) : AndroidViewModel(application) {
-    private val recipeRepository: RecipeRepository
+    private val sliceUpRepository: SliceUpRepository
 
     var allRecipes: LiveData<List<Recipe>>
 
@@ -68,21 +68,21 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     init {
         val recipeDao = AppDatabase.getDatabase(application).getRecipeDao()
 
-        recipeRepository = RecipeRepository(recipeDao)
+        sliceUpRepository = SliceUpRepository(recipeDao)
 
-        allRecipes = recipeRepository.allRecipes
+        allRecipes = sliceUpRepository.allRecipes
 
-        recipesForSunday = recipeRepository.recipesForSunday
-        recipesForMonday = recipeRepository.recipesForMonday
-        recipesForTuesday = recipeRepository.recipesForTuesday
-        recipesForWednesday = recipeRepository.recipesForWednesday
-        recipesForThursday = recipeRepository.recipesForThursday
-        recipesForFriday = recipeRepository.recipesForFriday
-        recipesForSaturday = recipeRepository.recipesForSaturday
+        recipesForSunday = sliceUpRepository.recipesForSunday
+        recipesForMonday = sliceUpRepository.recipesForMonday
+        recipesForTuesday = sliceUpRepository.recipesForTuesday
+        recipesForWednesday = sliceUpRepository.recipesForWednesday
+        recipesForThursday = sliceUpRepository.recipesForThursday
+        recipesForFriday = sliceUpRepository.recipesForFriday
+        recipesForSaturday = sliceUpRepository.recipesForSaturday
 
-        ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
-        listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
-        completedIngredients = recipeRepository.completedIngredients
+        ingredientsFromMealPlans = sliceUpRepository.ingredientsFromMealPlans
+        listGroceriesForAnotherStore = sliceUpRepository.listGroceriesForAnotherStore
+        completedIngredients = sliceUpRepository.completedIngredients
     }
 
     private val _title = MutableStateFlow("")
@@ -143,35 +143,38 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     val expandMainStore = _expandMainStore.asStateFlow()
 
 
-    private var _listExtraGroceries = MutableLiveData<List<Ingredient>?>()
-    val listExtraGroceries: MutableLiveData<List<Ingredient>?>
-        get() = _listExtraGroceries
+    private var _extraGroceryItem = MutableLiveData<Ingredient>()
+    val extraGroceryItem: MutableLiveData<Ingredient>
+        get() = _extraGroceryItem
 
     private val _ingredientsInput = MutableStateFlow("")
     val ingredientsInput = _ingredientsInput.asStateFlow()
 
+    private val _returnedIngredientId = MutableStateFlow<Long?>(-1)
+    val returnedIngredientId = _returnedIngredientId.asStateFlow()
+
     fun refreshDataHomeForCurrentUser() {
-        recipeRepository.refreshDataForHome()
-        allRecipes = recipeRepository.allRecipes
+        sliceUpRepository.refreshDataForHome()
+        allRecipes = sliceUpRepository.allRecipes
     }
 
     fun refreshDataMealPrepForCurrentUser() {
-        recipeRepository.refreshDataForMealPrep()
-        recipesForSunday = recipeRepository.recipesForSunday
-        recipesForMonday = recipeRepository.recipesForMonday
-        recipesForTuesday = recipeRepository.recipesForTuesday
-        recipesForWednesday = recipeRepository.recipesForWednesday
-        recipesForThursday = recipeRepository.recipesForThursday
-        recipesForFriday = recipeRepository.recipesForFriday
-        recipesForSaturday = recipeRepository.recipesForSaturday
+        sliceUpRepository.refreshDataForMealPrep()
+        recipesForSunday = sliceUpRepository.recipesForSunday
+        recipesForMonday = sliceUpRepository.recipesForMonday
+        recipesForTuesday = sliceUpRepository.recipesForTuesday
+        recipesForWednesday = sliceUpRepository.recipesForWednesday
+        recipesForThursday = sliceUpRepository.recipesForThursday
+        recipesForFriday = sliceUpRepository.recipesForFriday
+        recipesForSaturday = sliceUpRepository.recipesForSaturday
     }
 
     fun refreshDataGroceriesForCurrentUser() {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.refreshDataForGroceries()
-            ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
-            listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
-            completedIngredients = recipeRepository.completedIngredients
+            sliceUpRepository.refreshDataForGroceries()
+            ingredientsFromMealPlans = sliceUpRepository.ingredientsFromMealPlans
+            listGroceriesForAnotherStore = sliceUpRepository.listGroceriesForAnotherStore
+            completedIngredients = sliceUpRepository.completedIngredients
         }
     }
 
@@ -222,7 +225,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun  importDataFromFile(
+    fun importDataFromFile(
         inputStream: InputStream?,
         showSuccessMessage: () -> Unit,
         showError: (String) -> Unit
@@ -265,18 +268,18 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         allSteps: List<Step>
     ) {
         viewModelScope.launch {
-            recipeRepository.clearDatabase()
+            sliceUpRepository.clearDatabase()
             if (allRecipes.isNotEmpty()) {
-                recipeRepository.insertAllRecipes(allRecipes)
+                sliceUpRepository.insertAllRecipes(allRecipes)
             }
             if (allIngredients.isNotEmpty()) {
-                recipeRepository.insertAllIngredients(allIngredients)
+                sliceUpRepository.insertAllIngredients(allIngredients)
             }
             if (allRecipesWithMealPlan.isNotEmpty()) {
-                recipeRepository.insertAllRecipeWithMealplanData(allRecipesWithMealPlan)
+                sliceUpRepository.insertAllRecipeWithMealplanData(allRecipesWithMealPlan)
             }
             if (allSteps.isNotEmpty()) {
-                recipeRepository.insertAllSteps(allSteps)
+                sliceUpRepository.insertAllSteps(allSteps)
             }
         }
     }
@@ -294,12 +297,12 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         return withContext(Dispatchers.IO) {
             val recipes: List<Recipe> = allRecipes.value.orEmpty()
 
-            val ingredients: List<Ingredient> = recipeRepository.getAllIngredients(getUserUid())
+            val ingredients: List<Ingredient> = sliceUpRepository.getAllIngredients(getUserUid())
 
             val recipesWithMealPlans: List<RecipeWithMealPlan> =
-                recipeRepository.getAllRecipesWithMealPlans()
+                sliceUpRepository.getAllRecipesWithMealPlans()
 
-            val steps: List<Step> = recipeRepository.getAllSteps()
+            val steps: List<Step> = sliceUpRepository.getAllSteps()
 
             val allDataLists = listOf(
                 recipes, ingredients, recipesWithMealPlans, steps
@@ -350,31 +353,18 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                 short_name = ingredientShortName,
                 user_uid = currentUserUID
             )
-            _listExtraGroceries.value =
-                _listExtraGroceries.value?.plus(ingredient) ?: listOf(ingredient)
+            _extraGroceryItem.value = ingredient
         }
-    }
-
-    fun setNameForExtraGrocery(
-        item: Ingredient, input: String
-    ) {
-        _listExtraGroceries.value?.forEach { grocery ->
-            if (grocery.id == item.id) {
-                grocery.name = input
-            }
-        }
-    }
-
-    fun removeElementFromListExtraFroceries(
-        item: Ingredient
-    ) {
-        _listExtraGroceries.value = _listExtraGroceries.value?.filter { it != item }
     }
 
     fun addExtraGroceriesToTheDB() {
         viewModelScope.launch(Dispatchers.IO) {
-            _listExtraGroceries.value?.forEach { ingredient ->
-                recipeRepository.insertExtraIngredientToDB(ingredient)
+            val extraIngredient = _extraGroceryItem.value
+            if (extraIngredient != null) {
+                val ingredientId = sliceUpRepository.insertExtraIngredientToDB(extraIngredient)
+                _returnedIngredientId.value = ingredientId
+            } else {
+                _returnedIngredientId.value = -1
             }
             emptyLiveDataForExtraGroceries()
         }
@@ -485,7 +475,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     .addOnSuccessListener { taskSnapshot ->
                         taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
                             viewModelScope.launch(Dispatchers.IO) {
-                                recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+                                sliceUpRepository.updateRecipeImageFromFirebase(recipeId, uri)
                             }
                         }
                     }.addOnFailureListener { exception ->
@@ -494,14 +484,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             }
         }, updateAisleForAllGroceries = { recipeId ->
             viewModelScope.launch(Dispatchers.IO) {
-                val listOfIngredients = recipeRepository.getListOfIngredients(recipeId)
+                val listOfIngredients = sliceUpRepository.getListOfIngredients(recipeId)
                 listOfIngredients.forEach { ingredient ->
                     val name = ingredient.name
 
                     val ingredientAisleInfo = findAisleForGrocery(name)
                     val aisleNumber = ingredientAisleInfo.aisle.value
                     val ingredientShortName = ingredientAisleInfo.shortName
-                    recipeRepository.updateAisleForAllGroceries(
+                    sliceUpRepository.updateAisleForAllGroceries(
                         ingredient.id, aisleNumber, ingredientShortName
                     )
                 }
@@ -534,7 +524,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     .addOnSuccessListener { taskSnapshot ->
                         taskSnapshot.task.result.storage.downloadUrl.addOnSuccessListener { uri ->
                             viewModelScope.launch(Dispatchers.IO) {
-                                recipeRepository.updateRecipeImageFromFirebase(recipeId, uri)
+                                sliceUpRepository.updateRecipeImageFromFirebase(recipeId, uri)
                             }
                         }
                     }.addOnFailureListener { exception ->
@@ -543,14 +533,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             }
         }, updateAisleForAllGroceries = { recipeId ->
             viewModelScope.launch(Dispatchers.IO) {
-                val listOfIngredients = recipeRepository.getListOfIngredients(recipeId)
+                val listOfIngredients = sliceUpRepository.getListOfIngredients(recipeId)
                 listOfIngredients.forEach { ingredient ->
                     val name = ingredient.name
 
                     val ingredientAisleInfo = findAisleForGrocery(name)
                     val aisleNumber = ingredientAisleInfo.aisle.value
                     val ingredientShortName = ingredientAisleInfo.shortName
-                    recipeRepository.updateAisleForAllGroceries(
+                    sliceUpRepository.updateAisleForAllGroceries(
                         ingredient.id, aisleNumber, ingredientShortName
                     )
                 }
@@ -565,7 +555,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         updateAisleForAllGroceries: (Long) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.updateRecipeWithNewData(
+            sliceUpRepository.updateRecipeWithNewData(
                 recipeId,
                 recipeWithUpdatedFields,
                 _listIngredients.value,
@@ -614,7 +604,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         updateAisleForAllGroceries: (Long) -> Unit
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val recipeId = recipeRepository.insertRecipeIngredientAndStepTransaction(
+            val recipeId = sliceUpRepository.insertRecipeIngredientAndStepTransaction(
                 recipe, _listIngredients.value, _listSteps.value, getUserUid()
             )
             updateImageFromFirebase(recipeId)
@@ -624,8 +614,8 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun addMealPlan(dayId: Int) = viewModelScope.launch(Dispatchers.IO) {
-        recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
-        recipeRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
+        sliceUpRepository.deleteRecipeAndMealPlanTransaction(dayId)
+        sliceUpRepository.insertRecipeAndMealPlanTransaction(dayId, _listChosenMeals.value)
     }
 
     fun setImageUri(uri: Uri?) {
@@ -644,13 +634,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     private fun makeIngredientActing(ingredient: Ingredient) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.makeIngredientActing(ingredient)
+            sliceUpRepository.makeIngredientActing(ingredient)
         }
     }
 
     fun makeIngredientComplete(ingredient: Ingredient) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.makeIngredientComplete(ingredient)
+            sliceUpRepository.makeIngredientComplete(ingredient)
         }
     }
 
@@ -671,7 +661,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun emptyLiveDataForExtraGroceries() {
-        _listExtraGroceries.postValue(emptyList())
+        _extraGroceryItem.postValue(null)
     }
 
     fun setTabIndex(index: Int) {
@@ -835,15 +825,16 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getRecipe(id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            val recipe = recipeRepository.getRecipeById(id)
+            val recipe = sliceUpRepository.getRecipeById(id)
             returnedRecipe.postValue(recipe)
         }
     }
 
+
     fun getTextForTooltipBox(recipeId: Long?) {
         if (recipeId != null) {
             viewModelScope.launch(Dispatchers.IO) {
-                val recipe = recipeRepository.getRecipeById(recipeId)
+                val recipe = sliceUpRepository.getRecipeById(recipeId)
                 recipeNameForTooltip.postValue(recipe.name)
             }
         } else {
@@ -854,13 +845,13 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun getListOfIngredients(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            returnedListIngredient.postValue(recipeRepository.getListOfIngredients(recipeId))
+            returnedListIngredient.postValue(sliceUpRepository.getListOfIngredients(recipeId))
         }
     }
 
     fun getListOfSteps(recipeId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            returnedListSteps.postValue(recipeRepository.getListOfSteps(recipeId))
+            returnedListSteps.postValue(sliceUpRepository.getListOfSteps(recipeId))
         }
     }
 
@@ -903,8 +894,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun deleteAllRecipesForDay(dayId: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.makeAllIgredientsActive(dayId)
-            recipeRepository.deleteRecipeAndMealPlanTransaction(dayId)
+            sliceUpRepository.makeAllIgredientsActive(dayId)
+            sliceUpRepository.deleteRecipeAndMealPlanTransaction(dayId)
+        }
+    }
+
+    fun deleteAllExtraAddedIngredients() {
+        viewModelScope.launch(Dispatchers.IO) {
+            sliceUpRepository.deleteAllExtraAddedIngredientsTransaction()
         }
     }
 
@@ -934,7 +931,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun updateAisleNumber(ingredient: Ingredient, aisleNumber: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.updateAisleNumber(ingredient.id, aisleNumber)
+            sliceUpRepository.updateAisleNumber(ingredient.id, aisleNumber)
         }
     }
 
@@ -944,11 +941,11 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
 
     fun markAllComplete() {
         viewModelScope.launch(Dispatchers.IO) {
-            ingredientsFromMealPlans = recipeRepository.ingredientsFromMealPlans
+            ingredientsFromMealPlans = sliceUpRepository.ingredientsFromMealPlans
             ingredientsFromMealPlans.value?.forEach { ingredient ->
                 makeIngredientComplete(ingredient.first)
             }
-            listGroceriesForAnotherStore = recipeRepository.listGroceriesForAnotherStore
+            listGroceriesForAnotherStore = sliceUpRepository.listGroceriesForAnotherStore
 
             listGroceriesForAnotherStore.value?.forEach { ingredient ->
                 makeIngredientComplete(ingredient)
@@ -1032,6 +1029,7 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
             deleteAllRecipesForDay(4)
             deleteAllRecipesForDay(5)
             deleteAllRecipesForDay(6)
+            deleteAllExtraAddedIngredients()
         }
     }
 
@@ -1078,14 +1076,14 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            _listIngredients.postValue(recipeRepository.getListOfIngredients(recipe.recipe_id))
-            _listSteps.postValue(recipeRepository.getListOfSteps(recipe.recipe_id))
+            _listIngredients.postValue(sliceUpRepository.getListOfIngredients(recipe.recipe_id))
+            _listSteps.postValue(sliceUpRepository.getListOfSteps(recipe.recipe_id))
         }
     }
 
     fun deleteTheRecipe(recipe: Recipe) {
         viewModelScope.launch(Dispatchers.IO) {
-            recipeRepository.deleteTheRecipe(
+            sliceUpRepository.deleteTheRecipe(
                 recipe,
                 getUserUid()
             )
@@ -1137,5 +1135,9 @@ class RecipeViewModel(application: Application) : AndroidViewModel(application) 
                     onError(task.exception?.message)
                 }
             }
+    }
+
+    fun resetReturnedIngredientId() {
+        _returnedIngredientId.value = -1
     }
 }

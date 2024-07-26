@@ -22,7 +22,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.sliceup.mealprep.ui.home.BottomSheetContent
-import com.sliceup.mealprep.ui.groceries.GroceriesAdditionScreen
 import com.sliceup.mealprep.ui.home.HomeScreen
 import com.sliceup.mealprep.ui.groceries.GroceriesScreen
 import com.sliceup.mealprep.ui.creation.RecipeCreationScreen
@@ -158,10 +157,6 @@ class MainActivity : ComponentActivity() {
                                     MealPrepForSpecificDay(
                                         dayId,
                                         { navController }) { viewModel }
-                                }
-
-                                composable(GroceriesAddition.route) {
-                                    GroceriesAdditionScreen({ navController }) { viewModel }
                                 }
 
                                 composable(RecipeCreation.route) {
