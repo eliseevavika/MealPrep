@@ -268,7 +268,9 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>, navController: () -> NavHo
                     }) {
                     Row {
                         Column(
-                            modifier = Modifier.size(74.dp, 108.dp),
+                            modifier = Modifier
+                                .width(74.dp)
+                                .wrapContentSize(),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.Start
                         ) {
@@ -292,7 +294,7 @@ fun MealPlanRecipesByDay(recipes: () -> List<Recipe>, navController: () -> NavHo
                             }
                             Text(
                                 text = recipeName,
-                                maxLines = 2,
+                                maxLines = 4,
                                 fontFamily = fontFamilyForBodyB1,
                                 fontSize = 10.sp,
                             )

@@ -20,6 +20,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,12 +76,15 @@ fun setUpRowForStep(
                 painter = painterResource(id = R.drawable.baseline_brightness_1_24),
                 tint = MealPrepColor.orange,
                 contentDescription = "Icon Check",
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier
+                    .size(16.dp)
+                    .alignBy { 0 }
             )
             Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
                 text = step.description, fontFamily = fontFamilyForBodyB2,
-                fontSize = 16.sp
+                fontSize = 16.sp,
+                modifier = Modifier.alignBy(FirstBaseline)
             )
         }
     }

@@ -150,11 +150,14 @@ fun MenuDish(
                     } else {
                         ShowDefaultImage(alpha)
                     }
-                    if(!isMealPlanningOn){
+                    if (!isMealPlanningOn) {
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                                .background(Color.White.copy(alpha = 0.6f), RoundedCornerShape(32.dp))
+                                .background(
+                                    Color.White.copy(alpha = 0.6f),
+                                    RoundedCornerShape(32.dp)
+                                )
                         ) {
                             RecipeHomeSettingOptions(
                                 recipe,
@@ -168,15 +171,13 @@ fun MenuDish(
                 }
                 Text(
                     text = recipeName,
-                    maxLines = 2,
+                    maxLines = 4,
                     fontSize = 20.sp,
                     fontFamily = fontFamilyForBodyB1,
-                    modifier = Modifier.padding(start = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp, end = 8.dp)
                 )
                 CooktimeIconAndTitle(cookTimeString)
             }
-
-
         }
     }
 }
