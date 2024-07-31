@@ -70,7 +70,7 @@ fun GroceriesScreen(
 
     val returnedIngredientId by viewModel().returnedIngredientId.collectAsState()
     var highlightedItemId by remember { mutableStateOf<Long?>(-1) }
-    var highlightedItemIndex by remember { mutableStateOf<Int?>(0) }
+    var highlightedItemIndex by remember { mutableStateOf<Int?>(null) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
@@ -82,6 +82,7 @@ fun GroceriesScreen(
                 FloatingActionButton(
                     onClick = {
                         showSearch = true
+                        expandCompleted = false
                     },
                     modifier = Modifier.padding(all = 16.dp),
                     backgroundColor = MealPrepColor.orange,
@@ -150,6 +151,7 @@ fun GroceriesScreen(
                     }
 
                     if (showSearch) {
+                        expandCompleted = false
                         item {
                             LaunchedEffect(Unit) {
                                 listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
@@ -182,6 +184,7 @@ fun GroceriesScreen(
                         IconButton(modifier = Modifier.rotate(if (expandCompleted) 180F else 0F),
                             onClick = {
                                 expandCompleted = !expandCompleted
+                                showSearch = false
                             }) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -192,6 +195,8 @@ fun GroceriesScreen(
                     }
                 }
                 if (expandCompleted) {
+                    showSearch = false
+
                     items(completedIngredients) { item ->
                         key(item.id) {
                             Column(
@@ -216,6 +221,7 @@ fun GroceriesScreen(
     LaunchedEffect(showSearch, listGroceries, returnedIngredientId, highlightedItemId, listState) {
         coroutineScope.launch {
             if (showSearch) {
+                expandCompleted = false
                 listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
                 focusRequester.requestFocus()
             }
