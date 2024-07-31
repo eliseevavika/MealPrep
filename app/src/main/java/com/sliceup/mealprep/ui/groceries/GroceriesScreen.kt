@@ -1,8 +1,16 @@
 package com.sliceup.mealprep.ui.groceries
 
-import androidx.compose.foundation.*
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -45,9 +53,9 @@ import kotlinx.coroutines.launch
 fun GroceriesScreen(
     navController: () -> NavHostController, viewModel: () -> RecipeViewModel
 ) {
-    val scrollState = rememberScrollState()
     val expandMainStore = viewModel().expandMainStore.collectAsState().value
     var expandCompleted by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
 
     val listGroceries =
         viewModel().ingredientsFromMealPlans.observeAsState(listOf()).value.sortedBy { it.first.aisle }
@@ -56,14 +64,13 @@ fun GroceriesScreen(
 
     var showSearch by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
-    val listState = rememberLazyListState()
 
     val completedIngredients =
         viewModel().completedIngredients.observeAsState(listOf()).value.sortedByDescending { it.completion_date }
 
     val returnedIngredientId by viewModel().returnedIngredientId.collectAsState()
     var highlightedItemId by remember { mutableStateOf<Long?>(-1) }
-    var highlightedItemIndex by remember { mutableStateOf<Int?>(-1) }
+    var highlightedItemIndex by remember { mutableStateOf<Int?>(0) }
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
@@ -85,151 +92,155 @@ fun GroceriesScreen(
                         contentDescription = "Add",
                         tint = MealPrepColor.white
                     )
-
                 }
             }
         },
         content = { padding ->
-            Column(
+            LazyColumn(
+                state = listState,
                 modifier = Modifier.padding(
                     top = 16.dp, start = 16.dp, end = 16.dp, bottom = 60.dp
                 ), verticalArrangement = Arrangement.Top
             ) {
-                Column(
-                    Modifier.wrapContentHeight()
-                ) {
-                    Column(
-                        Modifier
-                            .weight(1f)
-                            .verticalScroll(scrollState)
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = 20.dp, start = 8.dp, bottom = 8.dp
+                            ), verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = 20.dp, start = 8.dp, bottom = 8.dp
-                                ), verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Shopping list",
-                                color = MealPrepColor.orange,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Normal,
-                                modifier = Modifier.padding(start = 8.dp)
+                        Text(
+                            text = "Shopping list",
+                            color = MealPrepColor.orange,
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Start,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                        IconButton(modifier = Modifier.rotate(if (expandMainStore) 180F else 0F),
+                            onClick = {
+                                viewModel().setExpandMainStore(!expandMainStore)
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                tint = MealPrepColor.orange,
+                                contentDescription = "Drop Down Arrow"
                             )
-                            IconButton(modifier = Modifier.rotate(if (expandMainStore) 180F else 0F),
-                                onClick = {
-                                    viewModel().setExpandMainStore(!expandMainStore)
-                                }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    tint = MealPrepColor.orange,
-                                    contentDescription = "Drop Down Arrow"
-                                )
-                            }
                         }
-                        if (expandMainStore) {
-                            if (listGroceries.isNotEmpty()) {
-                                listGroceries.forEach { item ->
-                                    val isHighlighted = item.first.id == highlightedItemId
-                                    Column(
-                                        modifier = Modifier.background(Color.White),
-                                        verticalArrangement = Arrangement.Center,
-                                        horizontalAlignment = Alignment.CenterHorizontally
-                                    ) {
-                                        setUpLines(
-                                            item.first,
-                                            item.second,
-                                            viewModel,
-                                            false,
-                                            completedIngredients,
-                                            isHighlighted
-                                        )
-                                    }
-                                }
-                            }
-                            if (showSearch) {
-                                KeyboardHandlingSearch(viewModel, focusRequester, onDone = {
-                                    showSearch = false
-                                    viewModel().addExtraGroceriesToTheDB()
-                                })
-                            }
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(
-                                    top = 20.dp, start = 8.dp, bottom = 8.dp
-                                ), verticalAlignment = Alignment.CenterVertically
+                    }
+                }
+                if (expandMainStore) {
+                    items(listGroceries) { item ->
+                        val isHighlighted = item.first.id == highlightedItemId
+                        Column(
+                            modifier = Modifier.background(Color.White),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "Completed",
-                                color = MealPrepColor.orange,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Start,
-                                fontWeight = FontWeight.Normal,
-                                modifier = Modifier.padding(start = 8.dp)
+                            setUpLines(
+                                item.first,
+                                item.second,
+                                viewModel,
+                                false,
+                                completedIngredients,
+                                isHighlighted
                             )
-                            IconButton(modifier = Modifier.rotate(if (expandCompleted) 180F else 0F),
-                                onClick = {
-                                    expandCompleted = !expandCompleted
-                                }) {
-                                Icon(
-                                    imageVector = Icons.Default.KeyboardArrowDown,
-                                    tint = MealPrepColor.orange,
-                                    contentDescription = "Drop Down Arrow"
-                                )
-                            }
                         }
-                        if (expandCompleted) {
-                            if (completedIngredients.isNotEmpty()) {
-                                completedIngredients.forEach { item ->
-                                    key(item.id) {
-                                        Column(
-                                            verticalArrangement = Arrangement.Center,
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            setUpLines(
-                                                item,
-                                                0,
-                                                viewModel,
-                                                true,
-                                                completedIngredients,
-                                                false
-                                            )
-                                        }
-                                    }
-                                }
+                    }
+
+                    if (showSearch) {
+                        item {
+                            LaunchedEffect(Unit) {
+                                listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                                focusRequester.requestFocus()
+                            }
+                            KeyboardHandlingSearch(viewModel, focusRequester, onDone = {
+                                showSearch = false
+                                viewModel().addExtraGroceriesToTheDB()
+                            })
+                        }
+                    }
+                }
+
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                top = 20.dp, start = 8.dp, bottom = 8.dp
+                            ), verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Completed",
+                            color = MealPrepColor.orange,
+                            fontSize = 20.sp,
+                            textAlign = TextAlign.Start,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                        IconButton(modifier = Modifier.rotate(if (expandCompleted) 180F else 0F),
+                            onClick = {
+                                expandCompleted = !expandCompleted
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                tint = MealPrepColor.orange,
+                                contentDescription = "Drop Down Arrow"
+                            )
+                        }
+                    }
+                }
+                if (expandCompleted) {
+                    items(completedIngredients) { item ->
+                        key(item.id) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                setUpLines(
+                                    item,
+                                    0,
+                                    viewModel,
+                                    true,
+                                    completedIngredients,
+                                    false
+                                )
                             }
                         }
                     }
                 }
             }
         })
+
     LaunchedEffect(showSearch, listGroceries, returnedIngredientId, highlightedItemId, listState) {
         coroutineScope.launch {
             if (showSearch) {
+                listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
                 focusRequester.requestFocus()
             }
+
             if (listGroceries.isNotEmpty()) {
                 returnedIngredientId?.let { id ->
-                    val index = listGroceries.indexOfFirst { it.first.id == returnedIngredientId }
+                    val index =
+                        listGroceries.indexOfFirst { it.first.id == returnedIngredientId }
                     if (index != -1) {
                         highlightedItemIndex = index
                         highlightedItemId = id
+
                     }
                 }
             }
         }
     }
 
-    LaunchedEffect(highlightedItemId) {
-        highlightedItemId?.let {
-            delay(7000) // Highlight for 3 seconds
-            highlightedItemId = null // Reset the highlighted item ID
-            viewModel().resetReturnedIngredientId()
+    LaunchedEffect(showSearch, highlightedItemId, highlightedItemIndex, listState) {
+        highlightedItemIndex?.let { index ->
+            listState.animateScrollToItem(index)
         }
+        delay(3000)
+        highlightedItemId = null
+        viewModel().resetReturnedIngredientId()
     }
 }
 
@@ -253,16 +264,24 @@ fun setUpLines(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .background(if (isHighlighted) MealPrepColor.orange else Color.White)
+            .border(
+                border = BorderStroke(
+                    2.dp,
+                    if (isHighlighted) MealPrepColor.orange else Color.Transparent
+                ),
+                shape = RoundedCornerShape(4.dp)
+            )
             .padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 30.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             RadioButton(selected = completedIngredients?.contains(item) ?: false,
                 modifier = Modifier.size(16.dp),
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = MealPrepColor.orange, unselectedColor = MealPrepColor.black
+                    selectedColor = MealPrepColor.orange,
+                    unselectedColor = MealPrepColor.black
                 ),
                 onClick = {
                     viewModel().performQueryForGroceries(item)
@@ -323,7 +342,10 @@ fun setUpLines(
                         Text(text = "")
                     }
                     Row() {
-                        Icon(imageVector = Icons.Rounded.Restaurant, contentDescription = "")
+                        Icon(
+                            imageVector = Icons.Rounded.Restaurant,
+                            contentDescription = ""
+                        )
                         Spacer(modifier = Modifier.width(width = 8.dp))
                         Text(
                             recipeNameForTooltip,
@@ -361,7 +383,8 @@ fun KeyboardHandlingSearch(
             .padding(start = 10.dp, top = 10.dp, end = 8.dp, bottom = 30.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(modifier = Modifier
                 .weight(9f)
@@ -373,7 +396,6 @@ fun KeyboardHandlingSearch(
                 keyboardActions = KeyboardActions(onDone = {
                     callback()
                     input = ""
-                    focusRequester.freeFocus()
                     onDone()
                 }),
                 value = input,
