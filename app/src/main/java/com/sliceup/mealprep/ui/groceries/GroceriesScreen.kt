@@ -122,6 +122,9 @@ fun GroceriesScreen(
                         IconButton(modifier = Modifier.rotate(if (expandMainStore) 180F else 0F),
                             onClick = {
                                 viewModel().setExpandMainStore(!expandMainStore)
+                                if(!expandMainStore){
+                                    showSearch = false
+                                }
                             }) {
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowDown,
@@ -149,19 +152,19 @@ fun GroceriesScreen(
                             )
                         }
                     }
-
-                    if (showSearch) {
-                        expandCompleted = false
-                        item {
-                            LaunchedEffect(Unit) {
-                                listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
-                                focusRequester.requestFocus()
-                            }
-                            KeyboardHandlingSearch(viewModel, focusRequester, onDone = {
-                                showSearch = false
-                                viewModel().addExtraGroceriesToTheDB()
-                            })
+                }
+                if (showSearch) {
+                    expandCompleted = false
+                    item {
+                        LaunchedEffect(Unit) {
+                            listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)
+                            focusRequester.requestFocus()
                         }
+                        KeyboardHandlingSearch(viewModel, focusRequester, onDone = {
+                            showSearch = false
+                            viewModel().setExpandMainStore(true)
+                            viewModel().addExtraGroceriesToTheDB()
+                        })
                     }
                 }
 
@@ -244,7 +247,7 @@ fun GroceriesScreen(
         highlightedItemIndex?.let { index ->
             listState.animateScrollToItem(index)
         }
-        delay(3000)
+        delay(1000)
         highlightedItemId = null
         viewModel().resetReturnedIngredientId()
     }
