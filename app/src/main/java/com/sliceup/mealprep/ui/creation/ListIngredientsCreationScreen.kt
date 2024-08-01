@@ -18,6 +18,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -169,6 +170,7 @@ fun setUpRow(
     item: Ingredient
 ) {
     var input by remember { mutableStateOf(" ") }
+    var isFocused by remember { mutableStateOf(false) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -210,6 +212,13 @@ fun setUpRow(
                     input = it
 
                 },
+                modifier = Modifier
+                    .onFocusChanged { focusState ->
+                        if (isFocused && !focusState.isFocused) {
+                            callback()
+                        }
+                        isFocused = focusState.isFocused
+                    },
                 textStyle = TextStyle(color = MealPrepColor.black),
                 colors = TextFieldDefaults.textFieldColors(
                     backgroundColor = MealPrepColor.white,
