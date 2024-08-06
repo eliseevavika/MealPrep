@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Icon
@@ -61,10 +62,9 @@ fun setUpRowForStep(
     step: Step
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
+            .wrapContentSize()
             .padding(start = 10.dp, top = 10.dp, end = 16.dp, bottom = 16.dp),
     ) {
         Row(
@@ -84,7 +84,7 @@ fun setUpRowForStep(
             Text(
                 text = step.description, fontFamily = fontFamilyForBodyB2,
                 fontSize = 16.sp,
-                modifier = Modifier.alignBy(FirstBaseline)
+                modifier = Modifier.alignBy { 10 }
             )
         }
     }
