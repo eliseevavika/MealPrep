@@ -19,6 +19,7 @@
     </li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#screenshots">Screenshots</a></li>
+    <li><a href="#video">Video</a></li>
     <li><a href="#room-database">Room Database</a></li>
     <li><a href="#optimization">Optimization</a></li>
     <li><a href="#mvvm">MVVM pattern</a></li>
@@ -49,7 +50,7 @@ The main idea is to simplify the whole process of planning your meals - from cre
 - [x] Implemented User authentication system (Firebase Authentication): login password authorization, password reset, sign-in with Google account, and sign-up functionality [See details below](#authentication)
 - [x] Implemented data export and import, which allow users to seamlessly transfer their data between devices [See details below](#export-import)
 - [x] Implemented functionality to save images to Firebase Storage [See details below](#images)
-- [ ] Manual and Automated Testing 
+- [x] Manual Testing 
 
 
 ## Screenshots
@@ -57,6 +58,10 @@ The main idea is to simplify the whole process of planning your meals - from cre
 <img src="app/screenshots/1.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/2.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/3.png" alt= “” width="300" height="600">
 
 <img src="app/screenshots/4.png" alt= “” width="300" height="600">  |  <img src="app/screenshots/5.png" alt= “” width="300" height="600">  
+
+## Video
+
+[Watch the video](https://youtu.be/FpXAbsyX2Bs)
 
 
 ## Room Database
